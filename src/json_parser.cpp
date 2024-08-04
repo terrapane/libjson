@@ -23,6 +23,9 @@
 namespace Terra::JSON
 {
 
+namespace
+{
+
 /*
  *  ConvertHexCharToInt()
  *
@@ -80,7 +83,7 @@ constexpr std::uint8_t ConvertHexCharToInt(char hex_digit)
  *  Comments:
  *      None.
  */
-static std::uint32_t ConvertHexStringToInt(const std::string &hex_string)
+std::uint32_t ConvertHexStringToInt(const std::string &hex_string)
 {
     // The hex string must be exactly four octets, else throw an exception
     if (hex_string.length() != 4)
@@ -122,15 +125,17 @@ static std::uint32_t ConvertHexStringToInt(const std::string &hex_string)
  *  Comments:
  *      None.
  */
-static std::string ParsingErrorString(std::size_t line,
-                                      std::size_t column,
-                                      std::string text)
+std::string ParsingErrorString(std::size_t line,
+                               std::size_t column,
+                               std::string text)
 {
     return std::format("JSON parsing error at line {}, column {}: {}",
                        line,
                        column,
                        text);
 }
+
+} // namespace
 
 /*
  *  JSONParser::Parse()
@@ -278,7 +283,7 @@ void JSONParser::ConsumeWhitespace()
  */
 JSONValueType JSONParser::DetermineValueType() const
 {
-    JSONValueType value_type;
+    JSONValueType value_type{};
 
     // Do not read beyond the buffer
     if (EndOfInput())
@@ -316,7 +321,7 @@ JSONValueType JSONParser::DetermineValueType() const
             break;
 
         default:
-            if (std::isdigit(*p))
+            if (std::isdigit(*p) != 0)
             {
                 value_type = JSONValueType::Number;
             }
@@ -543,7 +548,7 @@ JSONString JSONParser::ParseString()
  */
 void JSONParser::ParseUnicode(JSONString &json_string)
 {
-    std::uint32_t code_value;
+    std::uint32_t code_value{};
     std::size_t initial_column = column;
 
     // Ensure there are at least 4 octets to consume
@@ -557,10 +562,10 @@ void JSONParser::ParseUnicode(JSONString &json_string)
 
     // Extract the hex digit string
     std::string hex_digits(4, ' ');
-    hex_digits[0] = p[0];
-    hex_digits[1] = p[1];
-    hex_digits[2] = p[2];
-    hex_digits[3] = p[3];
+    hex_digits[0] = static_cast<char>(p[0]);
+    hex_digits[1] = static_cast<char>(p[1]);
+    hex_digits[2] = static_cast<char>(p[2]);
+    hex_digits[3] = static_cast<char>(p[3]);
     AdvanceReadPosition(4);
 
     // Get the value of the hex string
@@ -577,7 +582,7 @@ void JSONParser::ParseUnicode(JSONString &json_string)
     if ((code_value >= Unicode::Surrogate_High_Min) &&
         (code_value <= Unicode::Surrogate_Low_Max))
     {
-        std::uint32_t low_code_value;
+        std::uint32_t low_code_value{};
 
         // Ensure the code value is not in the low surrogate range
         if ((code_value >= Unicode::Surrogate_Low_Min) &&
@@ -615,10 +620,10 @@ void JSONParser::ParseUnicode(JSONString &json_string)
 
         // Extract the hex digit string
         std::string hex_digits(4, ' ');
-        hex_digits[0] = p[0];
-        hex_digits[1] = p[1];
-        hex_digits[2] = p[2];
-        hex_digits[3] = p[3];
+        hex_digits[0] = static_cast<char>(p[0]);
+        hex_digits[1] = static_cast<char>(p[1]);
+        hex_digits[2] = static_cast<char>(p[2]);
+        hex_digits[3] = static_cast<char>(p[3]);
         AdvanceReadPosition(4);
 
         // Get the value of the hex string
@@ -633,8 +638,8 @@ void JSONParser::ParseUnicode(JSONString &json_string)
         }
 
         // Ensure the low surrogate value is within the expected range
-        if (!((low_code_value >= Unicode::Surrogate_Low_Min) &&
-              (low_code_value <= Unicode::Surrogate_Low_Max)))
+        if ((low_code_value < Unicode::Surrogate_Low_Min) ||
+            (low_code_value > Unicode::Surrogate_Low_Max))
         {
             throw JSONException(ParsingErrorString(line,
                                                    column - 6,
@@ -711,7 +716,8 @@ void JSONParser::ParseUnicode(JSONString &json_string)
  */
 JSONNumber JSONParser::ParseNumber()
 {
-    enum class NumberState {
+    enum class NumberState : std::uint8_t
+    {
         Sign,
         Integer,
         Float,
@@ -743,13 +749,13 @@ JSONNumber JSONParser::ParseNumber()
                 // Do we have a sign octet?
                 if (*p == '-')
                 {
-                    number.push_back(*p);
+                    number.push_back(static_cast<char>(*p));
                     AdvanceReadPosition();
                     state = NumberState::Integer;
                     break;
                 }
 
-                if (std::isdigit(*p))
+                if (std::isdigit(*p) != 0)
                 {
                     state = NumberState::Integer;
                     break;
@@ -761,9 +767,9 @@ JSONNumber JSONParser::ParseNumber()
                 break;
 
             case NumberState::Integer:
-                if (std::isdigit(*p))
+                if (std::isdigit(*p) != 0)
                 {
-                    number.push_back(*p);
+                    number.push_back(static_cast<char>(*p));
                     AdvanceReadPosition();
                     valid_number = true;
                     break;
@@ -778,7 +784,7 @@ JSONNumber JSONParser::ParseNumber()
                                                                "Invalid "
                                                                "number"));
                     }
-                    number.push_back(*p);
+                    number.push_back(static_cast<char>(*p));
                     AdvanceReadPosition();
                     valid_number = false;
                     is_float = true;
@@ -795,7 +801,7 @@ JSONNumber JSONParser::ParseNumber()
                                                                "Invalid "
                                                                "number"));
                     }
-                    number.push_back(*p);
+                    number.push_back(static_cast<char>(*p));
                     AdvanceReadPosition();
                     is_float = true;
                     state = NumberState::ExponentSign;
@@ -809,9 +815,9 @@ JSONNumber JSONParser::ParseNumber()
                 break;
 
             case NumberState::Float:
-                if (std::isdigit(*p))
+                if (std::isdigit(*p) != 0)
                 {
-                    number.push_back(*p);
+                    number.push_back(static_cast<char>(*p));
                     AdvanceReadPosition();
                     valid_number = true;
                     break;
@@ -826,7 +832,7 @@ JSONNumber JSONParser::ParseNumber()
                                                                "Invalid "
                                                                "number"));
                     }
-                    number.push_back(*p);
+                    number.push_back(static_cast<char>(*p));
                     AdvanceReadPosition();
                     state = NumberState::ExponentSign;
                     valid_number = false;
@@ -842,13 +848,13 @@ JSONNumber JSONParser::ParseNumber()
                 // Do we have a sign octet?
                 if ((*p == '-') || (*p == '+'))
                 {
-                    number.push_back(*p);
+                    number.push_back(static_cast<char>(*p));
                     AdvanceReadPosition();
                     state = NumberState::Exponent;
                     break;
                 }
 
-                if (std::isdigit(*p))
+                if (std::isdigit(*p) != 0)
                 {
                     state = NumberState::Exponent;
                     break;
@@ -860,9 +866,9 @@ JSONNumber JSONParser::ParseNumber()
                 break;
 
             case NumberState::Exponent:
-                if (std::isdigit(*p))
+                if (std::isdigit(*p) != 0)
                 {
-                    number.push_back(*p);
+                    number.push_back(static_cast<char>(*p));
                     AdvanceReadPosition();
                     valid_number = true;
                     break;
@@ -970,7 +976,7 @@ JSONObject JSONParser::ParseObject()
         }
 
         // If the first member was seen, we should be at a comma
-        if (first_member_seen == true)
+        if (first_member_seen)
         {
             // Ensure we see the next member is separated by a comma
             if (*p != ',')
@@ -1116,7 +1122,7 @@ JSONArray JSONParser::ParseArray()
         }
 
         // If the first member was seen, we should be at a comma
-        if (first_member_seen == true)
+        if (first_member_seen)
         {
             // Ensure we see the next member is separated by a comma
             if (*p != ',')

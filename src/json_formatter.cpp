@@ -39,6 +39,9 @@
 namespace Terra::JSON
 {
 
+namespace
+{
+
 /*
  *  ParsingErrorString()
  *
@@ -61,15 +64,17 @@ namespace Terra::JSON
  *  Comments:
  *      None.
  */
-static std::string ParsingErrorString(std::size_t line,
-                                      std::size_t column,
-                                      std::string text)
+std::string ParsingErrorString(std::size_t line,
+                               std::size_t column,
+                               std::string text)
 {
     return std::format("JSON parsing error at line {}, column {}: {}",
                        line,
                        column,
                        text);
 }
+
+} // namespace
 
 /*
  *  JSONFormatter::Print()
@@ -170,10 +175,9 @@ std::string JSONFormatter::Print(const std::u8string_view content)
  */
 void JSONFormatter::Print(std::ostream &o, const std::string_view content)
 {
-    return Print(
-        o,
-        std::u8string_view(reinterpret_cast<const char8_t *>(content.data()),
-                           content.length()));
+    Print(o,
+          std::u8string_view(reinterpret_cast<const char8_t *>(content.data()),
+                             content.length()));
 }
 
 /*
@@ -319,7 +323,7 @@ void JSONFormatter::ConsumeWhitespace()
  */
 JSONValueType JSONFormatter::DetermineValueType() const
 {
-    JSONValueType value_type;
+    JSONValueType value_type{};
 
     // Do not read beyond the buffer
     if (EndOfInput())
@@ -357,7 +361,7 @@ JSONValueType JSONFormatter::DetermineValueType() const
             break;
 
         default:
-            if (std::isdigit(*p))
+            if (std::isdigit(*p) != 0)
             {
                 value_type = JSONValueType::Number;
             }
@@ -398,23 +402,23 @@ void JSONFormatter::PrintValue(JSONValueType value_type)
     switch (value_type)
     {
         case JSONValueType::String:
-            return PrintString();
+            PrintString();
             break;
 
         case JSONValueType::Number:
-            return PrintNumber();
+            PrintNumber();
             break;
 
         case JSONValueType::Object:
-            return PrintObject();
+            PrintObject();
             break;
 
         case JSONValueType::Array:
-            return PrintArray();
+            PrintArray();
             break;
 
         case JSONValueType::Literal:
-            return PrintLiteral();
+            PrintLiteral();
             break;
 
         default:
@@ -542,7 +546,8 @@ void JSONFormatter::PrintString()
  */
 void JSONFormatter::PrintNumber()
 {
-    enum class NumberState {
+    enum class NumberState : std::uint8_t
+    {
         Sign,
         Integer,
         Float,
@@ -577,7 +582,7 @@ void JSONFormatter::PrintNumber()
                     break;
                 }
 
-                if (std::isdigit(*p))
+                if (std::isdigit(*p) != 0)
                 {
                     state = NumberState::Integer;
                     break;
@@ -589,7 +594,7 @@ void JSONFormatter::PrintNumber()
                 break;
 
             case NumberState::Integer:
-                if (std::isdigit(*p))
+                if (std::isdigit(*p) != 0)
                 {
                     *o << static_cast<char>(*p);
                     AdvanceReadPosition();
@@ -635,7 +640,7 @@ void JSONFormatter::PrintNumber()
                 break;
 
             case NumberState::Float:
-                if (std::isdigit(*p))
+                if (std::isdigit(*p) != 0)
                 {
                     *o << static_cast<char>(*p);
                     AdvanceReadPosition();
@@ -674,7 +679,7 @@ void JSONFormatter::PrintNumber()
                     break;
                 }
 
-                if (std::isdigit(*p))
+                if (std::isdigit(*p) != 0)
                 {
                     state = NumberState::Exponent;
                     break;
@@ -686,7 +691,7 @@ void JSONFormatter::PrintNumber()
                 break;
 
             case NumberState::Exponent:
-                if (std::isdigit(*p))
+                if (std::isdigit(*p) != 0)
                 {
                     *o << static_cast<char>(*p);
                     AdvanceReadPosition();
@@ -776,7 +781,7 @@ void JSONFormatter::PrintObject()
         }
 
         // If the first member was seen, we should be at a comma
-        if (first_member_seen == true)
+        if (first_member_seen)
         {
             // Ensure we see the next member is separated by a comma
             if (*p != ',')
@@ -943,7 +948,7 @@ void JSONFormatter::PrintArray()
         }
 
         // If the first member was seen, we should be at a comma
-        if (first_member_seen == true)
+        if (first_member_seen)
         {
             // Ensure we see the next member is separated by a comma
             if (*p != ',')

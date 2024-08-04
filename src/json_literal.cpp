@@ -64,4 +64,4 @@ std::ostream &operator<<(std::ostream &o, const JSONLiteral literal)
     return o;
 }
 
-}
+} // namespace Terra::JSON

@@ -26,6 +26,9 @@
 namespace Terra::JSON
 {
 
+namespace
+{
+
 /*
  *  ConvertToStdString()
  *
@@ -43,10 +46,12 @@ namespace Terra::JSON
  *  Comments:
  *      None.
  */
-static constexpr std::string ConvertToStdString(const std::u8string &string)
+constexpr std::string ConvertToStdString(const std::u8string &string)
 {
-    return std::string(string.cbegin(), string.cend());
+    return {string.cbegin(), string.cend()};
 }
+
+} // namespace
 
 /*
  *  operator<<()

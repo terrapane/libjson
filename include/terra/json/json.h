@@ -168,7 +168,7 @@ enum class JSONLiteral
 };
 
 // Streaming operator for JSONLiteral output
-std::ostream &operator<<(std::ostream &o, const JSONLiteral value);
+std::ostream &operator<<(std::ostream &o, const JSONLiteral literal);
 
 // JSON type to hold a JSON value type of number
 struct JSONNumber
@@ -245,7 +245,7 @@ struct JSONObject
 };
 
 // Streaming operator for JSONObject output
-std::ostream &operator<<(std::ostream &o, const JSONObject &value);
+std::ostream &operator<<(std::ostream &o, const JSONObject &object);
 
 // JSON type to hold a JSON value type of array
 struct JSONArray
@@ -265,7 +265,7 @@ struct JSONArray
 };
 
 // Streaming operator for JSONArray output
-std::ostream &operator<<(std::ostream &o, const JSONArray &value);
+std::ostream &operator<<(std::ostream &o, const JSONArray &array);
 
 // Define a type that will hold any one of the JSON types
 using JSONValue =
@@ -441,7 +441,7 @@ class JSON
 };
 
 // Streaming operator for JSON output
-std::ostream &operator<<(std::ostream &o, const JSON &value);
+std::ostream &operator<<(std::ostream &o, const JSON &json);
 
 // Define the JSONParser object used to deserialize JSON text
 class JSONParser

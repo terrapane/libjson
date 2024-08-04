@@ -108,7 +108,7 @@ JSONObject::JSONObject(
     value{}
 {
     // Add items from the list into the map, converting the string type
-    for (auto &item : list)
+    for (const auto &item : list)
     {
         std::u8string item_string(item.first.cbegin(), item.first.cend());
         value.insert({item_string, item.second});

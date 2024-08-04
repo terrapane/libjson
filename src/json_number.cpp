@@ -67,15 +67,13 @@ std::ostream &operator<<(std::ostream &o, const JSONNumber &value)
         if (number == -0.0) number = 0.0;
 
         o << std::format("{}", number);
-
-        return o;
     }
     else
     {
         o << std::format("{}", value.GetInteger());
-
-        return o;
     }
+
+    return o;
 }
 
 /*
