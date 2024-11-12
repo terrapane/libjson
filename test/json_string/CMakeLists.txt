@@ -2,7 +2,7 @@
 add_executable(test_json_string test_json_string.cpp)
 
 # Link to the required libraries
-target_link_libraries(test_json_string Terra::JSON Terra::JSON Terra::stf)
+target_link_libraries(test_json_string Terra::json Terra::stf)
 
 # Specify the C++ standard to observe
 set_target_properties(test_json_string

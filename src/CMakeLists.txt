@@ -8,7 +8,7 @@ add_library(json STATIC
     json_object.cpp
     json_parser.cpp
     json_string.cpp)
-add_library(Terra::JSON ALIAS json)
+add_library(Terra::json ALIAS json)
 
 # Make project include directory available to external projects
 target_include_directories(json
@@ -42,7 +42,7 @@ target_compile_options(json
         $<$<CXX_COMPILER_ID:MSVC>: >)
 
 # Install target and associated include files
-if(json_INSTALL)
+if(libjson_INSTALL)
     include(GNUInstallDirs)
     install(TARGETS json EXPORT jsonTargets ARCHIVE)
     install(DIRECTORY ${PROJECT_SOURCE_DIR}/include/ TYPE INCLUDE)
