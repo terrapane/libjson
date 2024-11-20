@@ -50,7 +50,7 @@ std::ostream &operator<<(std::ostream &o, const JSONArray &array)
     o << '[';
 
     // Iterate over the array, outputting each element
-    for (const auto &item : array.value)
+    for (const auto &item : *array)
     {
         if (need_comma) o << ", ";
         o << item;

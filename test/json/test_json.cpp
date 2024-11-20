@@ -42,46 +42,46 @@ STF_TEST(JSON, ConstructJSON1)
     JSONObject &actual = json.GetValue<JSONObject>();
 
     // There should be two tag / value pairs
-    STF_ASSERT_EQ(3, actual.value.size());
+    STF_ASSERT_EQ(3, actual.Size());
 
     // Verify the values exist
-    STF_ASSERT_TRUE(actual.value.find(u8"a") != actual.value.end());
-    STF_ASSERT_TRUE(actual.value.find(u8"b") != actual.value.end());
-    STF_ASSERT_TRUE(actual.value.find(u8"c") != actual.value.end());
-    STF_ASSERT_TRUE(actual.value.find(u8"d") == actual.value.end());
+    STF_ASSERT_TRUE(actual.HasKey(u8"a"));
+    STF_ASSERT_TRUE(actual.HasKey(u8"b"));
+    STF_ASSERT_TRUE(actual.HasKey(u8"c"));
+    STF_ASSERT_FALSE(actual.HasKey(u8"d"));
 
     // Ensure they are the correct value types
-    STF_ASSERT_EQ(JSONValueType::Object, actual.value[u8"a"].GetValueType());
-    STF_ASSERT_EQ(JSONValueType::String, actual.value[u8"b"].GetValueType());
-    STF_ASSERT_EQ(JSONValueType::Literal, actual.value[u8"c"].GetValueType());
+    STF_ASSERT_EQ(JSONValueType::Object, actual[u8"a"].GetValueType());
+    STF_ASSERT_EQ(JSONValueType::String, actual[u8"b"].GetValueType());
+    STF_ASSERT_EQ(JSONValueType::Literal, actual[u8"c"].GetValueType());
 
     // Get references to the value types for a and b
-    auto &value_a = actual.value[u8"a"].GetValue<JSONObject>();
-    auto &value_b = actual.value[u8"b"].GetValue<JSONString>();
-    auto value_c = actual.value[u8"c"].GetValue<JSONLiteral>();
+    auto &value_a = actual[u8"a"].GetValue<JSONObject>();
+    auto &value_b = actual[u8"b"].GetValue<JSONString>();
+    auto value_c = actual[u8"c"].GetValue<JSONLiteral>();
 
     // Now check the contents of value_a
-    STF_ASSERT_EQ(3, value_a.value.size());
+    STF_ASSERT_EQ(3, value_a.Size());
 
     // Verify the values of value_a exist
-    STF_ASSERT_TRUE(value_a.value.find(u8"a") != value_a.value.end());
-    STF_ASSERT_TRUE(value_a.value.find(u8"b") != value_a.value.end());
-    STF_ASSERT_TRUE(value_a.value.find(u8"c") != value_a.value.end());
+    STF_ASSERT_TRUE(value_a.HasKey(u8"a"));
+    STF_ASSERT_TRUE(value_a.HasKey(u8"b"));
+    STF_ASSERT_TRUE(value_a.HasKey(u8"c"));
 
     // Ensure they are the correct value types
-    STF_ASSERT_EQ(JSONValueType::Number, value_a.value[u8"a"].GetValueType());
-    STF_ASSERT_EQ(JSONValueType::Number, value_a.value[u8"b"].GetValueType());
-    STF_ASSERT_EQ(JSONValueType::Number, value_a.value[u8"c"].GetValueType());
+    STF_ASSERT_EQ(JSONValueType::Number, value_a[u8"a"].GetValueType());
+    STF_ASSERT_EQ(JSONValueType::Number, value_a[u8"b"].GetValueType());
+    STF_ASSERT_EQ(JSONValueType::Number, value_a[u8"c"].GetValueType());
 
     // Verify the numeric values of value_a
-    STF_ASSERT_EQ(1, value_a.value[u8"a"].GetValue<JSONNumber>().GetInteger());
+    STF_ASSERT_EQ(1, value_a[u8"a"].GetValue<JSONNumber>().GetInteger());
     STF_ASSERT_CLOSE(2.5,
-                     value_a.value[u8"b"].GetValue<JSONNumber>().GetFloat(),
+                     value_a[u8"b"].GetValue<JSONNumber>().GetFloat(),
                      0.0001);
-    STF_ASSERT_EQ(3, value_a.value[u8"c"].GetValue<JSONNumber>().GetInteger());
+    STF_ASSERT_EQ(3, value_a[u8"c"].GetValue<JSONNumber>().GetInteger());
 
     // Verify the value of value_b
-    STF_ASSERT_EQ(expected_b, value_b.value);
+    STF_ASSERT_EQ(expected_b, *value_b);
 
     // Verify the expected value of value_c
     STF_ASSERT_EQ(JSONLiteral::Null, value_c);
@@ -107,18 +107,16 @@ STF_TEST(JSON, ConstructJSON3)
     JSON json(u8"Hello, World!");
     const std::u8string expected = u8"Hello, World!";
 
-    json = u8"Hello, World!";
-
     STF_ASSERT_EQ(JSONValueType::String, json.GetValueType());
 
     // Verify the string value
-    STF_ASSERT_EQ(expected, json.GetValue<JSONString>().value);
+    STF_ASSERT_EQ(expected, *json.GetValue<JSONString>());
 }
 
 // Test construction
 STF_TEST(JSON, ConstructJSON4)
 {
-    JSON json("Hello, Again!");
+    JSON json;
     const std::u8string expected = u8"Hello, Again!";
 
     json = "Hello, Again!";
@@ -126,7 +124,7 @@ STF_TEST(JSON, ConstructJSON4)
     STF_ASSERT_EQ(JSONValueType::String, json.GetValueType());
 
     // Verify the string value
-    STF_ASSERT_EQ(expected, json.GetValue<JSONString>().value);
+    STF_ASSERT_EQ(expected, *json.GetValue<JSONString>());
 }
 
 // Test construction
@@ -138,7 +136,7 @@ STF_TEST(JSON, ConstructJSON5)
     STF_ASSERT_EQ(JSONValueType::String, json.GetValueType());
 
     // Verify the string value
-    STF_ASSERT_EQ(expected, json.GetValue<JSONString>().value);
+    STF_ASSERT_EQ(expected, *json.GetValue<JSONString>());
 }
 
 // Test construction
@@ -150,7 +148,7 @@ STF_TEST(JSON, ConstructJSON6)
     STF_ASSERT_EQ(JSONValueType::String, json.GetValueType());
 
     // Verify the string value
-    STF_ASSERT_EQ(expected, json.GetValue<JSONString>().value);
+    STF_ASSERT_EQ(expected, *json.GetValue<JSONString>());
 }
 
 // Test construction
@@ -222,7 +220,7 @@ STF_TEST(JSON, StringAssignment1)
     STF_ASSERT_EQ(JSONValueType::String, json.GetValueType());
 
     // Verify the string value
-    STF_ASSERT_EQ(expected, json.GetValue<JSONString>().value);
+    STF_ASSERT_EQ(expected, *json.GetValue<JSONString>());
 }
 
 // Test string assignment
@@ -236,7 +234,7 @@ STF_TEST(JSON, StringAssignment2)
     STF_ASSERT_EQ(JSONValueType::String, json.GetValueType());
 
     // Verify the string value
-    STF_ASSERT_EQ(expected, json.GetValue<JSONString>().value);
+    STF_ASSERT_EQ(expected, *json.GetValue<JSONString>());
 }
 
 // Test number assignment
@@ -302,7 +300,7 @@ STF_TEST(JSON, JSONAssignment1)
     STF_ASSERT_EQ(JSONValueType::String, json.GetValueType());
 
     // Verify the string value
-    STF_ASSERT_EQ(expected, json.GetValue<JSONString>().value);
+    STF_ASSERT_EQ(expected, *json.GetValue<JSONString>());
 
     // Create a new object and assign it
     JSON json2;
@@ -312,7 +310,7 @@ STF_TEST(JSON, JSONAssignment1)
     STF_ASSERT_EQ(JSONValueType::String, json2.GetValueType());
 
     // Verify the string value
-    STF_ASSERT_EQ(expected, json2.GetValue<JSONString>().value);
+    STF_ASSERT_EQ(expected, *json2.GetValue<JSONString>());
 }
 
 // Test JSON assignment
@@ -327,7 +325,7 @@ STF_TEST(JSON, JSONAssignment2)
     STF_ASSERT_EQ(JSONValueType::String, json.GetValueType());
 
     // Verify the string value
-    STF_ASSERT_EQ(expected, json.GetValue<JSONString>().value);
+    STF_ASSERT_EQ(expected, *json.GetValue<JSONString>());
 
     // Create a new object and assign it
     JSON json2(json);
@@ -336,7 +334,7 @@ STF_TEST(JSON, JSONAssignment2)
     STF_ASSERT_EQ(JSONValueType::String, json2.GetValueType());
 
     // Verify the string value
-    STF_ASSERT_EQ(expected, json2.GetValue<JSONString>().value);
+    STF_ASSERT_EQ(expected, *json2.GetValue<JSONString>());
 }
 
 // Test JSON assignment
@@ -352,13 +350,13 @@ STF_TEST(JSON, JSONAssignment3)
     STF_ASSERT_EQ(JSONValueType::String, json.GetValueType());
 
     // Verify the string value
-    STF_ASSERT_EQ(expected, json.GetValue<JSONString>().value);
+    STF_ASSERT_EQ(expected, *json.GetValue<JSONString>());
 
     // Verify the right type
     STF_ASSERT_EQ(JSONValueType::String, json2.GetValueType());
 
     // Verify the string value
-    STF_ASSERT_EQ(expected, json2.GetValue<JSONString>().value);
+    STF_ASSERT_EQ(expected, *json2.GetValue<JSONString>());
 }
 
 // Test JSON assignment
@@ -373,7 +371,7 @@ STF_TEST(JSON, JSONMove1)
     STF_ASSERT_EQ(JSONValueType::String, json.GetValueType());
 
     // Verify the string value
-    STF_ASSERT_EQ(expected, json.GetValue<JSONString>().value);
+    STF_ASSERT_EQ(expected, *json.GetValue<JSONString>());
 
     // Create a new object and assign it
     JSON json2 = std::move(json);
@@ -382,7 +380,7 @@ STF_TEST(JSON, JSONMove1)
     STF_ASSERT_EQ(JSONValueType::String, json2.GetValueType());
 
     // Verify the string value
-    STF_ASSERT_EQ(expected, json2.GetValue<JSONString>().value);
+    STF_ASSERT_EQ(expected, *json2.GetValue<JSONString>());
 }
 
 // Test JSON assignment
@@ -397,7 +395,7 @@ STF_TEST(JSON, JSONMove2)
     STF_ASSERT_EQ(JSONValueType::String, json.GetValueType());
 
     // Verify the string value
-    STF_ASSERT_EQ(expected, json.GetValue<JSONString>().value);
+    STF_ASSERT_EQ(expected, *json.GetValue<JSONString>());
 
     // Create a new object and assign it
     JSON json2(std::move(json));
@@ -406,7 +404,7 @@ STF_TEST(JSON, JSONMove2)
     STF_ASSERT_EQ(JSONValueType::String, json2.GetValueType());
 
     // Verify the string value
-    STF_ASSERT_EQ(expected, json2.GetValue<JSONString>().value);
+    STF_ASSERT_EQ(expected, *json2.GetValue<JSONString>());
 }
 
 // Test initialization via assignment
@@ -419,7 +417,7 @@ STF_TEST(JSON, InitializerList1)
     STF_ASSERT_EQ(JSONValueType::Array, json.GetValueType());
 
     // Verify there are three elements in the array
-    STF_ASSERT_EQ(3, json.GetValue<JSONArray>().value.size());
+    STF_ASSERT_EQ(3, json.GetValue<JSONArray>().Size());
 }
 
 // Test initialization via the constructor
@@ -432,7 +430,7 @@ STF_TEST(JSON, InitializerList2)
     STF_ASSERT_EQ(JSONValueType::Array, json.GetValueType());
 
     // Verify there are three elements in the array
-    STF_ASSERT_EQ(3, json.GetValue<JSONArray>().value.size());
+    STF_ASSERT_EQ(3, json.GetValue<JSONArray>().Size());
 }
 
 // Test initialization via assignment

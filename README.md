@@ -64,7 +64,7 @@ type of data.  In this case, it would be `JSONValueType::Array`.
 ### Accessing data
 
 Knowing the type of data, accessing it using the `[]` operator.  For example,
-to get the integer value in array position 3, one can do this:
+to get the integer value in array position 3 of a JSONArray, one can do this:
 
 ```cpp
 std::int64_t number = json[3].GetValue<JSONNumber>().GetInteger();
@@ -95,8 +95,15 @@ std::u8string string = json_object["key2"].GetValue<JSONString>().value;
 
 Note the `value` member in that last example.  For most types (`JSONObject`,
 `JSONNumber`, `JSONString`, and `JSONArray`) there is a `value` member to allow
-direct access to the data. It's not required, but it is a public member to give
-the user flexibility.
+direct access to the data.  It's not required, but it is a public member to give
+the user flexibility.  One may also access the value member by using
+`operator*()` as in the following alternative form of the above string
+assignment:
+
+```cpp
+// Get the string value at "key2" (alternative form)
+std::u8string string = *json_object["key2"].GetValue<JSONString>();
+```
 
 In the example above, `GetValue<JSONString>` is used to return a `JSONString`
 reference.  If the key value was not a string, this would cause an exception

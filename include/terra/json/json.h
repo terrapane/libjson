@@ -146,6 +146,10 @@ struct JSONString
         return *this;
     }
 
+    // Return the underlying string
+    std::u8string &operator*() { return value; }
+    const std::u8string &operator*() const { return value; }
+
     std::size_t Size() { return value.size(); }
 
     std::string ToString() const;
@@ -201,6 +205,13 @@ struct JSONNumber
     bool IsFloat() const { return std::holds_alternative<JSONFloat>(value); }
     bool IsInteger() const { return !IsFloat(); }
 
+    // Return the variant containing the number
+    std::variant<JSONInteger, JSONFloat> &operator*() { return value; }
+    const std::variant<JSONInteger, JSONFloat> &operator*() const
+    {
+        return value;
+    }
+
     // One may call these regardless of the held value and the number
     // will be cast to the requested type as required
     JSONFloat GetFloat() const;
@@ -239,6 +250,19 @@ struct JSONObject
         return operator[](std::u8string(key.cbegin(), key.cend()));
     }
 
+    bool HasKey(const std::u8string &key) const
+    {
+        return (value.count(key) > 0);
+    }
+    bool HasKey(const std::string &key) const
+    {
+        return HasKey(std::u8string(key.cbegin(), key.cend()));
+    }
+
+    // Return the underlying map of JSON objects
+    std::map<std::u8string, JSON> &operator*() { return value; }
+    const std::map<std::u8string, JSON> &operator*() const { return value; }
+
     std::size_t Size() const { return value.size(); }
 
     std::string ToString() const;
@@ -258,6 +282,10 @@ struct JSONArray
 
     JSON &operator[](const std::size_t index);
     const JSON &operator[](const std::size_t index) const;
+
+    // Return the underlying array of JSON objects
+    std::vector<JSON> &operator*() { return value; }
+    const std::vector<JSON> &operator*() const { return value; }
 
     std::size_t Size() const;
 

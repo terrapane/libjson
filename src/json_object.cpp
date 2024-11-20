@@ -50,7 +50,7 @@ std::ostream &operator<<(std::ostream &o, const JSONObject &object)
     o << '{';
 
     // Iterate over the map, outputting each element
-    for (const auto &[key, value] : object.value)
+    for (const auto &[key, value] : *object)
     {
         if (need_comma) o << ", ";
         o << JSONString(key) << ": " << value;

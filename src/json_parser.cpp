@@ -892,11 +892,11 @@ JSONNumber JSONParser::ParseNumber()
     {
         if (is_float)
         {
-            json_number.value = stod(number);
+            *json_number = stod(number);
         }
         else
         {
-            json_number.value = stoll(number);
+            *json_number = stoll(number);
         }
     }
     catch (const std::exception &e)
@@ -1018,7 +1018,7 @@ JSONObject JSONParser::ParseObject()
         JSONString name = ParseString();
 
         // Ensure this name is not already in use
-        if (json_object.value.find(name.value) != json_object.value.end())
+        if (json_object.HasKey(*name))
         {
             throw JSONException(
                 ParsingErrorString(line, column, "Duplicate name"));
@@ -1047,7 +1047,7 @@ JSONObject JSONParser::ParseObject()
         if (EndOfInput()) break;
 
         // Parse the JSON value that follows, placing it into the map
-        json_object.value[name.value] = ParseValue(DetermineValueType());
+        json_object.value[*name] = ParseValue(DetermineValueType());
 
         // Note that the first member was seen
         first_member_seen = true;

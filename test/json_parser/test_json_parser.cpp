@@ -69,7 +69,7 @@ STF_TEST(JSONParser, ParseString1)
 
     JSONString &actual = result.GetValue<JSONString>();
 
-    STF_ASSERT_EQ(expected, actual.value);
+    STF_ASSERT_EQ(expected, *actual);
 }
 
 // Test parsing BMP character
@@ -89,7 +89,7 @@ STF_TEST(JSONParser, ParseStringBMPCharacter1)
 
     JSONString &actual = result.GetValue<JSONString>();
 
-    STF_ASSERT_EQ(expected, actual.value);
+    STF_ASSERT_EQ(expected, *actual);
 }
 
 // Test parsing BMP character
@@ -108,7 +108,7 @@ STF_TEST(JSONParser, ParseStringBMPCharacter2)
 
     JSONString &actual = result.GetValue<JSONString>();
 
-    STF_ASSERT_EQ(expected, actual.value);
+    STF_ASSERT_EQ(expected, *actual);
 }
 
 // Test parsing BMP character
@@ -124,7 +124,7 @@ STF_TEST(JSONParser, ParseStringBMPCharacter3)
 
     JSONString &actual = result.GetValue<JSONString>();
 
-    STF_ASSERT_EQ(expected, actual.value);
+    STF_ASSERT_EQ(expected, *actual);
 }
 
 // Test parsing Unicode character using surrogates
@@ -145,7 +145,7 @@ STF_TEST(JSONParser, ParseStringUnicodeSurrogates)
 
     JSONString &actual = result.GetValue<JSONString>();
 
-    STF_ASSERT_EQ(expected, actual.value);
+    STF_ASSERT_EQ(expected, *actual);
 }
 
 // Test parsing Unicode character using surrogates (lowercase)
@@ -166,7 +166,7 @@ STF_TEST(JSONParser, ParseStringUnicodeSurrogatesLowercase)
 
     JSONString &actual = result.GetValue<JSONString>();
 
-    STF_ASSERT_EQ(expected, actual.value);
+    STF_ASSERT_EQ(expected, *actual);
 }
 
 // Test parsing Unicode character using surrogates at start of string
@@ -187,7 +187,7 @@ STF_TEST(JSONParser, ParseStringUnicodeSurrogatesStart)
 
     JSONString &actual = result.GetValue<JSONString>();
 
-    STF_ASSERT_EQ(expected, actual.value);
+    STF_ASSERT_EQ(expected, *actual);
 }
 
 // Test parsing Unicode character using surrogates at end of string
@@ -207,7 +207,7 @@ STF_TEST(JSONParser, ParseStringUnicodeSurrogatesEnd)
 
     JSONString &actual = result.GetValue<JSONString>();
 
-    STF_ASSERT_EQ(expected, actual.value);
+    STF_ASSERT_EQ(expected, *actual);
 }
 
 // Test parsing of number types
@@ -225,9 +225,9 @@ STF_TEST(JSONParser, ParseNumber1)
 
     JSONNumber &actual = result.GetValue<JSONNumber>();
 
-    STF_ASSERT_TRUE(std::holds_alternative<JSONInteger>(actual.value));
+    STF_ASSERT_TRUE(std::holds_alternative<JSONInteger>(*actual));
 
-    auto actual_int = std::get<JSONInteger>(actual.value);
+    auto actual_int = std::get<JSONInteger>(*actual);
 
     STF_ASSERT_EQ(expected, actual_int);
 }
@@ -247,9 +247,9 @@ STF_TEST(JSONParser, ParseNumber2)
 
     JSONNumber &actual = result.GetValue<JSONNumber>();
 
-    STF_ASSERT_TRUE(std::holds_alternative<JSONInteger>(actual.value));
+    STF_ASSERT_TRUE(std::holds_alternative<JSONInteger>(*actual));
 
-    auto actual_int = std::get<JSONInteger>(actual.value);
+    auto actual_int = std::get<JSONInteger>(*actual);
 
     STF_ASSERT_EQ(expected, actual_int);
 }
@@ -269,9 +269,9 @@ STF_TEST(JSONParser, ParseNumber3)
 
     JSONNumber &actual = result.GetValue<JSONNumber>();
 
-    STF_ASSERT_TRUE(std::holds_alternative<double>(actual.value));
+    STF_ASSERT_TRUE(std::holds_alternative<double>(*actual));
 
-    auto actual_double = std::get<double>(actual.value);
+    auto actual_double = std::get<double>(*actual);
 
     STF_ASSERT_CLOSE(expected, actual_double, 0.01);
 }
@@ -291,9 +291,9 @@ STF_TEST(JSONParser, ParseNumber4)
 
     JSONNumber &actual = result.GetValue<JSONNumber>();
 
-    STF_ASSERT_TRUE(std::holds_alternative<double>(actual.value));
+    STF_ASSERT_TRUE(std::holds_alternative<double>(*actual));
 
-    auto actual_double = std::get<double>(actual.value);
+    auto actual_double = std::get<double>(*actual);
 
     STF_ASSERT_CLOSE(expected, actual_double, 0.00001);
 }
@@ -313,9 +313,9 @@ STF_TEST(JSONParser, ParseNumber5)
 
     JSONNumber &actual = result.GetValue<JSONNumber>();
 
-    STF_ASSERT_TRUE(std::holds_alternative<double>(actual.value));
+    STF_ASSERT_TRUE(std::holds_alternative<double>(*actual));
 
-    auto actual_double = std::get<double>(actual.value);
+    auto actual_double = std::get<double>(*actual);
 
     STF_ASSERT_CLOSE(expected, actual_double, 0.00001);
 }
@@ -335,9 +335,9 @@ STF_TEST(JSONParser, ParseNumber6)
 
     JSONNumber &actual = result.GetValue<JSONNumber>();
 
-    STF_ASSERT_TRUE(std::holds_alternative<double>(actual.value));
+    STF_ASSERT_TRUE(std::holds_alternative<double>(*actual));
 
-    auto actual_double = std::get<double>(actual.value);
+    auto actual_double = std::get<double>(*actual);
 
     STF_ASSERT_CLOSE(expected, actual_double, 0.00001);
 }
@@ -355,7 +355,7 @@ STF_TEST(JSONParser, ParseObject1)
     JSONObject &actual = result.GetValue<JSONObject>();
 
     // There should be two tag / value pairs
-    STF_ASSERT_EQ(0, actual.value.size());
+    STF_ASSERT_EQ(0, actual.Size());
 }
 
 // Test parsing JSON object
@@ -376,24 +376,24 @@ STF_TEST(JSONParser, ParseObject2)
     JSONObject &actual = result.GetValue<JSONObject>();
 
     // There should be two tag / value pairs
-    STF_ASSERT_EQ(2, actual.value.size());
+    STF_ASSERT_EQ(2, actual.Size());
 
     // Verify the values exist
-    STF_ASSERT_TRUE(actual.value.find(u8"a") != actual.value.end());
-    STF_ASSERT_TRUE(actual.value.find(u8"b") != actual.value.end());
-    STF_ASSERT_TRUE(actual.value.find(u8"c") == actual.value.end());
+    STF_ASSERT_TRUE(actual.HasKey(u8"a"));
+    STF_ASSERT_TRUE(actual.HasKey(u8"b"));
+    STF_ASSERT_FALSE(actual.HasKey(u8"c"));
 
     // Ensure they are the correct value types
-    STF_ASSERT_EQ(JSONValueType::Number, actual.value[u8"a"].GetValueType());
-    STF_ASSERT_EQ(JSONValueType::Number, actual.value[u8"b"].GetValueType());
+    STF_ASSERT_EQ(JSONValueType::Number, actual[u8"a"].GetValueType());
+    STF_ASSERT_EQ(JSONValueType::Number, actual[u8"b"].GetValueType());
 
     // Get the numeric values
-    const auto &value_a = actual.value[u8"a"].GetValue<JSONNumber>();
-    const auto &value_b = actual.value[u8"b"].GetValue<JSONNumber>();
+    const auto &value_a = actual[u8"a"].GetValue<JSONNumber>();
+    const auto &value_b = actual[u8"b"].GetValue<JSONNumber>();
 
     // Check the values are integers
-    STF_ASSERT_TRUE(std::holds_alternative<JSONInteger>(value_a.value));
-    STF_ASSERT_TRUE(std::holds_alternative<JSONInteger>(value_b.value));
+    STF_ASSERT_TRUE(std::holds_alternative<JSONInteger>(*value_a));
+    STF_ASSERT_TRUE(std::holds_alternative<JSONInteger>(*value_b));
 
     // Get the actual integer values
     STF_ASSERT_EQ(1, value_a.GetInteger());
@@ -423,43 +423,43 @@ STF_TEST(JSONParser, ParseObject3)
     JSONObject &actual = result.GetValue<JSONObject>();
 
     // There should be two tag / value pairs
-    STF_ASSERT_EQ(2, actual.value.size());
+    STF_ASSERT_EQ(2, actual.Size());
 
     // Verify the values exist
-    STF_ASSERT_TRUE(actual.value.find(u8"a") != actual.value.end());
-    STF_ASSERT_TRUE(actual.value.find(u8"b") != actual.value.end());
-    STF_ASSERT_TRUE(actual.value.find(u8"c") == actual.value.end());
+    STF_ASSERT_TRUE(actual.HasKey(u8"a"));
+    STF_ASSERT_TRUE(actual.HasKey(u8"b"));
+    STF_ASSERT_FALSE(actual.HasKey(u8"c"));
 
     // Ensure they are the correct value types
-    STF_ASSERT_EQ(JSONValueType::Object, actual.value[u8"a"].GetValueType());
-    STF_ASSERT_EQ(JSONValueType::String, actual.value[u8"b"].GetValueType());
+    STF_ASSERT_EQ(JSONValueType::Object, actual[u8"a"].GetValueType());
+    STF_ASSERT_EQ(JSONValueType::String, actual[u8"b"].GetValueType());
 
     // Get references to the value types for a and b
-    auto &value_a = actual.value[u8"a"].GetValue<JSONObject>();
-    auto &value_b = actual.value[u8"b"].GetValue<JSONString>();
+    auto &value_a = actual[u8"a"].GetValue<JSONObject>();
+    auto &value_b = actual[u8"b"].GetValue<JSONString>();
 
     // Now check the contents of value_a
-    STF_ASSERT_EQ(3, value_a.value.size());
+    STF_ASSERT_EQ(3, value_a.Size());
 
     // Verify the values of value_a exist
-    STF_ASSERT_TRUE(value_a.value.find(u8"a") != value_a.value.end());
-    STF_ASSERT_TRUE(value_a.value.find(u8"b") != value_a.value.end());
-    STF_ASSERT_TRUE(value_a.value.find(u8"c") != value_a.value.end());
+    STF_ASSERT_TRUE(value_a.HasKey(u8"a"));
+    STF_ASSERT_TRUE(value_a.HasKey(u8"b"));
+    STF_ASSERT_TRUE(value_a.HasKey(u8"c"));
 
     // Ensure they are the correct value types
-    STF_ASSERT_EQ(JSONValueType::Number, value_a.value[u8"a"].GetValueType());
-    STF_ASSERT_EQ(JSONValueType::Number, value_a.value[u8"b"].GetValueType());
-    STF_ASSERT_EQ(JSONValueType::Number, value_a.value[u8"c"].GetValueType());
+    STF_ASSERT_EQ(JSONValueType::Number, value_a[u8"a"].GetValueType());
+    STF_ASSERT_EQ(JSONValueType::Number, value_a[u8"b"].GetValueType());
+    STF_ASSERT_EQ(JSONValueType::Number, value_a[u8"c"].GetValueType());
 
     // Verify the numeric values of value_a
-    STF_ASSERT_EQ(1, value_a.value[u8"a"].GetValue<JSONNumber>().GetInteger());
+    STF_ASSERT_EQ(1, value_a[u8"a"].GetValue<JSONNumber>().GetInteger());
     STF_ASSERT_CLOSE(2.5,
-                     value_a.value[u8"b"].GetValue<JSONNumber>().GetFloat(),
+                     value_a[u8"b"].GetValue<JSONNumber>().GetFloat(),
                      0.0001);
-    STF_ASSERT_EQ(3, value_a.value[u8"c"].GetValue<JSONNumber>().GetInteger());
+    STF_ASSERT_EQ(3, value_a[u8"c"].GetValue<JSONNumber>().GetInteger());
 
     // Verify the value of value_b
-    STF_ASSERT_EQ(expected_b, value_b.value);
+    STF_ASSERT_EQ(expected_b, *value_b);
 }
 
 // Test parsing JSON array
@@ -475,7 +475,7 @@ STF_TEST(JSONParser, ParseArray1)
     JSONArray &actual = result.GetValue<JSONArray>();
 
     // There should be two tag / value pairs
-    STF_ASSERT_EQ(0, actual.value.size());
+    STF_ASSERT_EQ(0, actual.Size());
 }
 
 // Test parsing JSON array
@@ -493,14 +493,14 @@ STF_TEST(JSONParser, ParseArray2)
     JSONArray &actual = result.GetValue<JSONArray>();
 
     // There should be two tag / value pairs
-    STF_ASSERT_EQ(5, actual.value.size());
+    STF_ASSERT_EQ(5, actual.Size());
 
     // Verify the types are correct
-    STF_ASSERT_EQ(JSONValueType::Number, actual.value[0].GetValueType());
-    STF_ASSERT_EQ(JSONValueType::String, actual.value[1].GetValueType());
-    STF_ASSERT_EQ(JSONValueType::Literal, actual.value[2].GetValueType());
-    STF_ASSERT_EQ(JSONValueType::Number, actual.value[3].GetValueType());
-    STF_ASSERT_EQ(JSONValueType::Object, actual.value[4].GetValueType());
+    STF_ASSERT_EQ(JSONValueType::Number, actual[0].GetValueType());
+    STF_ASSERT_EQ(JSONValueType::String, actual[1].GetValueType());
+    STF_ASSERT_EQ(JSONValueType::Literal, actual[2].GetValueType());
+    STF_ASSERT_EQ(JSONValueType::Number, actual[3].GetValueType());
+    STF_ASSERT_EQ(JSONValueType::Object, actual[4].GetValueType());
 }
 
 // Test parsing JSON literal
@@ -596,14 +596,14 @@ STF_TEST(JSONParser, JSONCopy)
     STF_ASSERT_EQ(JSONValueType::Array, result.GetValueType());
 
     // There should be two tag / value pairs
-    STF_ASSERT_EQ(5, result.GetValue<JSONArray>().value.size());
+    STF_ASSERT_EQ(5, result.GetValue<JSONArray>().Size());
 
     // Copy the JSON object
     JSON result_copy = result;
 
     // There should be two tag / value pairs
-    STF_ASSERT_EQ(5, result.GetValue<JSONArray>().value.size());
-    STF_ASSERT_EQ(5, result_copy.GetValue<JSONArray>().value.size());
+    STF_ASSERT_EQ(5, result.GetValue<JSONArray>().Size());
+    STF_ASSERT_EQ(5, result_copy.GetValue<JSONArray>().Size());
 }
 
 // Test moving object
@@ -620,11 +620,11 @@ STF_TEST(JSONParser, JSONMove)
     STF_ASSERT_EQ(JSONValueType::Array, result.GetValueType());
 
     // There should be two tag / value pairs
-    STF_ASSERT_EQ(5, result.GetValue<JSONArray>().value.size());
+    STF_ASSERT_EQ(5, result.GetValue<JSONArray>().Size());
 
     // Move the JSON object
     JSON result_copy(std::move(result));
 
     // There should be two tag / value pairs
-    STF_ASSERT_EQ(5, result_copy.GetValue<JSONArray>().value.size());
+    STF_ASSERT_EQ(5, result_copy.GetValue<JSONArray>().Size());
 }

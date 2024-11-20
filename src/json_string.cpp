@@ -82,7 +82,7 @@ std::ostream &operator<<(std::ostream &o, const JSONString &string)
     o << '"';
 
     // Iterate over each character in the string
-    for (auto c : string.value)
+    for (auto c : *string)
     {
         // If expecting another UTF-8 character, handle it
         if (expected_utf8_remaining > 0)
@@ -92,7 +92,7 @@ std::ostream &operator<<(std::ostream &o, const JSONString &string)
             {
                 throw JSONException(std::string("Invalid UTF-8 character "
                                                 "sequence: ") +
-                                    ConvertToStdString(string.value));
+                                    ConvertToStdString(*string));
             }
 
             // Append additional bits to the wide character
@@ -109,7 +109,7 @@ std::ostream &operator<<(std::ostream &o, const JSONString &string)
                 {
                     throw JSONException(std::string("Invalid Unicode "
                                                     "character: ") +
-                                        ConvertToStdString(string.value));
+                                        ConvertToStdString(*string));
                 }
 
                 // Ensure the character code is not within the surrogate range
@@ -118,7 +118,7 @@ std::ostream &operator<<(std::ostream &o, const JSONString &string)
                 {
                     throw JSONException(std::string("Invalid UTF-8 character "
                                                     "sequence: ") +
-                                        ConvertToStdString(string.value));
+                                        ConvertToStdString(*string));
                 }
 
                 // Encode using surrogate code points
@@ -223,7 +223,7 @@ std::ostream &operator<<(std::ostream &o, const JSONString &string)
                     // Any other value would be an invalid character
                     throw JSONException(std::string("Invalid UTF-8 character "
                                                     "sequence: ") +
-                                        ConvertToStdString(string.value));
+                                        ConvertToStdString(*string));
                 }
 
                 // Output regular ASCII character
@@ -237,7 +237,7 @@ std::ostream &operator<<(std::ostream &o, const JSONString &string)
     if (expected_utf8_remaining > 0)
     {
         throw JSONException(std::string("Invalid UTF-8 character sequence: ") +
-                            ConvertToStdString(string.value));
+                            ConvertToStdString(*string));
     }
 
     // Write out the string end character
