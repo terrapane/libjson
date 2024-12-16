@@ -19,7 +19,9 @@
 #include <ostream>
 #include <sstream>
 #include <format>
+#ifdef TERRA_DISABLE_STD_FORMAT
 #include <iomanip>
+#endif
 #include <terra/json/json.h>
 #include "unicode_constants.h"
 
@@ -49,6 +51,37 @@ namespace
 constexpr std::string ConvertToStdString(const std::u8string &string)
 {
     return {string.cbegin(), string.cend()};
+}
+
+/*
+ *  UnicodeEscapeSequence()
+ *
+ *  Description:
+ *      This function will accept a 16-bit integer and create a text string
+ *      containing the JSON Unicode Escape Sequence for it.  For example,
+ *      the value 6700 would be represented as \u1A2C.
+ *
+ *  Parameters:
+ *      codepoint [in]
+ *          The 16-bit codepoint value to convert.
+ *
+ *  Returns:
+ *      A string containing the JSON Unicode Escape Sequence for the given
+ *      codepoint.
+ *
+ *  Comments:
+ *      None.
+ */
+std::string UnicodeEscapeSequence(std::uint16_t codepoint)
+{
+#ifndef TERRA_DISABLE_STD_FORMAT
+    return std::format("\\u{:04X}", codepoint);
+#else
+    std::ostringstream oss;
+    oss << "\\u" << std::setfill('0') << std::uppercase << std::hex
+        << std::setw(4) << codepoint;
+    return oss.str();
+#endif
 }
 
 } // namespace
@@ -127,21 +160,16 @@ std::ostream &operator<<(std::ostream &o, const JSONString &string)
                     // Convert the code point values using two 16-bit values
                     // (See: https://www.Unicode.org/faq/utf_bom.html#utf16-3)
 
-                    o << std::format(
-                        "\\u{:04X}",
-                        static_cast<std::uint16_t>(Unicode::Lead_Offset +
-                                                   (wide_character >> 10)));
+                    o << UnicodeEscapeSequence(static_cast<std::uint16_t>(
+                        Unicode::Lead_Offset + (wide_character >> 10)));
 
-                    o << std::format(
-                        "\\u{:04X}",
-                        static_cast<std::uint16_t>(Unicode::Surrogate_Low_Min +
-                                                   (wide_character & 0x3ff)));
+                    o << UnicodeEscapeSequence(static_cast<std::uint16_t>(
+                        Unicode::Surrogate_Low_Min + (wide_character & 0x3ff)));
                 }
                 else
                 {
                     // Produce a normal BMP code as \uXXXX
-                    o << std::format(
-                        "\\u{:04X}",
+                    o << UnicodeEscapeSequence(
                         static_cast<std::uint16_t>(wide_character));
                 }
             }
@@ -188,8 +216,7 @@ std::ostream &operator<<(std::ostream &o, const JSONString &string)
                 // Is this a control character?
                 if (c < 0x20)
                 {
-                    o << std::format("\\u{:04X}",
-                                     static_cast<std::uint16_t>(c));
+                    o << UnicodeEscapeSequence(static_cast<std::uint16_t>(c));
                     continue;
                 }
 

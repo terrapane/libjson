@@ -19,6 +19,9 @@
 #include <sstream>
 #include <format>
 #include <cmath>
+#ifdef TERRA_DISABLE_STD_FORMAT
+#include <iomanip>
+#endif
 #include <terra/json/json.h>
 
 namespace Terra::JSON
@@ -66,11 +69,16 @@ std::ostream &operator<<(std::ostream &o, const JSONNumber &value)
         // If this is a -0 value, produce a 0
         if (number == -0.0) number = 0.0;
 
+#ifndef TERRA_DISABLE_STD_FORMAT
         o << std::format("{}", number);
+#else
+        // This results in a lower-precision output vs. std::format
+        o << number;
+#endif
     }
     else
     {
-        o << std::format("{}", value.GetInteger());
+        o << value.GetInteger();
     }
 
     return o;

@@ -68,10 +68,17 @@ std::string ParsingErrorString(std::size_t line,
                                std::size_t column,
                                std::string text)
 {
+#ifndef TERRA_DISABLE_STD_FORMAT
     return std::format("JSON parsing error at line {}, column {}: {}",
                        line,
                        column,
                        text);
+#else
+    std::ostringstream oss;
+    oss << "JSON parsing error at line " << line << ", column " << column
+        << ": " << text;
+    return oss.str();
+#endif
 }
 
 } // namespace
