@@ -1,5 +1,9 @@
 # Change Log
 
+v1.0.3
+
+- Updated to the latest Simple Test Framework (STF)
+
 v1.0.2
 
 - Added the ability to disable use of std::format for the benefit of building
