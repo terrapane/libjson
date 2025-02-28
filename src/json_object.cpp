@@ -1,7 +1,7 @@
 /*
  *  json_object.cpp
  *
- *  Copyright (C) 2024
+ *  Copyright (C) 2024-2025
  *  Terrapane Corporation
  *  All Rights Reserved
  *
@@ -11,6 +11,12 @@
  *  Description:
  *      This file contains implementation of some functions defined for the
  *      JSONObject object.
+ *
+ *      Note that objects can contain key/value pairs where the values are
+ *      other objects or arrays.  Producing the textual representation of
+ *      a deeply nested object or array can cause the system to consume all
+ *      available stack space since each nested level results in a recursive
+ *      call to the output streaming operator.
  *
  *  Portability Issues:
  *      None.

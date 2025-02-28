@@ -1,7 +1,7 @@
 /*
  *  json_parser.cpp
  *
- *  Copyright (C) 2024
+ *  Copyright (C) 2024-2025
  *  Terrapane Corporation
  *  All Rights Reserved
  *
@@ -9,7 +9,9 @@
  *      Paul E. Jones <paulej@packetizer.com>
  *
  *  Description:
- *      This file implements the JSON parsing and serialization object.
+ *      This file implements the JSON parsing and serialization object.  Note
+ *      that this parser does not utilize recursive calls, thus processing is
+ *      only bound by the available system memory.
  *
  *  Portability Issues:
  *      None.
@@ -213,7 +215,7 @@ JSON JSONParser::Parse(const std::u8string_view content)
     }
 
     // Create a JSON object holding the expected type
-    JSON json(ParseValue(DetermineValueType()));
+    JSON json(ParseInitialValue());
 
     // Consume any trailing whitespace
     ConsumeWhitespace();
@@ -348,14 +350,82 @@ JSONValueType JSONParser::DetermineValueType() const
 }
 
 /*
- *  JSONParser::ParseValue()
+ *  JSONParser::ParseInitialValue()
  *
  *  Description:
- *      This function will parse the next single value of the given type,
+ *      This function will parse the initial data type. It will inspect the
+ *      input stream and then parse the data and following data accordingly.
+ *
+ *  Parameters:
+ *      None.
+ *
+ *  Returns:
+ *      A JSON object holding the parsed value type.  An exception will be
+ *      thrown if there is a parsing error.
+ *
+ *  Comments:
+ *      None.
+ */
+JSONValue JSONParser::ParseInitialValue()
+{
+    // Determine the value type
+    JSONValueType value_type = DetermineValueType();
+
+    // If the initial value is an object, put one on the context and handle it
+    if (value_type == JSONValueType::Object)
+    {
+        JSONValue json_object = JSONObject();
+
+        // Put reference into the parsing context, initializing elements
+        composite_context.emplace_back(&json_object, false, false, false);
+
+        // Parse the element in the composite context
+        ParseCompositeValue();
+
+        // Upon return, the context should be empty
+        if (!composite_context.empty())
+        {
+            throw JSONException("Error parsing composite type");
+        }
+
+        return json_object;
+    }
+
+    // If the initial value is an array, put one on the context and handle it
+    if (value_type == JSONValueType::Array)
+    {
+        JSONValue json_array = JSONArray();
+
+        // Put reference into the parsing context, initializing elements
+        composite_context.emplace_back(&json_array, false, false, false);
+
+        // Parse the element in the composite context
+        ParseCompositeValue();
+
+        // Upon return, the context should be empty
+        if (!composite_context.empty())
+        {
+            throw JSONException("Error parsing composite type");
+        }
+
+        return json_array;
+    }
+
+    // Return the parsed primitive type
+    return ParsePrimitiveValue(value_type);
+}
+
+/*
+ *  JSONParser::ParsePrimitiveValue()
+ *
+ *  Description:
+ *      This function will parse the next primitive value of the given type,
  *      returning a JSON object of the specified type.  The caller of this
  *      function should have verified that the upcoming text contains the
  *      specified type.  That would be done by first calling the function
  *      DetermineValueType().
+ *
+ *      A primitive type is a string, number, or literal.
  *
  *  Parameters:
  *      value_type [in]
@@ -368,7 +438,7 @@ JSONValueType JSONParser::DetermineValueType() const
  *  Comments:
  *      None.
  */
-JSONValue JSONParser::ParseValue(JSONValueType value_type)
+JSONValue JSONParser::ParsePrimitiveValue(JSONValueType value_type)
 {
     // Each distinct type requires entirely different parsing logic
     switch (value_type)
@@ -381,21 +451,90 @@ JSONValue JSONParser::ParseValue(JSONValueType value_type)
             return ParseNumber();
             break;
 
-        case JSONValueType::Object:
-            return ParseObject();
-            break;
-
-        case JSONValueType::Array:
-            return ParseArray();
-            break;
-
         case JSONValueType::Literal:
             return ParseLiteral();
+            break;
+
+        case JSONValueType::Object:
+            [[fallthrough]];
+        case JSONValueType::Array:
+            throw JSONException("Unexpected composite type");
             break;
 
         default:
             throw JSONException("Unknown value type provided");
     };
+}
+
+/*
+ *  JSONParser::ParseCompositeValue()
+ *
+ *  Description:
+ *      This function will parse a composite value of the given type,
+ *      returning a JSON object of that specified type.  The caller of this
+ *      function should have verified that the upcoming text contains the
+ *      specified type.  That would be done by first calling the function
+ *      DetermineValueType().
+ *
+ *      A composite type is an array or object.
+ *
+ *  Parameters:
+ *      None. This function expects composite_context to be populated.
+ *
+ *  Returns:
+ *      Nothing, though an exception will be thrown if there is an error
+ *      consuming the composite_context data.
+ *
+ *  Comments:
+ *      None.
+ */
+void JSONParser::ParseCompositeValue()
+{
+    // Ensure composite_context is not empty
+    if (composite_context.empty())
+    {
+        throw JSONException("Composite context unexpectedly empty");
+    }
+
+    // Loop until the composite vector is fully consumed
+    while (!composite_context.empty())
+    {
+        // If the back element is a JSON object, parse it
+        if (std::holds_alternative<JSONObject>(*composite_context.back().value))
+        {
+            // Process the JSON object
+            ParseObject();
+
+            // If we saw the closing brace or bracket, we're done with
+            // this element
+            if (composite_context.back().closing_seen)
+            {
+                composite_context.pop_back();
+            }
+
+            // Continue the loop iteration
+            continue;
+        }
+
+        // If the back element is a JSON array, parse it
+        if (std::holds_alternative<JSONArray>(*composite_context.back().value))
+        {
+            // Process the JSON array
+            ParseArray();
+
+            // If we saw the closing brace or bracket, we're done with
+            // this element
+            if (composite_context.back().closing_seen)
+            {
+                composite_context.pop_back();
+            }
+
+            // Continue the loop iteration
+            continue;
+        }
+
+        throw JSONException("Unexpected type in composite context");
+    }
 }
 
 /*
@@ -931,25 +1070,41 @@ JSONNumber JSONParser::ParseNumber()
  *  JSONParser::ParseObject()
  *
  *  Description:
- *      This function assumes the subsequent input is a JSON object and will
- *      return a JSONObject type.
+ *      This function will begin processing a JSON object or, if the opening
+ *      brace is already seen, continue processing.  This function behaves
+ *      differently than other JSON types since objects can be nested.
+ *      While this function takes no input parameters, it operates on the
+ *      member vector composite_context to maintain state.
  *
  *  Parameters:
  *      None.
  *
  *  Returns:
- *      A JSONObject holding the parsed value.  An exception will be
- *      thrown if there is a parsing error.
+ *      Nothing.
  *
  *  Comments:
  *      It is assumed the read position is at the start of the object without
  *      leading whitespace.
  */
-JSONObject JSONParser::ParseObject()
+void JSONParser::ParseObject()
 {
-    JSONObject json_object;
-    bool closing_brace_seen = false;
-    bool first_member_seen = false;
+    // Ensure the parsing context is not empty
+    if (composite_context.empty())
+    {
+        throw JSONException("Composite context unexpectedly empty");
+    }
+
+    // Ensure the back of the context is a JSONObject reference
+    if (!std::holds_alternative<JSONObject>(*composite_context.back().value))
+    {
+        throw JSONException("Unexpected type in composite context");
+    }
+
+    // Assign values from the context members (as references)
+    auto &json_object = std::get<JSONObject>(*composite_context.back().value);
+    bool &opening_seen = composite_context.back().opening_seen;
+    bool &closing_seen = composite_context.back().closing_seen;
+    bool &member_seen = composite_context.back().member_seen;
 
     // Do not read beyond the buffer
     if (EndOfInput())
@@ -958,18 +1113,25 @@ JSONObject JSONParser::ParseObject()
             ParsingErrorString(line, column, "Incomplete JSON object"));
     }
 
-    // The first octet should be an open brace
-    if (*p != '{')
+    // Have the opening brace for this object been seen?
+    if (!opening_seen)
     {
-        throw JSONException(
-            ParsingErrorString(line, column, "Expected leading brace"));
+        // The first octet should be an open brace
+        if (*p != '{')
+        {
+            throw JSONException(
+                ParsingErrorString(line, column, "Expected leading brace"));
+        }
+
+        // Note that the opening brace has been seen
+        opening_seen = true;
+
+        // Advance the parsing position
+        AdvanceReadPosition();
     }
 
-    // Advance the parsing position
-    AdvanceReadPosition();
-
     // Everything else is a part of the JSON object
-    while (!EndOfInput())
+    while (!closing_seen && !EndOfInput())
     {
         // Skip over any whitespace
         ConsumeWhitespace();
@@ -981,12 +1143,12 @@ JSONObject JSONParser::ParseObject()
         if (*p == '}')
         {
             AdvanceReadPosition();
-            closing_brace_seen = true;
+            closing_seen = true;
             break;
         }
 
         // If the first member was seen, we should be at a comma
-        if (first_member_seen)
+        if (member_seen)
         {
             // Ensure we see the next member is separated by a comma
             if (*p != ',')
@@ -1014,11 +1176,11 @@ JSONObject JSONParser::ParseObject()
             }
         }
 
-        // Determine the type of the initial value
-        auto value_type = DetermineValueType();
+        // We should find a key / value pair, so check the key type
+        JSONValueType key_type = DetermineValueType();
 
         // This should be a string
-        if (value_type != JSONValueType::String)
+        if (key_type != JSONValueType::String)
         {
             throw JSONException(
                 ParsingErrorString(line, column, "Expected a string"));
@@ -1056,21 +1218,48 @@ JSONObject JSONParser::ParseObject()
         // Ensure we're not at the end of input
         if (EndOfInput()) break;
 
-        // Parse the JSON value that follows, placing it into the map
-        json_object.value[*name] = ParseValue(DetermineValueType());
-
         // Note that the first member was seen
-        first_member_seen = true;
+        member_seen = true;
+
+        // What is the type of data to consume?
+        JSONValueType value_type = DetermineValueType();
+
+        // If the next type is an JSONObject type, create that type and put
+        // it into the parsing context
+        if (value_type == JSONValueType::Object)
+        {
+            json_object.value[*name] = JSONObject();
+            composite_context.emplace_back(
+                &(*json_object.value[*name]),
+                false,
+                false,
+                false);
+            return;
+        }
+
+        // If the next type is an JSONObject type, create that type and put
+        // it into the parsing context
+        if (value_type == JSONValueType::Array)
+        {
+            json_object.value[*name] = JSONArray();
+            composite_context.emplace_back(
+                &(*json_object.value[*name]),
+                false,
+                false,
+                false);
+            return;
+        }
+
+        // Parse the primitive JSON value that follows, placing it into the map
+        json_object.value[*name] = ParsePrimitiveValue(value_type);
     }
 
     // Ensure the closing brace was seen
-    if (!closing_brace_seen)
+    if (!closing_seen)
     {
         throw JSONException(
             ParsingErrorString(line, column, "Unexpected end of JSON object"));
     }
-
-    return json_object;
 }
 
 /*
@@ -1091,11 +1280,25 @@ JSONObject JSONParser::ParseObject()
  *      It is assumed the read position is at the start of the array without
  *      leading whitespace.
  */
-JSONArray JSONParser::ParseArray()
+void JSONParser::ParseArray()
 {
-    JSONArray json_array;
-    bool closing_bracket_seen = false;
-    bool first_member_seen = false;
+    // Ensure the parsing context is not empty
+    if (composite_context.empty())
+    {
+        throw JSONException("Composite context unexpectedly empty");
+    }
+
+    // Ensure the back of the context is a JSONObject reference
+    if (!std::holds_alternative<JSONArray>(*composite_context.back().value))
+    {
+        throw JSONException("Unexpected type in composite context");
+    }
+
+    // Assign values from the context members (as references)
+    auto &json_array = std::get<JSONArray>(*composite_context.back().value);
+    bool &opening_seen = composite_context.back().opening_seen;
+    bool &closing_seen = composite_context.back().closing_seen;
+    bool &member_seen = composite_context.back().member_seen;
 
     // Do not read beyond the buffer
     if (EndOfInput())
@@ -1104,18 +1307,24 @@ JSONArray JSONParser::ParseArray()
             ParsingErrorString(line, column, "Incomplete JSON array"));
     }
 
-    // The first octet should be an open brace
-    if (*p != '[')
+    // Have the opening bracket for this object been seen?
+    if (!opening_seen)
     {
-        throw JSONException(
-            ParsingErrorString(line, column, "Expected leading bracket"));
+        // The first octet should be an open bracket
+        if (*p != '[')
+        {
+            throw JSONException(
+                ParsingErrorString(line, column, "Expected leading bracket"));
+        }
+
+        // Advance the parsing position
+        AdvanceReadPosition();
+
+        opening_seen = true;
     }
 
-    // Advance the parsing position
-    AdvanceReadPosition();
-
     // Everything else is a part of the JSON object
-    while (!EndOfInput())
+    while (!closing_seen && !EndOfInput())
     {
         // Skip over any whitespace
         ConsumeWhitespace();
@@ -1123,16 +1332,16 @@ JSONArray JSONParser::ParseArray()
         // Ensure we're not at the end of input
         if (EndOfInput()) break;
 
-        // Check if this is the end of the object
+        // Check if this is the end of the array
         if (*p == ']')
         {
             AdvanceReadPosition();
-            closing_bracket_seen = true;
+            closing_seen = true;
             break;
         }
 
         // If the first member was seen, we should be at a comma
-        if (first_member_seen)
+        if (member_seen)
         {
             // Ensure we see the next member is separated by a comma
             if (*p != ',')
@@ -1160,21 +1369,48 @@ JSONArray JSONParser::ParseArray()
             }
         }
 
-        // Parse the JSON value that follows, placing it into the map
-        json_array.value.emplace_back(ParseValue(DetermineValueType()));
-
         // Note that the first member was seen
-        first_member_seen = true;
+        member_seen = true;
+
+        // What is the type of data to consume?
+        JSONValueType value_type = DetermineValueType();
+
+        // If the next type is an JSONObject type, create that type and put
+        // it into the parsing context
+        if (value_type == JSONValueType::Object)
+        {
+            json_array.value.emplace_back(JSONObject());
+            composite_context.emplace_back(
+                &(*json_array.value.back()),
+                false,
+                false,
+                false);
+            return;
+        }
+
+        // If the next type is an JSONObject type, create that type and put
+        // it into the parsing context
+        if (value_type == JSONValueType::Array)
+        {
+            json_array.value.emplace_back(JSONArray());
+            composite_context.emplace_back(
+                &(*json_array.value.back()),
+                false,
+                false,
+                false);
+            return;
+        }
+
+        // Parse the JSON value that follows, placing it into the map
+        json_array.value.emplace_back(ParsePrimitiveValue(value_type));
     }
 
     // Ensure the closing brace was seen
-    if (!closing_bracket_seen)
+    if (!closing_seen)
     {
         throw JSONException(
             ParsingErrorString(line, column, "Unexpected end of JSON array"));
     }
-
-    return json_array;
 }
 
 /*

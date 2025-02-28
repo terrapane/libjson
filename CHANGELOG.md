@@ -1,7 +1,14 @@
 # Change Log
 
+v1.0.4
+
+- Removed recursive calls in the JSONParser, replacing recursion with a
+  vector that maintains processing state
+
 v1.0.3
 
+- Made use of std::format configurable since some older macOS releases
+  to not support it
 - Updated to the latest Simple Test Framework (STF)
 
 v1.0.2

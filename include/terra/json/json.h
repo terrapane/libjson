@@ -1,7 +1,7 @@
 /*
  *  json.h
  *
- *  Copyright (C) 2024
+ *  Copyright (C) 2024-2025
  *  Terrapane Corporation
  *  All Rights Reserved
  *
@@ -482,6 +482,14 @@ class JSONParser
         JSON Parse(const std::u8string_view content);
 
     protected:
+        struct CompositeContext
+        {
+            JSONValue *value;
+            bool opening_seen;
+            bool member_seen;
+            bool closing_seen;
+        };
+
         constexpr bool EndOfInput() const { return p >= q; }
         constexpr std::size_t RemainingInput() const { return q - p; }
         constexpr void AdvanceReadPosition(std::size_t steps = 1)
@@ -492,18 +500,23 @@ class JSONParser
         }
         void ConsumeWhitespace();
         JSONValueType DetermineValueType() const;
-        JSONValue ParseValue(JSONValueType value_type);
+        JSONValue ParseInitialValue();
+        JSONValue ParsePrimitiveValue(JSONValueType value_type);
+        void ParseCompositeValue();
         JSONString ParseString();
         void ParseUnicode(JSONString &json_string);
         JSONNumber ParseNumber();
-        JSONObject ParseObject();
-        JSONArray ParseArray();
+        void ParseObject();
+        void ParseArray();
         JSONLiteral ParseLiteral();
 
         const char8_t *p;                       // Start of content
         const char8_t *q;                       // One past end of data
         std::size_t line;                       // Current line number
         std::size_t column;                     // Current column
+
+        // Use to parse composite types
+        std::vector<CompositeContext> composite_context;
 };
 
 // Define the JSONFormatter object used format JSON text
