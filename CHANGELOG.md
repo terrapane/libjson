@@ -2,8 +2,8 @@
 
 v1.0.4
 
-- Removed recursive calls in the JSONParser, replacing recursion with a
-  vector that maintains processing state
+- Removed recursive calls in the JSONParser and JSONPrinter, replacing recursion
+  with a vector that maintains processing state
 
 v1.0.3
 

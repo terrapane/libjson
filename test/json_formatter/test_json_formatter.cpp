@@ -1,7 +1,7 @@
 /*
  *  test_json_formatter.cpp
  *
- *  Copyright (C) 2024
+ *  Copyright (C) 2024-2025
  *  Terrapane Corporation
  *  All Rights Reserved
  *
@@ -470,4 +470,60 @@ STF_TEST(JSONFormatter, JSONArray4)
                  [](char c) { return c != '\r'; });
 
     STF_ASSERT_EQ(expected, result);
+}
+
+// This test uses the sample JSON file on json.org
+STF_TEST(JSONFormatter, SampleJSON)
+{
+    const std::string sample_json = R"({
+    "glossary": {
+        "title": "example glossary",
+		"GlossDiv": {
+            "title": "S",
+			"GlossList": {
+                "GlossEntry": {
+                    "ID": "SGML",
+					"SortAs": "SGML",
+					"GlossTerm": "Standard Generalized Markup Language",
+					"Acronym": "SGML",
+					"Abbrev": "ISO 8879:1986",
+					"GlossDef": {
+                        "para": "A meta-markup language, used to create markup languages such as DocBook.",
+						"GlossSeeAlso": ["GML", "XML"]
+                    },
+					"GlossSee": "markup"
+                }
+            }
+        }
+    }
+})";
+    const std::string expected = R"({
+  "glossary": {
+    "title": "example glossary",
+    "GlossDiv": {
+      "title": "S",
+      "GlossList": {
+        "GlossEntry": {
+          "ID": "SGML",
+          "SortAs": "SGML",
+          "GlossTerm": "Standard Generalized Markup Language",
+          "Acronym": "SGML",
+          "Abbrev": "ISO 8879:1986",
+          "GlossDef": {
+            "para": "A meta-markup language, used to create markup languages such as DocBook.",
+            "GlossSeeAlso": [
+              "GML",
+              "XML"
+            ]
+          },
+          "GlossSee": "markup"
+        }
+      }
+    }
+  }
+})";
+
+    std::string formatted_string = JSONFormatter().Print(sample_json);
+
+    STF_ASSERT_EQ(expected, formatted_string);
 }

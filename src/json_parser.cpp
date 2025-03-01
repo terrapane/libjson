@@ -457,6 +457,7 @@ JSONValue JSONParser::ParsePrimitiveValue(JSONValueType value_type)
 
         case JSONValueType::Object:
             [[fallthrough]];
+
         case JSONValueType::Array:
             throw JSONException("Unexpected composite type");
             break;
@@ -470,16 +471,13 @@ JSONValue JSONParser::ParsePrimitiveValue(JSONValueType value_type)
  *  JSONParser::ParseCompositeValue()
  *
  *  Description:
- *      This function will parse a composite value of the given type,
- *      returning a JSON object of that specified type.  The caller of this
- *      function should have verified that the upcoming text contains the
- *      specified type.  That would be done by first calling the function
- *      DetermineValueType().
+ *      This function will parse a composite value based on the type of value
+ *      found at the back of the composite_context vector.
  *
  *      A composite type is an array or object.
  *
  *  Parameters:
- *      None. This function expects composite_context to be populated.
+ *      None.
  *
  *  Returns:
  *      Nothing, though an exception will be thrown if there is an error
@@ -1317,13 +1315,14 @@ void JSONParser::ParseArray()
                 ParsingErrorString(line, column, "Expected leading bracket"));
         }
 
+        // Indicate that the opening bracket was seen
+        opening_seen = true;
+
         // Advance the parsing position
         AdvanceReadPosition();
-
-        opening_seen = true;
     }
 
-    // Everything else is a part of the JSON object
+    // Everything else is a part of the JSON array
     while (!closing_seen && !EndOfInput())
     {
         // Skip over any whitespace

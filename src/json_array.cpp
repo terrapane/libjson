@@ -12,12 +12,6 @@
  *      This file contains implementation of some functions defined for the
  *      JSONArray object.
  *
- *      Note that arrays can contain values that are other arrays or objects.
- *      Producing the textual representation of a deeply nested array or object
- *      can cause the system to consume all available stack space since each
- *      nested level results in a recursive call to the output streaming
- *      operator.
- *
  *  Portability Issues:
  *      None.
  */

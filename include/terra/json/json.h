@@ -515,7 +515,7 @@ class JSONParser
         std::size_t line;                       // Current line number
         std::size_t column;                     // Current column
 
-        // Use to parse composite types
+        // Used to parse composite types
         std::vector<CompositeContext> composite_context;
 };
 
@@ -539,6 +539,14 @@ class JSONFormatter
         void Print(std::ostream &o, const std::u8string_view content);
 
     protected:
+        struct CompositeContext
+        {
+            JSONValue *value;
+            bool opening_seen;
+            bool member_seen;
+            bool closing_seen;
+        };
+
         constexpr bool EndOfInput() const { return p >= q; }
         constexpr std::size_t RemainingInput() const { return q - p; }
         constexpr void AdvanceReadPosition(std::size_t steps = 1)
@@ -550,7 +558,11 @@ class JSONFormatter
         void ProduceIndentation();
         void ConsumeWhitespace();
         JSONValueType DetermineValueType() const;
-        void PrintValue(JSONValueType value_type);
+
+        void PrintInitialValue();
+        void PrintPrimitiveValue(JSONValueType value_type);
+        void PrintCompositeValue();
+
         void PrintString();
         void PrintNumber();
         void PrintObject();
@@ -565,6 +577,9 @@ class JSONFormatter
         const char8_t *q;                       // One past end of data
         std::size_t line;                       // Current line number
         std::size_t column;                     // Current column
+
+        // Used to print composite types
+        std::vector<CompositeContext> composite_context;
 };
 
 } // namespace Terra::JSON
