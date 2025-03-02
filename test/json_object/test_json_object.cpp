@@ -274,3 +274,104 @@ STF_TEST(JSONObject, ToString)
     STF_ASSERT_EQ(expected, result);
 }
 
+// Test for equality
+STF_TEST(JSONObject, TestEquality)
+{
+    JSONString some_string = "Test";
+    JSONString some_string2 = u8"Test";
+    JSONObject object1 =
+    {
+        {"Key1", "Value"},
+        {"Key2", 25},
+        {"Key3", some_string},
+        {"Key4", some_string2},
+        {"Key5", {
+                     {
+                         {u8"Key1", "foo"},
+                         {u8"Key2", "bar"}
+                     }
+                 }
+        },
+        {"Key6", "Hello"},
+        {"Key7", u8"Hello"},
+        {"Key8", 5.3},
+        {"Key9", 10},
+        {"Key10", JSONLiteral::Null},
+        {"Key11", {{1, 2}}}
+    };
+
+    // Minor changes that should be equal
+    JSONObject object2 =
+    {
+        {"Key1", "Value"},
+        {"Key3", some_string},
+        {"Key10", JSONLiteral::Null},
+        {"Key4", some_string2},
+        {"Key5", {
+                     {
+                         {u8"Key1", "foo"},
+                         {u8"Key2", "bar"}
+                     }
+                 }
+        },
+        {"Key6", "Hello"},
+        {"Key7", u8"Hello"},
+        {"Key8", 5.3},
+        {"Key2", 25},
+        {"Key9", 10},
+        {"Key11", {{1, 2}}}
+    };
+
+    STF_ASSERT_EQ(object1, object2);
+}
+
+// Test for inequality
+STF_TEST(JSONObject, TestInequality)
+{
+    JSONString some_string = "Test";
+    JSONString some_string2 = u8"Test";
+    JSONObject object1 =
+    {
+        {"Key1", "Value"},
+        {"Key2", 25},
+        {"Key3", some_string},
+        {"Key4", some_string2},
+        {"Key5", {
+                     {
+                         {u8"Key1", "foo"},
+                         {u8"Key2", "bar"}
+                     }
+                 }
+        },
+        {"Key6", "Hello"},
+        {"Key7", u8"Hello"},
+        {"Key8", 5.3},
+        {"Key9", 10},
+        {"Key10", JSONLiteral::Null},
+        {"Key11", {{1, 2}}}
+    };
+
+    // Minor changes that should be equal
+    JSONObject object2 =
+    {
+        {"Key1", "Value"},
+        {"Key2", 25},
+        {"Key3", some_string},
+        {"Key4", some_string2},
+        {"Key5", {
+                     {
+                         {u8"Key1", "different"},
+                         {u8"Key2", "bar"}
+                     }
+                 }
+        },
+        {"Key6", "Hello"},
+        {"Key7", u8"Hello"},
+        {"Key8", 5.3},
+        {"Key9", 10},
+        {"Key10", JSONLiteral::Null},
+        {"Key11", {{1, 2}}}
+    };
+
+    STF_ASSERT_NE(object1, object2);
+}

@@ -22,6 +22,22 @@
 namespace Terra::JSON
 {
 
+// This is used to facilitate comparing variant types in the JSON object
+struct EqualsVisitor
+{
+    template<typename T>
+    bool operator()(const T &lhs, const T &rhs) const
+    {
+        return lhs == rhs;
+    }
+
+    template<typename T, typename U>
+    bool operator()(const T &, const U &) const
+    {
+        return false;
+    }
+};
+
 /*
  *  operator<<()
  *
@@ -280,6 +296,50 @@ const JSON &JSON::operator[](const std::u8string &key) const
     }
 
     return std::get<JSONObject>(value)[key];
+}
+
+/*
+ *  operator==()
+ *
+ *  Description:
+ *      This function will compare two JSON objects for equality.
+ *
+ *  Parameters:
+ *      other [in]
+ *          The other JSON object against which to compare.
+ *
+ *  Returns:
+ *      True if this and the other object are equal, and false if they are not.
+ *
+ *  Comments:
+ *      None.
+ */
+bool JSON::operator==(const JSON &other) const
+{
+    if (value.index() != other.value.index()) return false;
+    return std::visit(EqualsVisitor{}, value, other.value);
+}
+
+/*
+ *  operator!=()
+ *
+ *  Description:
+ *      This function will compare two JSON objects for inequality.
+ *
+ *  Parameters:
+ *      other [in]
+ *          The other JSON object against which to compare.
+ *
+ *  Returns:
+ *      True if this and the other object are not equal, and false if they are
+ *      equal.
+ *
+ *  Comments:
+ *      None.
+ */
+bool JSON::operator!=(const JSON &other) const
+{
+    return !operator==(other);
 }
 
 /*

@@ -128,6 +128,49 @@ const JSON &JSONArray::operator[](const std::size_t index) const
 }
 
 /*
+ *  operator==()
+ *
+ *  Description:
+ *      This function will compare two JSONArray values for equality.
+ *
+ *  Parameters:
+ *      other [in]
+ *          The other JSONArray against which to compare.
+ *
+ *  Returns:
+ *      True if this and the other value are equal, and false if they are not.
+ *
+ *  Comments:
+ *      None.
+ */
+bool JSONArray::operator==(const JSONArray &other) const
+{
+    return value == other.value;
+}
+
+/*
+ *  operator!=()
+ *
+ *  Description:
+ *      This function will compare two JSONArray values for inequality.
+ *
+ *  Parameters:
+ *      other [in]
+ *          The other JSONArray against which to compare.
+ *
+ *  Returns:
+ *      True if this and the other value are not equal, and false if they are
+ *      equal.
+ *
+ *  Comments:
+ *      None.
+ */
+bool JSONArray::operator!=(const JSONArray &other) const
+{
+    return !operator==(other);
+}
+
+/*
  *  JSONArray::Size()
  *
  *  Description:

@@ -59,3 +59,21 @@ STF_TEST(JSONLiteral, Output3)
 
     STF_ASSERT_EQ(expected, oss.str());
 }
+
+// Test for equality
+STF_TEST(JSONLiteral, TestEquality)
+{
+    JSONLiteral literal1 = JSONLiteral::Null;
+    JSONLiteral literal2 = JSONLiteral::Null;
+
+    STF_ASSERT_EQ(literal1, literal2);
+}
+
+// Test for inequality
+STF_TEST(JSONLiteral, TestInequality)
+{
+    JSONLiteral literal1 = JSONLiteral::Null;
+    JSONLiteral literal2 = JSONLiteral::True;
+
+    STF_ASSERT_NE(literal1, literal2);
+}

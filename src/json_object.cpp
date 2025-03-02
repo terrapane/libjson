@@ -116,6 +116,49 @@ JSONObject::JSONObject(
 }
 
 /*
+ *  operator==()
+ *
+ *  Description:
+ *      This function will compare two JSONObject objects for equality.
+ *
+ *  Parameters:
+ *      other [in]
+ *          The other JSONObject object against which to compare.
+ *
+ *  Returns:
+ *      True if this and the other object are equal, and false if they are not.
+ *
+ *  Comments:
+ *      None.
+ */
+bool JSONObject::operator==(const JSONObject &other) const
+{
+    return value == other.value;
+}
+
+/*
+ *  operator!=()
+ *
+ *  Description:
+ *      This function will compare two JSONObject objects for inequality.
+ *
+ *  Parameters:
+ *      other [in]
+ *          The other JSONObject object against which to compare.
+ *
+ *  Returns:
+ *      True if this and the other object are not equal, and false if they are
+ *      equal.
+ *
+ *  Comments:
+ *      None.
+ */
+bool JSONObject::operator!=(const JSONObject &other) const
+{
+    return !operator==(other);
+}
+
+/*
  *  JSONObject::ToString()
  *
  *  Description:

@@ -4,6 +4,7 @@ v1.0.4
 
 - Removed recursive calls in the JSONParser and JSONPrinter, replacing recursion
   with a vector that maintains processing state
+- Added operator==() and operator!=() functions for all JSON data types
 
 v1.0.3
 

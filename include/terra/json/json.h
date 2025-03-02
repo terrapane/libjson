@@ -146,6 +146,15 @@ struct JSONString
         return *this;
     }
 
+    bool operator==(const JSONString &other) const
+    {
+        return value == other.value;
+    }
+    bool operator!=(const JSONString &other) const
+    {
+        return !operator==(other);
+    }
+
     // Return the underlying string
     std::u8string &operator*() { return value; }
     const std::u8string &operator*() const { return value; }
@@ -201,6 +210,21 @@ struct JSONNumber
         value = static_cast<JSONInteger>(number);
     }
     ~JSONNumber() = default;
+
+    bool operator==(const JSONNumber &other) const
+    {
+        if (value.index() != other.value.index()) return false;
+        return std::visit([](auto first, auto second)
+                          {
+                              return first == second;
+                          },
+                          value,
+                          other.value);
+    }
+    bool operator!=(const JSONNumber &other) const
+    {
+        return !operator==(other);
+    }
 
     bool IsFloat() const { return std::holds_alternative<JSONFloat>(value); }
     bool IsInteger() const { return !IsFloat(); }
@@ -265,6 +289,9 @@ struct JSONObject
 
     std::size_t Size() const { return value.size(); }
 
+    bool operator==(const JSONObject &other) const;
+    bool operator!=(const JSONObject &other) const;
+
     std::string ToString() const;
 };
 
@@ -286,6 +313,9 @@ struct JSONArray
     // Return the underlying array of JSON objects
     std::vector<JSON> &operator*() { return value; }
     const std::vector<JSON> &operator*() const { return value; }
+
+    bool operator==(const JSONArray &other) const;
+    bool operator!=(const JSONArray &other) const;
 
     std::size_t Size() const;
 
@@ -461,6 +491,9 @@ class JSON
         {
             return operator[](std::u8string(key.cbegin(), key.cend()));
         }
+
+        bool operator==(const JSON &other) const;
+        bool operator!=(const JSON &other) const;
 
         std::string ToString() const;
 

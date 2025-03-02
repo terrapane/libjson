@@ -179,3 +179,23 @@ STF_TEST(JSONNumber, ToString)
 
     STF_ASSERT_EQ(expected, result);
 }
+
+// Test for equality
+STF_TEST(JSONNumber, NumberEqual)
+{
+    JSONNumber number(1.5);
+    JSONNumber other_number(1.5);
+
+    STF_ASSERT_EQ(number, other_number);
+}
+
+// Test for inequality
+STF_TEST(JSONNumber, NumberUnequal)
+{
+    JSONNumber number(1.8);
+    JSONNumber other_number(1.5);
+    JSONNumber yet_another_number(2);
+
+    STF_ASSERT_NE(number, other_number);
+    STF_ASSERT_NE(number, yet_another_number);
+}

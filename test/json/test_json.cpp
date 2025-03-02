@@ -743,3 +743,97 @@ STF_TEST(JSON, ToString)
     STF_ASSERT_EQ(JSONValueType::Literal, object["Key10"].GetValueType());
     STF_ASSERT_EQ(JSONValueType::Array, object["Key11"].GetValueType());
 }
+
+// Test for equality
+STF_TEST(JSON, TestEquality)
+{
+    JSONString some_string = "Test";
+    JSONString some_string2 = u8"Test";
+    JSON json1 = JSONObject{
+    {
+        {"Key1", JSONString("Value")},
+        {"Key2", JSONNumber(25)},
+        {"Key3", some_string},
+        {"Key4", some_string2},
+        {"Key5", JSONObject(
+                        {
+                            {u8"Key1", JSONString("foo")},
+                            {u8"Key2", JSONString("bar")}
+                        })},
+        {"Key6", "Hello"},
+        {"Key7", u8"Hello"},
+        {"Key8", 5.3},
+        {"Key9", 10},
+        {"Key10", JSONLiteral::Null},
+        {"Key11", JSONArray({JSONNumber(1), JSONNumber(2)})}
+    }};
+
+    // Same data as above, but just re-ordered
+    JSON json2 = JSONObject{
+    {
+        {"Key2", JSONNumber(25)},
+        {"Key1", JSONString("Value")},
+        {"Key4", some_string2},
+        {"Key10", JSONLiteral::Null},
+        {"Key5", JSONObject(
+                        {
+                            {u8"Key2", JSONString("bar")},
+                            {u8"Key1", JSONString("foo")}
+                        })},
+        {"Key6", "Hello"},
+        {"Key7", u8"Hello"},
+        {"Key8", 5.3},
+        {"Key9", 10},
+        {"Key3", some_string},
+        {"Key11", JSONArray({JSONNumber(1), JSONNumber(2)})}
+    }};
+
+    STF_ASSERT_EQ(json1, json2);
+}
+
+// Test for inequality
+STF_TEST(JSON, TestInequality)
+{
+    JSONString some_string = "Test";
+    JSONString some_string2 = u8"Test";
+    JSON json1 = JSONObject{
+    {
+        {"Key1", JSONString("Value")},
+        {"Key2", JSONNumber(25)},
+        {"Key3", some_string},
+        {"Key4", some_string2},
+        {"Key5", JSONObject(
+                        {
+                            {u8"Key1", JSONString("foo")},
+                            {u8"Key2", JSONString("bar")}
+                        })},
+        {"Key6", "Hello"},
+        {"Key7", u8"Hello"},
+        {"Key8", 5.3},
+        {"Key9", 10},
+        {"Key10", JSONLiteral::Null},
+        {"Key11", JSONArray({JSONNumber(1), JSONNumber(2)})}
+    }};
+
+    // Same data as above, but changed slightly
+    JSON json2 = JSONObject{
+    {
+        {"Key1", JSONString("Value")},
+        {"Key2", JSONNumber(25)},
+        {"Key3", some_string},
+        {"Key4", some_string2},
+        {"Key5", JSONObject(
+                        {
+                            {u8"Key1", JSONString("foo")},
+                            {u8"Key2", JSONString("bar")}
+                        })},
+        {"Key6", "Hello"},
+        {"Key7", u8"Hello"},
+        {"Key8", 5.3},
+        {"Key9", 10},
+        {"Key10", JSONLiteral::True},
+        {"Key11", JSONArray({JSONNumber(1), JSONNumber(2)})}
+    }};
+
+    STF_ASSERT_NE(json1, json2);
+}

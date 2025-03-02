@@ -117,3 +117,22 @@ STF_TEST(JSONArray, ToString)
     STF_ASSERT_EQ(expected, result);
 }
 
+// Test equality
+STF_TEST(JSONArray, TestEquality)
+{
+    // This will initialize the array of JSON objects holding JSONNumber types
+    JSONArray array1({1, {{{"Key1", "Value1"}, {"Key2", "Value2"}}}, 2});
+    JSONArray array2({1, {{{"Key2", "Value2"}, {"Key1", "Value1"}}}, 2});
+
+    STF_ASSERT_EQ(array1, array2);
+}
+
+// Test equality
+STF_TEST(JSONArray, TestInequality)
+{
+    // This will initialize the array of JSON objects holding JSONNumber types
+    JSONArray array1({1, {{{"Key1", "Value1"}, {"Key2", "Value2"}}}, 2});
+    JSONArray array2({2, {{{"Key2", "Value2"}, {"Key1", "Value1"}}}, 1});
+
+    STF_ASSERT_NE(array1, array2);
+}

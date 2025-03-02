@@ -215,3 +215,21 @@ STF_TEST(JSONString, ToString)
 
     STF_ASSERT_EQ(expected, result);
 }
+
+// Test for equality
+STF_TEST(JSONString, StringsEqual)
+{
+    JSONString string = u8"Sample string";
+    JSONString other_string = u8"Sample string";
+
+    STF_ASSERT_EQ(string, other_string);
+}
+
+// Test for inequality
+STF_TEST(JSONString, StringsUnequal)
+{
+    JSONString string = u8"Sample string";
+    JSONString other_string = u8"Different string";
+
+    STF_ASSERT_NE(string, other_string);
+}

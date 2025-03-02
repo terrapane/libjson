@@ -628,3 +628,122 @@ STF_TEST(JSONParser, JSONMove)
     // There should be two tag / value pairs
     STF_ASSERT_EQ(5, result_copy.GetValue<JSONArray>().Size());
 }
+
+// Test for equality
+STF_TEST(JSONParser, TestEquality)
+{
+    // These two JSON strings are "equal", but formatted differently and
+    // elements are reordered
+    const std::string json1 = R"({
+    "glossary": {
+        "title": "example glossary",
+		"GlossDiv": {
+            "title": "S",
+			"GlossList": {
+                "GlossEntry": {
+                    "ID": "SGML",
+					"Abbrev": "ISO 8879:1986",
+					"GlossTerm": "Standard Generalized Markup Language",
+					"SortAs": "SGML",
+					"Acronym": "SGML",
+					"GlossDef": {
+                        "para": "A meta-markup language, used to create markup languages such as DocBook.",
+						"GlossSeeAlso": ["GML", "XML"]
+                    },
+					"GlossSee": "markup"
+                }
+            }
+        }
+    }
+})";
+    const std::string json2 = R"({
+  "glossary": {
+    "title": "example glossary",
+    "GlossDiv": {
+      "title": "S",
+      "GlossList": {
+        "GlossEntry": {
+          "ID": "SGML",
+          "SortAs": "SGML",
+          "GlossTerm": "Standard Generalized Markup Language",
+          "Acronym": "SGML",
+          "Abbrev": "ISO 8879:1986",
+          "GlossDef": {
+            "para": "A meta-markup language, used to create markup languages such as DocBook.",
+            "GlossSeeAlso": [
+              "GML",
+              "XML"
+            ]
+          },
+          "GlossSee": "markup"
+        }
+      }
+    }
+  }
+})";
+
+    JSON result1 = JSONParser().Parse(json1);
+    JSON result2 = JSONParser().Parse(json2);
+
+    STF_ASSERT_EQ(result1, result2);
+}
+
+// Test for inequality
+STF_TEST(JSONParser, TestInequality)
+{
+    // These two JSON strings are almost equal, though formatted is different
+    // and elements are reordered -- but array elements reordered in the
+    // second instance
+    const std::string json1 = R"({
+    "glossary": {
+        "title": "example glossary",
+		"GlossDiv": {
+            "title": "S",
+			"GlossList": {
+                "GlossEntry": {
+                    "ID": "SGML",
+					"Abbrev": "ISO 8879:1986",
+					"GlossTerm": "Standard Generalized Markup Language",
+					"SortAs": "SGML",
+					"Acronym": "SGML",
+					"GlossDef": {
+                        "para": "A meta-markup language, used to create markup languages such as DocBook.",
+						"GlossSeeAlso": ["GML", "XML"]
+                    },
+					"GlossSee": "markup"
+                }
+            }
+        }
+    }
+})";
+    const std::string json2 = R"({
+  "glossary": {
+    "title": "example glossary",
+    "GlossDiv": {
+      "title": "S",
+      "GlossList": {
+        "GlossEntry": {
+          "ID": "SGML",
+          "SortAs": "SGML",
+          "GlossTerm": "Standard Generalized Markup Language",
+          "Acronym": "SGML",
+          "Abbrev": "ISO 8879:1986",
+          "GlossDef": {
+            "para": "A meta-markup language, used to create markup languages such as DocBook.",
+            "GlossSeeAlso": [
+              "XML",
+              "GML"
+            ]
+          },
+          "GlossSee": "markup"
+        }
+      }
+    }
+  }
+})";
+
+    JSON result1 = JSONParser().Parse(json1);
+    JSON result2 = JSONParser().Parse(json2);
+
+    STF_ASSERT_NE(result1, result2);
+}
