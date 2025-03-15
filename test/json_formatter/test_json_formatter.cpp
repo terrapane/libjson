@@ -9,7 +9,7 @@
  *      Paul E. Jones <paulej@packetizer.com>
  *
  *  Description:
- *      This module will test the JSONFormatter.  Since Windows and Linux
+ *      This module will test the JSONFormatter.  Since Windows and Linux/Unix
  *      will use CRLF or LF (respectively), this test code will remove
  *      CR characters from both the expected strings and the produced
  *      output for comparison.  That makes each test a little more verbose.
