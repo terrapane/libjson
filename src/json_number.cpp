@@ -17,9 +17,7 @@
  */
 
 #include <sstream>
-#ifdef TERRA_DISABLE_STD_FORMAT
-#include <iomanip>
-#else
+#ifndef TERRA_DISABLE_STD_FORMAT
 #include <format>
 #endif
 #include <cmath>
