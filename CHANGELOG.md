@@ -1,5 +1,9 @@
 # Change Log
 
+v1.0.5
+
+- If std::format is disabled, the <format> header should not be included
+
 v1.0.4
 
 - Removed recursive calls in the JSONParser and JSONPrinter, replacing recursion
