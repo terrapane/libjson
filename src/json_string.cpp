@@ -18,9 +18,10 @@
 
 #include <ostream>
 #include <sstream>
-#include <format>
 #ifdef TERRA_DISABLE_STD_FORMAT
 #include <iomanip>
+#else
+#include <format>
 #endif
 #include <terra/json/json.h>
 #include "unicode_constants.h"

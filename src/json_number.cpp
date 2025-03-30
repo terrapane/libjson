@@ -17,11 +17,12 @@
  */
 
 #include <sstream>
-#include <format>
-#include <cmath>
 #ifdef TERRA_DISABLE_STD_FORMAT
 #include <iomanip>
+#else
+#include <format>
 #endif
+#include <cmath>
 #include <terra/json/json.h>
 
 namespace Terra::JSON

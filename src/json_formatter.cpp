@@ -31,7 +31,9 @@
  */
 
 #include <sstream>
+#ifndef TERRA_DISABLE_STD_FORMAT
 #include <format>
+#endif
 #include <cctype>
 #include <terra/json/json.h>
 #include "unicode_constants.h"

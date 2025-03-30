@@ -17,10 +17,11 @@
  *      None.
  */
 
-#include <format>
 #include <cctype>
 #ifdef TERRA_DISABLE_STD_FORMAT
 #include <sstream>
+#else
+#include <format>
 #endif
 #include <terra/json/json.h>
 #include "unicode_constants.h"
