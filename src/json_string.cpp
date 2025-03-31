@@ -49,7 +49,7 @@ namespace
  *  Comments:
  *      None.
  */
-constexpr std::string ConvertToStdString(const std::u8string &string)
+std::string ConvertToStdString(const std::u8string &string)
 {
     return {string.cbegin(), string.cend()};
 }

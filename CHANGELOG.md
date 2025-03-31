@@ -2,7 +2,9 @@
 
 v1.0.5
 
-- If std::format is disabled, the <format> header should not be included
+- If std::format is disabled, the \<format\> header should not be included
+- Remove the constexpr on ConvertToStdString(), as that doesn't work on
+  slightly older systems and it doesn't add significant benefit
 
 v1.0.4
 
