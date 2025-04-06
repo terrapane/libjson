@@ -16,9 +16,9 @@ endif()
 # Option to control use of std::format; while using std::format is preferred,
 # it is not supported on older MacOS releases
 if(APPLE AND CMAKE_OSX_DEPLOYMENT_TARGET VERSION_LESS "13.0")
-    option(libjson_TERRA_DISABLE_STD_FORMAT "Disable use of C++20 std::format" ON)
+    option(libjson_DISABLE_STD_FORMAT "Disable use of C++20 std::format" ON)
 else()
-    option(libjson_TERRA_DISABLE_STD_FORMAT "Disable use of C++20 std::format" OFF)
+    option(libjson_DISABLE_STD_FORMAT "Disable use of C++20 std::format" OFF)
 endif()
 
 # Option to control ability to install the library
