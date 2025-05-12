@@ -41,7 +41,7 @@ constexpr std::uint32_t Surrogate_Low_Max =  0xdfff;
 
 // Values used in parsing or creating surrogate pairs
 // (See: https://www.Unicode.org/faq/utf_bom.html#utf16-3)
-constexpr std::uint32_t Lead_Offset = 0xd800 - (0x10000 >> 10);
-constexpr std::uint32_t Surrogate_Offset = 0x10000 - (0xd800 << 10) - 0xdc00;
+constexpr std::uint32_t Lead_Offset = 0xd800u - (0x10000u >> 10);
+constexpr std::uint32_t Surrogate_Offset = 0x10000u - (0xd800u << 10) - 0xdc00u;
 
 } // namespace Terra::JSON::Unicode

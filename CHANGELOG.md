@@ -1,5 +1,11 @@
 # Change Log
 
+v1.0.6
+
+- Updated dependencies
+- Made compiler warnings stricter
+- Addressed warnings
+
 v1.0.5
 
 - If std::format is disabled, the \<format\> header should not be included

@@ -568,8 +568,8 @@ class JSONFormatter
         std::string Print(const JSON &json);
         std::string Print(const std::string_view content);
         std::string Print(const std::u8string_view content);
-        void Print(std::ostream &o, const std::string_view content);
-        void Print(std::ostream &o, const std::u8string_view content);
+        void Print(std::ostream &stream, const std::string_view content);
+        void Print(std::ostream &stream, const std::u8string_view content);
 
     protected:
         struct CompositeContext

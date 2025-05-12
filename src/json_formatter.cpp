@@ -170,7 +170,7 @@ std::string JSONFormatter::Print(const std::u8string_view content)
  *      string.
  *
  *  Parameters:
- *      o [in/out]
+ *      stream [in/out]
  *          Stream onto which the JSON string should be output.
  *
  *      content [in]
@@ -182,9 +182,9 @@ std::string JSONFormatter::Print(const std::u8string_view content)
  *  Comments:
  *      None.
  */
-void JSONFormatter::Print(std::ostream &o, const std::string_view content)
+void JSONFormatter::Print(std::ostream &stream, const std::string_view content)
 {
-    Print(o,
+    Print(stream,
           std::u8string_view(reinterpret_cast<const char8_t *>(content.data()),
                              content.length()));
 }
@@ -197,7 +197,7 @@ void JSONFormatter::Print(std::ostream &o, const std::string_view content)
  *      string.
  *
  *  Parameters:
- *      o [in/out]
+ *      stream [in/out]
  *          Stream onto which the JSON string should be output.
  *
  *      content [in]
@@ -209,13 +209,14 @@ void JSONFormatter::Print(std::ostream &o, const std::string_view content)
  *  Comments:
  *      None.
  */
-void JSONFormatter::Print(std::ostream &o, const std::u8string_view content)
+void JSONFormatter::Print(std::ostream &stream,
+                          const std::u8string_view content)
 {
-    // Assign the output stream pointer so other functions can use it
-    this->o = &o;
-
     // Ensure the content is not empty
     if (content.empty()) throw JSONException("The content string is empty");
+
+    // Assign the output stream pointer so other member functions can use it
+    this->o = &stream;
 
     // Initialize the parsing context variables
     p = content.data();

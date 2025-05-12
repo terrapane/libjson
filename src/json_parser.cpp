@@ -767,7 +767,6 @@ void JSONParser::ParseUnicode(JSONString &json_string)
         column += 2;
 
         // Extract the hex digit string
-        std::string hex_digits(4, ' ');
         hex_digits[0] = static_cast<char>(p[0]);
         hex_digits[1] = static_cast<char>(p[1]);
         hex_digits[2] = static_cast<char>(p[2]);
