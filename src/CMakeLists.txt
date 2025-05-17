@@ -40,7 +40,6 @@ if(libjson_DISABLE_STD_FORMAT)
 endif()
 
 # Use the following compile options
-# Use the following compile options
 target_compile_options(json
     PRIVATE
         $<$<OR:$<CXX_COMPILER_ID:Clang>,$<CXX_COMPILER_ID:AppleClang>,$<CXX_COMPILER_ID:GNU>>:-Wpedantic -Wextra -Wall -Werror>
