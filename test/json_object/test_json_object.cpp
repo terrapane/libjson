@@ -1,7 +1,7 @@
 /*
  *  test_json_object.cpp
  *
- *  Copyright (C) 2024-2025
+ *  Copyright (C) 2024, 2025
  *  Terrapane Corporation
  *  All Rights Reserved
  *
