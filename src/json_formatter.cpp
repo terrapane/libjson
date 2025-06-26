@@ -31,7 +31,9 @@
  */
 
 #include <sstream>
+#if defined(__has_include) && __has_include(<format>)
 #include <format>
+#endif
 #include <cctype>
 #include <terra/json/json.h>
 #include "unicode_constants.h"

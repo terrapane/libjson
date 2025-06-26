@@ -18,7 +18,9 @@
  */
 
 #include <cctype>
+#if defined(__has_include) && __has_include(<format>)
 #include <format>
+#endif
 #ifndef __cpp_lib_format
 #include <sstream>
 #endif

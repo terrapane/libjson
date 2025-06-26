@@ -17,7 +17,9 @@
  */
 
 #include <sstream>
+#if defined(__has_include) && __has_include(<format>)
 #include <format>
+#endif
 #include <cmath>
 #include <terra/json/json.h>
 
