@@ -17,11 +17,9 @@
  */
 
 #include <sstream>
-#if defined(__has_include) && __has_include(<format>)
-#include <format>
-#endif
 #include <cmath>
 #include <terra/json/json.h>
+#include "has_format.h"
 
 namespace Terra::JSON
 {
@@ -68,7 +66,7 @@ std::ostream &operator<<(std::ostream &o, const JSONNumber &value)
         // If this is a -0 value, produce a 0
         if (number == -0.0) number = 0.0;
 
-#ifdef __cpp_lib_format
+#ifdef TERRA_HAS_FORMAT
         o << std::format("{}", number);
 #else
         // This results in a lower-precision output vs. std::format

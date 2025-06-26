@@ -18,14 +18,12 @@
 
 #include <ostream>
 #include <sstream>
-#if defined(__has_include) && __has_include(<format>)
-#include <format>
-#endif
-#ifndef __cpp_lib_format
-#include <iomanip>
-#endif
 #include <terra/json/json.h>
 #include "unicode_constants.h"
+#include "has_format.h"
+#ifndef TERRA_HAS_FORMAT
+#include <iomanip>
+#endif
 
 namespace Terra::JSON
 {
@@ -76,7 +74,7 @@ std::string ConvertToStdString(const std::u8string &string)
  */
 std::string UnicodeEscapeSequence(std::uint16_t codepoint)
 {
-#ifdef __cpp_lib_format
+#ifdef TERRA_HAS_FORMAT
     return std::format("\\u{:04X}", codepoint);
 #else
     std::ostringstream oss;

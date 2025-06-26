@@ -31,12 +31,10 @@
  */
 
 #include <sstream>
-#if defined(__has_include) && __has_include(<format>)
-#include <format>
-#endif
 #include <cctype>
 #include <terra/json/json.h>
 #include "unicode_constants.h"
+#include "has_format.h"
 
 namespace Terra::JSON
 {
@@ -70,7 +68,7 @@ std::string ParsingErrorString(std::size_t line,
                                std::size_t column,
                                std::string text)
 {
-#ifdef __cpp_lib_format
+#ifdef TERRA_HAS_FORMAT
     return std::format("JSON parsing error at line {}, column {}: {}",
                        line,
                        column,
