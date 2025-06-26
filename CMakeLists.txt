@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.21)
 
 # Define the JSON Library project
 project(libjson
-        VERSION 1.0.6.0
+        VERSION 1.0.7.0
         DESCRIPTION "JSON Library"
         LANGUAGES CXX)
 
@@ -11,14 +11,6 @@ if(PROJECT_IS_TOP_LEVEL)
     option(libjson_BUILD_TESTS "Build Tests for the JSON Library" ON)
 else()
     option(libjson_BUILD_TESTS "Build Tests for the JSON Library" OFF)
-endif()
-
-# Option to control use of std::format; while using std::format is preferred,
-# it is not supported on older MacOS releases
-if(APPLE AND CMAKE_OSX_DEPLOYMENT_TARGET VERSION_LESS "13.0")
-    option(libjson_DISABLE_STD_FORMAT "Disable use of C++20 std::format" ON)
-else()
-    option(libjson_DISABLE_STD_FORMAT "Disable use of C++20 std::format" OFF)
 endif()
 
 # Option to control ability to install the library

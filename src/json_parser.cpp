@@ -18,10 +18,9 @@
  */
 
 #include <cctype>
-#ifdef TERRA_DISABLE_STD_FORMAT
-#include <sstream>
-#else
 #include <format>
+#ifndef __cpp_lib_format
+#include <sstream>
 #endif
 #include <terra/json/json.h>
 #include "unicode_constants.h"
@@ -135,7 +134,7 @@ std::string ParsingErrorString(std::size_t line,
                                std::size_t column,
                                std::string text)
 {
-#ifndef TERRA_DISABLE_STD_FORMAT
+#ifdef __cpp_lib_format
     return std::format("JSON parsing error at line {}, column {}: {}",
                        line,
                        column,

@@ -1,5 +1,9 @@
 # Change Log
 
+v1.0.7
+
+- Changed the conditional compilation logic for use of std::format
+
 v1.0.6
 
 - Updated dependencies

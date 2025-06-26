@@ -17,9 +17,7 @@
  */
 
 #include <sstream>
-#ifndef TERRA_DISABLE_STD_FORMAT
 #include <format>
-#endif
 #include <cmath>
 #include <terra/json/json.h>
 
@@ -68,7 +66,7 @@ std::ostream &operator<<(std::ostream &o, const JSONNumber &value)
         // If this is a -0 value, produce a 0
         if (number == -0.0) number = 0.0;
 
-#ifndef TERRA_DISABLE_STD_FORMAT
+#ifdef __cpp_lib_format
         o << std::format("{}", number);
 #else
         // This results in a lower-precision output vs. std::format

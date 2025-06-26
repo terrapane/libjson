@@ -34,11 +34,6 @@ if(libjson_CLANG_TIDY)
     endif()
 endif()
 
-# If using std:format, set the definition to enable its use
-if(libjson_DISABLE_STD_FORMAT)
-    target_compile_definitions(json PRIVATE TERRA_DISABLE_STD_FORMAT)
-endif()
-
 # Use the following compile options
 target_compile_options(json
     PRIVATE
