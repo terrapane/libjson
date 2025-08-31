@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.21)
 
 # Define the JSON Library project
 project(libjson
-        VERSION 1.0.7.0
+        VERSION 1.0.8.0
         DESCRIPTION "JSON Library"
         LANGUAGES CXX)
 
@@ -19,10 +19,11 @@ option(libjson_INSTALL "Install the JSON Library" ON)
 # Determine whether clang-tidy will be performed
 option(libjson_CLANG_TIDY "Use clang-tidy to perform linting during build" OFF)
 
+# Ensure testing is enabled to surface tests in dependencies
+include(CTest)
+
 add_subdirectory(dependencies)
 add_subdirectory(src)
-
-include(CTest)
 
 if(BUILD_TESTING AND libjson_BUILD_TESTS)
     add_subdirectory(test)

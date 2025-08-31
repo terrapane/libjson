@@ -1,5 +1,10 @@
 # Change Log
 
+v1.0.8
+
+- CMake changes to support downstream unit testing
+- Updated dependencies
+
 v1.0.7
 
 - Changed the conditional compilation logic for use of std::format
