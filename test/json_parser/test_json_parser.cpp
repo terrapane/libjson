@@ -389,8 +389,8 @@ STF_TEST(JSONParser, ParseObject2)
     STF_ASSERT_EQ(JSONValueType::Number, actual[u8"b"].GetValueType());
 
     // Get the numeric values
-    const auto &value_a = std::get<JSONNumber>(*(actual[u8"a"]));
-    const auto &value_b = std::get<JSONNumber>(*(actual[u8"b"]));
+    const auto &value_a = std::get<JSONNumber>(*actual[u8"a"]);
+    const auto &value_b = std::get<JSONNumber>(*actual[u8"b"]);
 
     // Check the values are integers
     STF_ASSERT_TRUE(std::holds_alternative<JSONInteger>(*value_a));
@@ -436,8 +436,8 @@ STF_TEST(JSONParser, ParseObject3)
     STF_ASSERT_EQ(JSONValueType::String, actual[u8"b"].GetValueType());
 
     // Get references to the value types for a and b
-    auto &value_a = std::get<JSONObject>(*(actual[u8"a"]));
-    auto &value_b = std::get<JSONString>(*(actual[u8"b"]));
+    auto &value_a = std::get<JSONObject>(*actual[u8"a"]);
+    auto &value_b = std::get<JSONString>(*actual[u8"b"]);
 
     // Now check the contents of value_a
     STF_ASSERT_EQ(3, value_a.Size());
@@ -453,11 +453,11 @@ STF_TEST(JSONParser, ParseObject3)
     STF_ASSERT_EQ(JSONValueType::Number, value_a[u8"c"].GetValueType());
 
     // Verify the numeric values of value_a
-    STF_ASSERT_EQ(1, std::get<JSONNumber>(*(value_a[u8"a"])).GetInteger());
+    STF_ASSERT_EQ(1, std::get<JSONNumber>(*value_a[u8"a"]).GetInteger());
     STF_ASSERT_CLOSE(2.5,
-                     std::get<JSONNumber>(*(value_a[u8"b"])).GetFloat(),
+                     std::get<JSONNumber>(*value_a[u8"b"]).GetFloat(),
                      0.0001);
-    STF_ASSERT_EQ(3, std::get<JSONNumber>(*(value_a[u8"c"])).GetInteger());
+    STF_ASSERT_EQ(3, std::get<JSONNumber>(*value_a[u8"c"]).GetInteger());
 
     // Verify the value of value_b
     STF_ASSERT_EQ(expected_b, *value_b);

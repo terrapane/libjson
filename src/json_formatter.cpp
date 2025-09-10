@@ -1037,7 +1037,7 @@ void JSONFormatter::PrintObject()
         // it into the parsing context
         if (value_type == JSONValueType::Object)
         {
-            (*json_object)[u8""] = JSONObject();
+            *json_object[u8""] = JSONObject();
             composite_context.emplace_back(
                 &(*(*json_object)[u8""]),
                 false,
@@ -1050,7 +1050,7 @@ void JSONFormatter::PrintObject()
         // it into the parsing context
         if (value_type == JSONValueType::Array)
         {
-            (*json_object)[u8""] = JSONArray();
+            *json_object[u8""] = JSONArray();
             composite_context.emplace_back(
                 &(*(*json_object)[u8""]),
                 false,

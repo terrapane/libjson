@@ -1226,7 +1226,7 @@ void JSONParser::ParseObject()
         // it into the parsing context
         if (value_type == JSONValueType::Object)
         {
-            (*json_object)[*name] = JSONObject();
+            *json_object[*name] = JSONObject();
             composite_context.emplace_back(
                 &(*(*json_object)[*name]),
                 false,
@@ -1239,7 +1239,7 @@ void JSONParser::ParseObject()
         // it into the parsing context
         if (value_type == JSONValueType::Array)
         {
-            (*json_object)[*name] = JSONArray();
+            *json_object[*name] = JSONArray();
             composite_context.emplace_back(
                 &(*(*json_object)[*name]),
                 false,
@@ -1249,7 +1249,7 @@ void JSONParser::ParseObject()
         }
 
         // Parse the primitive JSON value that follows, placing it into the map
-        (*json_object)[*name] = ParsePrimitiveValue(value_type);
+        *json_object[*name] = ParsePrimitiveValue(value_type);
     }
 
     // Ensure the closing brace was seen

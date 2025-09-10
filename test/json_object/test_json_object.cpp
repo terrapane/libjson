@@ -111,7 +111,7 @@ STF_TEST(JSONObject, BasicAssignment)
 
     // Verify the last item is an array with three elements
     STF_ASSERT_EQ(JSONValueType::Array, object["Key3"].GetValueType());
-    STF_ASSERT_EQ(3, std::get<JSONArray>(*(object["Key3"])).Size());
+    STF_ASSERT_EQ(3, std::get<JSONArray>(*object["Key3"]).Size());
 }
 
 // Test assignment operator
@@ -144,8 +144,8 @@ STF_TEST(JSONObject, IndexOperator1)
     STF_ASSERT_EQ(JSONValueType::Number, object["key8"].GetValueType());
 
     // Verify the the numbers are recognized as the right type
-    STF_ASSERT_TRUE(std::get<JSONNumber>(*(object["key2"])).IsInteger());
-    STF_ASSERT_TRUE(std::get<JSONNumber>(*(object["key8"])).IsFloat());
+    STF_ASSERT_TRUE(std::get<JSONNumber>(*object["key2"]).IsInteger());
+    STF_ASSERT_TRUE(std::get<JSONNumber>(*object["key8"]).IsFloat());
 }
 
 // Test reading JSONObjects using assignment operator

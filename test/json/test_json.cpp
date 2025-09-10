@@ -452,7 +452,7 @@ STF_TEST(JSON, InitializerList3)
     STF_ASSERT_EQ(JSONValueType::Object, json.GetValueType());
 
     // Verify there are five elements in the map
-    STF_ASSERT_EQ(5, (*(std::get<JSONObject>(*json))).size());
+    STF_ASSERT_EQ(5, (*std::get<JSONObject>(*json)).size());
     STF_ASSERT_EQ(5, std::get<JSONObject>(*json).Size());
 }
 
@@ -476,7 +476,7 @@ STF_TEST(JSON, InitializerList4)
     STF_ASSERT_EQ(JSONValueType::Object, json.GetValueType());
 
     // Verify there are five elements in the map
-    STF_ASSERT_EQ(5, (*(std::get<JSONObject>(*json))).size());
+    STF_ASSERT_EQ(5, (*std::get<JSONObject>(*json)).size());
     STF_ASSERT_EQ(5, std::get<JSONObject>(*json).Size());
 }
 
@@ -565,7 +565,7 @@ STF_TEST(JSON, AccessOperator2)
     STF_ASSERT_EQ(JSONValueType::Number, json[1].GetValueType());
 
     // Verify the number is the expected value
-    STF_ASSERT_EQ(12, std::get<JSONNumber>(*(json[1])).GetInteger());
+    STF_ASSERT_EQ(12, std::get<JSONNumber>(*json[1]).GetInteger());
 }
 
 // Test index operator
@@ -582,7 +582,7 @@ STF_TEST(JSON, AccessOperator3)
     object["key3"] = JSONNumber(30);
 
     // Verify there are three elements in the array
-    STF_ASSERT_EQ(3, (*(std::get<JSONObject>(*object))).size());
+    STF_ASSERT_EQ(3, (*std::get<JSONObject>(*object)).size());
     STF_ASSERT_EQ(3, std::get<JSONObject>(*object).Size());
 }
 
@@ -600,7 +600,7 @@ STF_TEST(JSON, AccessOperator4)
     object["key3"] = JSONNumber(30);
 
     // Verify there are three elements in the array
-    STF_ASSERT_EQ(3, (*(std::get<JSONObject>(*object))).size());
+    STF_ASSERT_EQ(3, (*std::get<JSONObject>(*object)).size());
     STF_ASSERT_EQ(3, std::get<JSONObject>(*object).Size());
 
     // Now attempt to read

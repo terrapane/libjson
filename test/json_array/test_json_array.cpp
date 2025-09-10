@@ -71,7 +71,7 @@ STF_TEST(JSONArray, IndexOperator2)
     STF_ASSERT_EQ(JSONValueType::Number, array[1].GetValueType());
 
     // Verify the number is the expected value
-    STF_ASSERT_EQ(12, std::get<JSONNumber>(*(array[1])).GetInteger());
+    STF_ASSERT_EQ(12, std::get<JSONNumber>(*array[1]).GetInteger());
 }
 
 // Test streaming output operator
