@@ -270,9 +270,9 @@ STF_TEST(JSONParser, ParseNumber3)
 
     JSONNumber &actual = std::get<JSONNumber>(*result);
 
-    STF_ASSERT_TRUE(std::holds_alternative<double>(*actual));
+    STF_ASSERT_TRUE(std::holds_alternative<JSONFloat>(*actual));
 
-    auto actual_double = std::get<double>(*actual);
+    auto actual_double = std::get<JSONFloat>(*actual);
 
     STF_ASSERT_CLOSE(expected, actual_double, 0.01);
 }
@@ -292,9 +292,9 @@ STF_TEST(JSONParser, ParseNumber4)
 
     JSONNumber &actual = std::get<JSONNumber>(*result);
 
-    STF_ASSERT_TRUE(std::holds_alternative<double>(*actual));
+    STF_ASSERT_TRUE(std::holds_alternative<JSONFloat>(*actual));
 
-    auto actual_double = std::get<double>(*actual);
+    auto actual_double = std::get<JSONFloat>(*actual);
 
     STF_ASSERT_CLOSE(expected, actual_double, 0.00001);
 }
@@ -314,9 +314,9 @@ STF_TEST(JSONParser, ParseNumber5)
 
     JSONNumber &actual = std::get<JSONNumber>(*result);
 
-    STF_ASSERT_TRUE(std::holds_alternative<double>(*actual));
+    STF_ASSERT_TRUE(std::holds_alternative<JSONFloat>(*actual));
 
-    auto actual_double = std::get<double>(*actual);
+    auto actual_double = std::get<JSONFloat>(*actual);
 
     STF_ASSERT_CLOSE(expected, actual_double, 0.00001);
 }
@@ -336,9 +336,9 @@ STF_TEST(JSONParser, ParseNumber6)
 
     JSONNumber &actual = std::get<JSONNumber>(*result);
 
-    STF_ASSERT_TRUE(std::holds_alternative<double>(*actual));
+    STF_ASSERT_TRUE(std::holds_alternative<JSONFloat>(*actual));
 
-    auto actual_double = std::get<double>(*actual);
+    auto actual_double = std::get<JSONFloat>(*actual);
 
     STF_ASSERT_CLOSE(expected, actual_double, 0.00001);
 }

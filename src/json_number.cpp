@@ -145,10 +145,10 @@ bool JSONNumber::operator!=(const JSONNumber &other) const
  */
 JSONFloat JSONNumber::GetFloat() const
 {
-    // If holding a double, return it
+    // If holding a JSONFloat, return it
     if (IsFloat()) return std::get<JSONFloat>(value);
 
-    // Return the integer value cast as a double
+    // Return the JSONInteger value cast as a JSONFloat
     return static_cast<JSONFloat>(std::get<JSONInteger>(value));
 }
 
@@ -170,10 +170,10 @@ JSONFloat JSONNumber::GetFloat() const
  */
 JSONInteger JSONNumber::GetInteger() const
 {
-    // If holding a double, return the value cast as an integer
+    // If holding a JSONFloat, return the value cast as a JSONInteger
     if (IsFloat())
     {
-        return static_cast<JSONInteger>(std::get<double>(value));
+        return static_cast<JSONInteger>(std::get<JSONFloat>(value));
     }
 
     // Return the integer value
