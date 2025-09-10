@@ -23,47 +23,6 @@ namespace Terra::JSON
 {
 
 /*
- *  operator<<()
- *
- *  Description:
- *      Streaming operator to produce JSON text for a JSONArray type.
- *
- *  Parameters:
- *      o [in]
- *          A reference to the steaming operator onto which the JSON string
- *          will be appended.
- *
- *      array [in]
- *          The JSONArray to output as JSON text.
- *
- *  Returns:
- *      A reference to the streaming operator passed in as input.
- *
- *  Comments:
- *      None.
- */
-std::ostream &operator<<(std::ostream &o, const JSONArray &array)
-{
-    bool need_comma = false;
-
-    // Output the opening array bracket
-    o << '[';
-
-    // Iterate over the array, outputting each element
-    for (const auto &item : *array)
-    {
-        if (need_comma) o << ", ";
-        o << item;
-        need_comma = true;
-    }
-
-    // Output the closing array bracket
-    o << ']';
-
-    return o;
-}
-
-/*
  *  JSONArray::JSONArray()
  *
  *  Description:
@@ -216,3 +175,44 @@ std::string JSONArray::ToString() const
 }
 
 } // namespace Terra::JSON
+
+/*
+ *  operator<<()
+ *
+ *  Description:
+ *      Streaming operator to produce JSON text for a JSONArray type.
+ *
+ *  Parameters:
+ *      o [in]
+ *          A reference to the steaming operator onto which the JSON string
+ *          will be appended.
+ *
+ *      array [in]
+ *          The JSONArray to output as JSON text.
+ *
+ *  Returns:
+ *      A reference to the streaming operator passed in as input.
+ *
+ *  Comments:
+ *      None.
+ */
+std::ostream &operator<<(std::ostream &o, const Terra::JSON::JSONArray &array)
+{
+    bool need_comma = false;
+
+    // Output the opening array bracket
+    o << '[';
+
+    // Iterate over the array, outputting each element
+    for (const auto &item : *array)
+    {
+        if (need_comma) o << ", ";
+        o << item;
+        need_comma = true;
+    }
+
+    // Output the closing array bracket
+    o << ']';
+
+    return o;
+}

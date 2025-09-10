@@ -18,9 +18,6 @@
 
 #include <terra/json/json.h>
 
-namespace Terra::JSON
-{
-
 /*
  *  operator<<()
  *
@@ -41,27 +38,26 @@ namespace Terra::JSON
  *  Comments:
  *      None.
  */
-std::ostream &operator<<(std::ostream &o, const JSONLiteral literal)
+std::ostream &operator<<(std::ostream &o,
+                         const Terra::JSON::JSONLiteral literal)
 {
     switch (literal)
     {
-        case JSONLiteral::True:
+        case Terra::JSON::JSONLiteral::True:
             o << "true";
             break;
 
-        case JSONLiteral::False:
+        case Terra::JSON::JSONLiteral::False:
             o << "false";
             break;
 
-        case JSONLiteral::Null:
+        case Terra::JSON::JSONLiteral::Null:
             o << "null";
             break;
 
         default:
-            throw JSONException("Invalid JSON Literal value");
+            throw Terra::JSON::JSONException("Invalid JSON Literal value");
     }
 
     return o;
 }
-
-} // namespace Terra::JSON

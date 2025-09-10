@@ -27,7 +27,7 @@ STF_TEST(JSONArray, InitializerList1)
     JSONArray array({1, 2, 3});
 
     // Verify there are three elements in the array
-    STF_ASSERT_EQ(3, array.value.size());
+    STF_ASSERT_EQ(3, (*array).size());
     STF_ASSERT_EQ(3, array.Size());
 }
 
@@ -38,7 +38,7 @@ STF_TEST(JSONArray, InitializerList2)
     JSONArray array({1, 2, 3});
 
     // Verify there are three elements in the array
-    STF_ASSERT_EQ(3, array.value.size());
+    STF_ASSERT_EQ(3, (*array).size());
     STF_ASSERT_EQ(3, array.Size());
 }
 
@@ -55,7 +55,7 @@ STF_TEST(JSONArray, IndexOperator1)
     STF_ASSERT_EQ(JSONValueType::Number, item.GetValueType());
 
     // Verify the number is the expected value
-    STF_ASSERT_EQ(2, item.GetValue<JSONNumber>().GetInteger());
+    STF_ASSERT_EQ(2, std::get<JSONNumber>(*item).GetInteger());
 }
 
 // Test the indexing operator
@@ -71,7 +71,7 @@ STF_TEST(JSONArray, IndexOperator2)
     STF_ASSERT_EQ(JSONValueType::Number, array[1].GetValueType());
 
     // Verify the number is the expected value
-    STF_ASSERT_EQ(12, array[1].GetValue<JSONNumber>().GetInteger());
+    STF_ASSERT_EQ(12, std::get<JSONNumber>(*(array[1])).GetInteger());
 }
 
 // Test streaming output operator

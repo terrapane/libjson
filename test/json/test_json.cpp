@@ -16,6 +16,7 @@
  */
 
 #include <terra/json/json.h>
+#include <terra/json/json_parser.h>
 #include <terra/stf/stf.h>
 
 using namespace Terra::JSON;
@@ -39,7 +40,7 @@ STF_TEST(JSON, ConstructJSON1)
 
     STF_ASSERT_EQ(JSONValueType::Object, json.GetValueType());
 
-    JSONObject &actual = json.GetValue<JSONObject>();
+    JSONObject &actual = std::get<JSONObject>(*json);
 
     // There should be two tag / value pairs
     STF_ASSERT_EQ(3, actual.Size());
@@ -56,9 +57,9 @@ STF_TEST(JSON, ConstructJSON1)
     STF_ASSERT_EQ(JSONValueType::Literal, actual[u8"c"].GetValueType());
 
     // Get references to the value types for a and b
-    auto &value_a = actual[u8"a"].GetValue<JSONObject>();
-    auto &value_b = actual[u8"b"].GetValue<JSONString>();
-    auto value_c = actual[u8"c"].GetValue<JSONLiteral>();
+    auto &value_a = std::get<JSONObject>(*actual[u8"a"]);
+    auto &value_b = std::get<JSONString>(*actual[u8"b"]);
+    auto value_c = std::get<JSONLiteral>(*actual[u8"c"]);
 
     // Now check the contents of value_a
     STF_ASSERT_EQ(3, value_a.Size());
@@ -74,11 +75,11 @@ STF_TEST(JSON, ConstructJSON1)
     STF_ASSERT_EQ(JSONValueType::Number, value_a[u8"c"].GetValueType());
 
     // Verify the numeric values of value_a
-    STF_ASSERT_EQ(1, value_a[u8"a"].GetValue<JSONNumber>().GetInteger());
+    STF_ASSERT_EQ(1, std::get<JSONNumber>(*value_a[u8"a"]).GetInteger());
     STF_ASSERT_CLOSE(2.5,
-                     value_a[u8"b"].GetValue<JSONNumber>().GetFloat(),
+                     std::get<JSONNumber>(*value_a[u8"b"]).GetFloat(),
                      0.0001);
-    STF_ASSERT_EQ(3, value_a[u8"c"].GetValue<JSONNumber>().GetInteger());
+    STF_ASSERT_EQ(3, std::get<JSONNumber>(*value_a[u8"c"]).GetInteger());
 
     // Verify the value of value_b
     STF_ASSERT_EQ(expected_b, *value_b);
@@ -94,7 +95,7 @@ STF_TEST(JSON, ConstructJSON2)
 
     STF_ASSERT_EQ(JSONValueType::Literal, json.GetValueType());
 
-    JSONLiteral actual = json.GetValue<JSONLiteral>();
+    JSONLiteral actual = std::get<JSONLiteral>(*json);
 
     // There should be two tag / value pairs
     STF_ASSERT_EQ(JSONLiteral::Null, actual);
@@ -110,7 +111,7 @@ STF_TEST(JSON, ConstructJSON3)
     STF_ASSERT_EQ(JSONValueType::String, json.GetValueType());
 
     // Verify the string value
-    STF_ASSERT_EQ(expected, *json.GetValue<JSONString>());
+    STF_ASSERT_EQ(expected, *std::get<JSONString>(*json));
 }
 
 // Test construction
@@ -124,7 +125,7 @@ STF_TEST(JSON, ConstructJSON4)
     STF_ASSERT_EQ(JSONValueType::String, json.GetValueType());
 
     // Verify the string value
-    STF_ASSERT_EQ(expected, *json.GetValue<JSONString>());
+    STF_ASSERT_EQ(expected, *std::get<JSONString>(*json));
 }
 
 // Test construction
@@ -136,7 +137,7 @@ STF_TEST(JSON, ConstructJSON5)
     STF_ASSERT_EQ(JSONValueType::String, json.GetValueType());
 
     // Verify the string value
-    STF_ASSERT_EQ(expected, *json.GetValue<JSONString>());
+    STF_ASSERT_EQ(expected, *std::get<JSONString>(*json));
 }
 
 // Test construction
@@ -148,7 +149,7 @@ STF_TEST(JSON, ConstructJSON6)
     STF_ASSERT_EQ(JSONValueType::String, json.GetValueType());
 
     // Verify the string value
-    STF_ASSERT_EQ(expected, *json.GetValue<JSONString>());
+    STF_ASSERT_EQ(expected, *std::get<JSONString>(*json));
 }
 
 // Test construction
@@ -161,10 +162,10 @@ STF_TEST(JSON, ConstructJSON7)
     STF_ASSERT_EQ(JSONValueType::Number, json.GetValueType());
 
     // Verify the it is not a float
-    STF_ASSERT_FALSE(json.GetValue<JSONNumber>().IsFloat());
+    STF_ASSERT_FALSE(std::get<JSONNumber>(*json).IsFloat());
 
     // Verify the string value
-    STF_ASSERT_EQ(expected, json.GetValue<JSONNumber>().GetInteger());
+    STF_ASSERT_EQ(expected, std::get<JSONNumber>(*json).GetInteger());
 }
 
 // Test construction
@@ -177,10 +178,10 @@ STF_TEST(JSON, ConstructJSON8)
     STF_ASSERT_EQ(JSONValueType::Number, json.GetValueType());
 
     // Verify the it is a float
-    STF_ASSERT_TRUE(json.GetValue<JSONNumber>().IsFloat());
+    STF_ASSERT_TRUE(std::get<JSONNumber>(*json).IsFloat());
 
     // Verify the string value
-    STF_ASSERT_CLOSE(expected, json.GetValue<JSONNumber>().GetFloat(), 0.001);
+    STF_ASSERT_CLOSE(expected, std::get<JSONNumber>(*json).GetFloat(), 0.001);
 }
 
 // Test construction
@@ -193,7 +194,7 @@ STF_TEST(JSON, ConstructJSON9)
     STF_ASSERT_EQ(JSONValueType::Literal, json.GetValueType());
 
     // Verify the string value
-    STF_ASSERT_EQ(expected, json.GetValue<JSONLiteral>());
+    STF_ASSERT_EQ(expected, std::get<JSONLiteral>(*json));
 }
 
 // Test construction
@@ -206,7 +207,7 @@ STF_TEST(JSON, ConstructJSON10)
     STF_ASSERT_EQ(JSONValueType::Literal, json.GetValueType());
 
     // Verify the string value
-    STF_ASSERT_EQ(expected, json.GetValue<JSONLiteral>());
+    STF_ASSERT_EQ(expected, std::get<JSONLiteral>(*json));
 }
 
 // Test string assignment
@@ -220,7 +221,7 @@ STF_TEST(JSON, StringAssignment1)
     STF_ASSERT_EQ(JSONValueType::String, json.GetValueType());
 
     // Verify the string value
-    STF_ASSERT_EQ(expected, *json.GetValue<JSONString>());
+    STF_ASSERT_EQ(expected, *std::get<JSONString>(*json));
 }
 
 // Test string assignment
@@ -234,7 +235,7 @@ STF_TEST(JSON, StringAssignment2)
     STF_ASSERT_EQ(JSONValueType::String, json.GetValueType());
 
     // Verify the string value
-    STF_ASSERT_EQ(expected, *json.GetValue<JSONString>());
+    STF_ASSERT_EQ(expected, *std::get<JSONString>(*json));
 }
 
 // Test number assignment
@@ -249,10 +250,10 @@ STF_TEST(JSON, NumberAssignment1)
     STF_ASSERT_EQ(JSONValueType::Number, json.GetValueType());
 
     // Verify the it is not a float
-    STF_ASSERT_FALSE(json.GetValue<JSONNumber>().IsFloat());
+    STF_ASSERT_FALSE(std::get<JSONNumber>(*json).IsFloat());
 
     // Verify the string value
-    STF_ASSERT_EQ(expected, json.GetValue<JSONNumber>().GetInteger());
+    STF_ASSERT_EQ(expected, std::get<JSONNumber>(*json).GetInteger());
 }
 
 // Test number assignment
@@ -267,10 +268,10 @@ STF_TEST(JSON, NumberAssignment2)
     STF_ASSERT_EQ(JSONValueType::Number, json.GetValueType());
 
     // Verify the it is a float
-    STF_ASSERT_TRUE(json.GetValue<JSONNumber>().IsFloat());
+    STF_ASSERT_TRUE(std::get<JSONNumber>(*json).IsFloat());
 
     // Verify the string value
-    STF_ASSERT_EQ(expected, json.GetValue<JSONNumber>().GetFloat());
+    STF_ASSERT_EQ(expected, std::get<JSONNumber>(*json).GetFloat());
 }
 
 // Test number assignment
@@ -285,7 +286,7 @@ STF_TEST(JSON, JSONLiteralAssignment)
     STF_ASSERT_EQ(JSONValueType::Literal, json.GetValueType());
 
     // Verify the string value
-    STF_ASSERT_EQ(expected, json.GetValue<JSONLiteral>());
+    STF_ASSERT_EQ(expected, std::get<JSONLiteral>(*json));
 }
 
 // Test JSON assignment
@@ -300,7 +301,7 @@ STF_TEST(JSON, JSONAssignment1)
     STF_ASSERT_EQ(JSONValueType::String, json.GetValueType());
 
     // Verify the string value
-    STF_ASSERT_EQ(expected, *json.GetValue<JSONString>());
+    STF_ASSERT_EQ(expected, *std::get<JSONString>(*json));
 
     // Create a new object and assign it
     JSON json2;
@@ -310,7 +311,7 @@ STF_TEST(JSON, JSONAssignment1)
     STF_ASSERT_EQ(JSONValueType::String, json2.GetValueType());
 
     // Verify the string value
-    STF_ASSERT_EQ(expected, *json2.GetValue<JSONString>());
+    STF_ASSERT_EQ(expected, *std::get<JSONString>(*json2));
 }
 
 // Test JSON assignment
@@ -325,7 +326,7 @@ STF_TEST(JSON, JSONAssignment2)
     STF_ASSERT_EQ(JSONValueType::String, json.GetValueType());
 
     // Verify the string value
-    STF_ASSERT_EQ(expected, *json.GetValue<JSONString>());
+    STF_ASSERT_EQ(expected, *std::get<JSONString>(*json));
 
     // Create a new object and assign it
     JSON json2(json);
@@ -334,7 +335,7 @@ STF_TEST(JSON, JSONAssignment2)
     STF_ASSERT_EQ(JSONValueType::String, json2.GetValueType());
 
     // Verify the string value
-    STF_ASSERT_EQ(expected, *json2.GetValue<JSONString>());
+    STF_ASSERT_EQ(expected, *std::get<JSONString>(*json2));
 }
 
 // Test JSON assignment
@@ -350,13 +351,13 @@ STF_TEST(JSON, JSONAssignment3)
     STF_ASSERT_EQ(JSONValueType::String, json.GetValueType());
 
     // Verify the string value
-    STF_ASSERT_EQ(expected, *json.GetValue<JSONString>());
+    STF_ASSERT_EQ(expected, *std::get<JSONString>(*json));
 
     // Verify the right type
     STF_ASSERT_EQ(JSONValueType::String, json2.GetValueType());
 
     // Verify the string value
-    STF_ASSERT_EQ(expected, *json2.GetValue<JSONString>());
+    STF_ASSERT_EQ(expected, *std::get<JSONString>(*json2));
 }
 
 // Test JSON assignment
@@ -371,7 +372,7 @@ STF_TEST(JSON, JSONMove1)
     STF_ASSERT_EQ(JSONValueType::String, json.GetValueType());
 
     // Verify the string value
-    STF_ASSERT_EQ(expected, *json.GetValue<JSONString>());
+    STF_ASSERT_EQ(expected, *std::get<JSONString>(*json));
 
     // Create a new object and assign it
     JSON json2 = std::move(json);
@@ -380,7 +381,7 @@ STF_TEST(JSON, JSONMove1)
     STF_ASSERT_EQ(JSONValueType::String, json2.GetValueType());
 
     // Verify the string value
-    STF_ASSERT_EQ(expected, *json2.GetValue<JSONString>());
+    STF_ASSERT_EQ(expected, *std::get<JSONString>(*json2));
 }
 
 // Test JSON assignment
@@ -395,7 +396,7 @@ STF_TEST(JSON, JSONMove2)
     STF_ASSERT_EQ(JSONValueType::String, json.GetValueType());
 
     // Verify the string value
-    STF_ASSERT_EQ(expected, *json.GetValue<JSONString>());
+    STF_ASSERT_EQ(expected, *std::get<JSONString>(*json));
 
     // Create a new object and assign it
     JSON json2(std::move(json));
@@ -404,7 +405,7 @@ STF_TEST(JSON, JSONMove2)
     STF_ASSERT_EQ(JSONValueType::String, json2.GetValueType());
 
     // Verify the string value
-    STF_ASSERT_EQ(expected, *json2.GetValue<JSONString>());
+    STF_ASSERT_EQ(expected, *std::get<JSONString>(*json2));
 }
 
 // Test initialization via assignment
@@ -417,7 +418,7 @@ STF_TEST(JSON, InitializerList1)
     STF_ASSERT_EQ(JSONValueType::Array, json.GetValueType());
 
     // Verify there are three elements in the array
-    STF_ASSERT_EQ(3, json.GetValue<JSONArray>().Size());
+    STF_ASSERT_EQ(3, std::get<JSONArray>(*json).Size());
 }
 
 // Test initialization via the constructor
@@ -430,7 +431,7 @@ STF_TEST(JSON, InitializerList2)
     STF_ASSERT_EQ(JSONValueType::Array, json.GetValueType());
 
     // Verify there are three elements in the array
-    STF_ASSERT_EQ(3, json.GetValue<JSONArray>().Size());
+    STF_ASSERT_EQ(3, std::get<JSONArray>(*json).Size());
 }
 
 // Test initialization via assignment
@@ -451,8 +452,8 @@ STF_TEST(JSON, InitializerList3)
     STF_ASSERT_EQ(JSONValueType::Object, json.GetValueType());
 
     // Verify there are five elements in the map
-    STF_ASSERT_EQ(5, json.GetValue<JSONObject>().value.size());
-    STF_ASSERT_EQ(5, json.GetValue<JSONObject>().Size());
+    STF_ASSERT_EQ(5, (*(std::get<JSONObject>(*json))).size());
+    STF_ASSERT_EQ(5, std::get<JSONObject>(*json).Size());
 }
 
 // Test initialization via assignment
@@ -475,8 +476,8 @@ STF_TEST(JSON, InitializerList4)
     STF_ASSERT_EQ(JSONValueType::Object, json.GetValueType());
 
     // Verify there are five elements in the map
-    STF_ASSERT_EQ(5, json.GetValue<JSONObject>().value.size());
-    STF_ASSERT_EQ(5, json.GetValue<JSONObject>().Size());
+    STF_ASSERT_EQ(5, (*(std::get<JSONObject>(*json))).size());
+    STF_ASSERT_EQ(5, std::get<JSONObject>(*json).Size());
 }
 
 // Test initialization via assignment
@@ -507,10 +508,10 @@ STF_TEST(JSON, InitializerList5)
     STF_ASSERT_EQ(JSONValueType::Object, json.GetValueType());
 
     // Get a reference to the JSONObject type
-    auto &object = json.GetValue<JSONObject>();
+    auto &object = std::get<JSONObject>(*json);
 
     // Verify the number of elements
-    STF_ASSERT_EQ(11, object.value.size());
+    STF_ASSERT_EQ(11, (*object).size());
     STF_ASSERT_EQ(11, object.Size());
 
     // Verify the types
@@ -544,7 +545,7 @@ STF_TEST(JSON, AccessOperator1)
     STF_ASSERT_EQ(JSONValueType::Number, item.GetValueType());
 
     // Verify the number is the expected value
-    STF_ASSERT_EQ(2, item.GetValue<JSONNumber>().GetInteger());
+    STF_ASSERT_EQ(2, std::get<JSONNumber>(*item).GetInteger());
 }
 
 // Test the indexing operator
@@ -564,7 +565,7 @@ STF_TEST(JSON, AccessOperator2)
     STF_ASSERT_EQ(JSONValueType::Number, json[1].GetValueType());
 
     // Verify the number is the expected value
-    STF_ASSERT_EQ(12, json[1].GetValue<JSONNumber>().GetInteger());
+    STF_ASSERT_EQ(12, std::get<JSONNumber>(*(json[1])).GetInteger());
 }
 
 // Test index operator
@@ -581,8 +582,8 @@ STF_TEST(JSON, AccessOperator3)
     object["key3"] = JSONNumber(30);
 
     // Verify there are three elements in the array
-    STF_ASSERT_EQ(3, object.GetValue<JSONObject>().value.size());
-    STF_ASSERT_EQ(3, object.GetValue<JSONObject>().Size());
+    STF_ASSERT_EQ(3, (*(std::get<JSONObject>(*object))).size());
+    STF_ASSERT_EQ(3, std::get<JSONObject>(*object).Size());
 }
 
 // Test reading JSONObjects using index operator
@@ -599,8 +600,8 @@ STF_TEST(JSON, AccessOperator4)
     object["key3"] = JSONNumber(30);
 
     // Verify there are three elements in the array
-    STF_ASSERT_EQ(3, object.GetValue<JSONObject>().value.size());
-    STF_ASSERT_EQ(3, object.GetValue<JSONObject>().Size());
+    STF_ASSERT_EQ(3, (*(std::get<JSONObject>(*object))).size());
+    STF_ASSERT_EQ(3, std::get<JSONObject>(*object).Size());
 
     // Now attempt to read
     JSON json_number = object["key2"];
@@ -609,7 +610,7 @@ STF_TEST(JSON, AccessOperator4)
     STF_ASSERT_EQ(JSONValueType::Number, json_number.GetValueType());
 
     // Verify the value is correct
-    STF_ASSERT_EQ(20, json_number.GetValue<JSONNumber>().GetInteger());
+    STF_ASSERT_EQ(20, std::get<JSONNumber>(*json_number).GetInteger());
 }
 
 // Test assigning JSON arrays
@@ -629,7 +630,7 @@ STF_TEST(JSON, JSONArrayAssignment)
 
     // Verify the element count
     STF_ASSERT_EQ(3, array.Size());
-    STF_ASSERT_EQ(3, object.GetValue<JSONArray>().Size());
+    STF_ASSERT_EQ(3, std::get<JSONArray>(*object).Size());
 }
 
 // Test streaming operator
@@ -668,10 +669,10 @@ STF_TEST(JSON, StreamingOperator)
     STF_ASSERT_EQ(JSONValueType::Object, json.GetValueType());
 
     // Assign object to be that of the JSON value
-    JSONObject object = json.GetValue<JSONObject>();
+    JSONObject object = std::get<JSONObject>(*json);
 
     // Verify the number of elements
-    STF_ASSERT_EQ(11, object.value.size());
+    STF_ASSERT_EQ(11, (*object).size());
     STF_ASSERT_EQ(11, object.Size());
 
     // Verify the types
@@ -724,10 +725,10 @@ STF_TEST(JSON, ToString)
     STF_ASSERT_EQ(JSONValueType::Object, json.GetValueType());
 
     // Assign object to be that of the JSON value
-    JSONObject object = json.GetValue<JSONObject>();
+    JSONObject object = std::get<JSONObject>(*json);
 
     // Verify the number of elements
-    STF_ASSERT_EQ(11, object.value.size());
+    STF_ASSERT_EQ(11, (*object).size());
     STF_ASSERT_EQ(11, object.Size());
 
     // Verify the types

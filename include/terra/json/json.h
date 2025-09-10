@@ -22,11 +22,6 @@
  *      functions to make it easy to access the various types and is the type
  *      of object produced by the JSONParser.
  *
- *      Each of the basic types above (except the JSON object) is defined
- *      as a struct that provides a member called "value" that is intended
- *      to facilitate direct access.  For example, JSONArray.object has a
- *      vector member named value over which one may iterate.
- *
  *      JSONArray and JSONObject each holds any number of JSON objects (not to
  *      be confused with JSONObject).
  *
@@ -34,11 +29,7 @@
  *      also formally defined in RFC 8259.
  *
  *      There is also a JSONParser that will parse and deserializes JSON text
- *      and forms a JSON object.  This object is not intended to be used by
- *      several threads at once, but this is a relatively light-weight object
- *      that can be instantiated, Parse() called, and destroyed as needed.
- *      This could be a simple function, but encapsulating the state within
- *      the object makes the interface cleaner.
+ *      and forms a JSON object (see json_parser.h).
  *
  *      It is possible to create JSON objects by using initializer lists,
  *      assignment, etc. The various test functions provide example usage.
@@ -49,9 +40,11 @@
  *      by the JSON specification.
  *
  *      If there is an error parsing JSON text or producing JSON text, an
- *      exception will be thrown.  Likewise, there are other functions that will
- *      throw a JSONException if a function call is invalid.  One must
- *      wrap all calls to these various objects in a try/catch block.
+ *      JSONException exception will be thrown.  Likewise, there are other
+ *      functions that will throw a JSONException for various reasons (e.g.,
+ *      if the UTF-8 string not properly formatted, an exception will occur
+ *      trying to create formatted output).  One must wrap all calls to these
+ *      various objects in a try/catch block.
  *
  *      It is possible to output the JSON object by calling the ToString()
  *      function or using streaming operator like this:
@@ -61,15 +54,10 @@
  *      The output of the ToString() or streaming operator produces a single
  *      line of output that is not formatted with any vertical whitespace or
  *      indentation.  To produce formatted output text, one may use the
- *      JSONFormatter.  The JSONFormatter accepts a JSON text string and
- *      reformats it using the specified amount of indentation.  It will
- *      essentially parse the text, but lacks some of the more rigid
- *      parsing logic in the JSONParser.  (In short, do not rely on the
- *      JSONFormatter to enforce proper syntax, but nonetheless do expect an
- *      exception if a syntax error is detected.)
+ *      JSONFormatter (see json_formatter.h).
  *
  *  Portability Issues:
- *      None.
+ *      Requires C++20 or later.
  */
 
 #pragma once
@@ -81,25 +69,19 @@
 #include <string>
 #include <vector>
 #include <map>
-#include <stdexcept>
 #include <algorithm>
 #include <type_traits>
 #include <limits>
 #include <initializer_list>
 #include <utility>
+#include <concepts>
+#include "json_exception.h"
 
 namespace Terra::JSON
 {
 
-// Define an exception to throw when parsing fails
-class JSONException : public std::runtime_error
-{
-    using std::runtime_error::runtime_error;
-};
-
 // Make forward declarations
 class JSON;
-class JSONParser;
 
 // Define an enumeration for the JSON value types
 enum class JSONValueType
@@ -112,60 +94,47 @@ enum class JSONValueType
 };
 
 // JSON type to hold a JSON value type of string
-struct JSONString
+class JSONString
 {
-    std::u8string value;
+    public:
+        JSONString() = default;
+        JSONString(const std::u8string_view string) : value{string} {}
+        JSONString(std::u8string &&string) : value{std::move(string)} {}
+        JSONString(const std::string_view string);
+        JSONString(std::string &&string);
+        JSONString(const char8_t *string) : value{string} {}
+        JSONString(const char *string) :
+            value{std::u8string(reinterpret_cast<const char8_t *>(string))}
+        {
+        }
 
-    JSONString() = default;
-    JSONString(const std::u8string &string) : value{string} {}
-    JSONString(std::u8string &&string) : value{std::move(string)} {}
-    JSONString(const std::string &string) :
-        value{std::u8string(string.cbegin(), string.cend())}
-    {
-    }
-    JSONString(std::string &&string) :
-        value{std::u8string(string.cbegin(), string.cend())}
-    {
-        // Performs a string copy, as there is no means to do move given
-        // the data types are different
-    }
-    JSONString(const char8_t *string) : value{std::u8string(string)} {}
-    JSONString(const char *string) :
-        value{std::u8string(reinterpret_cast<const char8_t *>(string))}
-    {
-    }
+        JSONString &operator=(const std::string_view string);
+        JSONString &operator=(const std::u8string_view string)
+        {
+            value = string;
+            return *this;
+        }
 
-    JSONString &operator=(const std::string &string)
-    {
-        value = std::u8string(string.cbegin(), string.cend());
-        return *this;
-    }
-    JSONString &operator=(const std::u8string_view string)
-    {
-        value = std::u8string(string);
-        return *this;
-    }
+        bool operator==(const JSONString &other) const
+        {
+            return value == other.value;
+        }
+        bool operator!=(const JSONString &other) const
+        {
+            return !operator==(other);
+        }
 
-    bool operator==(const JSONString &other) const
-    {
-        return value == other.value;
-    }
-    bool operator!=(const JSONString &other) const
-    {
-        return !operator==(other);
-    }
+        // Return the underlying string
+        std::u8string &operator*() { return value; }
+        const std::u8string &operator*() const { return value; }
 
-    // Return the underlying string
-    std::u8string &operator*() { return value; }
-    const std::u8string &operator*() const { return value; }
+        std::size_t Size() const { return value.size(); }
 
-    std::size_t Size() { return value.size(); }
+        std::string ToString() const;
 
-    std::string ToString() const;
+    protected:
+        std::u8string value;
 };
-
-// Streaming operator for JSONString output
-std::ostream &operator<<(std::ostream &o, const JSONString &string);
 
 // Define JSON Number types for convenience; these should be the largest
 // possible numeric types (one integer and one floating point)
@@ -180,150 +149,119 @@ enum class JSONLiteral
     Null
 };
 
-// Streaming operator for JSONLiteral output
-std::ostream &operator<<(std::ostream &o, const JSONLiteral literal);
-
 // JSON type to hold a JSON value type of number
-struct JSONNumber
+class JSONNumber
 {
-    std::variant<JSONInteger, JSONFloat> value;
+    public:
+        JSONNumber() = default;
+        template<typename T>
+            requires std::floating_point<T> || std::integral<T>
+        JSONNumber(T number);
+        ~JSONNumber() = default;
 
-    JSONNumber() = default;
-    template<typename T,
-             typename std::enable_if<std::is_floating_point<T>::value ||
-                                         (std::is_integral<T>::value &&
-                                          std::is_signed<T>::value),
-                                     bool>::type = true>
-    JSONNumber(T number) : value{number}
-    {
-    }
-    template<typename T,
-             typename std::enable_if<std::is_integral<T>::value &&
-                                         std::is_unsigned<T>::value,
-                                     bool>::type = true>
-    JSONNumber(T number)
-    {
-        if (number > std::numeric_limits<JSONInteger>::max())
+        bool operator==(const JSONNumber &other) const;
+        bool operator!=(const JSONNumber &other) const;
+
+        bool IsFloat() const
         {
-            throw JSONException("Unsigned integer exceeds limits");
+            return std::holds_alternative<JSONFloat>(value);
         }
-        value = static_cast<JSONInteger>(number);
-    }
-    ~JSONNumber() = default;
+        bool IsInteger() const { return !IsFloat(); }
 
-    bool operator==(const JSONNumber &other) const
-    {
-        if (value.index() != other.value.index()) return false;
-        return std::visit([](auto first, auto second)
-                          {
-                              return first == second;
-                          },
-                          value,
-                          other.value);
-    }
-    bool operator!=(const JSONNumber &other) const
-    {
-        return !operator==(other);
-    }
+        // Return a reference to the variant containing the number
+        std::variant<JSONInteger, JSONFloat> &operator*() { return value; }
+        const std::variant<JSONInteger, JSONFloat> &operator*() const
+        {
+            return value;
+        }
 
-    bool IsFloat() const { return std::holds_alternative<JSONFloat>(value); }
-    bool IsInteger() const { return !IsFloat(); }
+        // One may call these regardless of the held value and the number
+        // will be cast to the requested type as required
+        JSONFloat GetFloat() const;
+        JSONInteger GetInteger() const;
 
-    // Return the variant containing the number
-    std::variant<JSONInteger, JSONFloat> &operator*() { return value; }
-    const std::variant<JSONInteger, JSONFloat> &operator*() const
-    {
-        return value;
-    }
+        std::string ToString() const;
 
-    // One may call these regardless of the held value and the number
-    // will be cast to the requested type as required
-    JSONFloat GetFloat() const;
-    JSONInteger GetInteger() const;
-
-    std::string ToString() const;
+    protected:
+        std::variant<JSONInteger, JSONFloat> value;
 };
-
-// Streaming operator for JSONNumber output
-std::ostream &operator<<(std::ostream &o, const JSONNumber &value);
 
 // JSON type to hold a JSON value type of object
-struct JSONObject
+class JSONObject
 {
-    std::map<std::u8string, JSON> value;
+    public:
+        JSONObject() = default;
+        JSONObject(
+            const std::initializer_list<std::pair<const std::u8string, JSON>>
+                &list);
+        JSONObject(
+            const std::initializer_list<std::pair<const std::string, JSON>>
+                &list);
+        ~JSONObject() = default;
 
-    JSONObject() = default;
-    JSONObject(
-        const std::initializer_list<std::pair<const std::u8string, JSON>>
-                                                                        &list);
-    JSONObject(
-        const std::initializer_list<std::pair<const std::string, JSON>> &list);
-    ~JSONObject() = default;
+        JSON &operator[](const std::u8string &key) { return value[key]; }
+        const JSON &operator[](const std::u8string &key) const
+        {
+            return value.at(key);
+        }
+        JSON &operator[](const std::string &key)
+        {
+            return operator[](std::u8string(key.cbegin(), key.cend()));
+        }
+        const JSON &operator[](const std::string &key) const
+        {
+            return operator[](std::u8string(key.cbegin(), key.cend()));
+        }
 
-    JSON &operator[](const std::u8string &key) { return value[key]; }
-    const JSON &operator[](const std::u8string &key) const
-    {
-        return value.at(key);
-    }
-    JSON &operator[](const std::string &key)
-    {
-        return operator[](std::u8string(key.cbegin(), key.cend()));
-    }
-    const JSON &operator[](const std::string &key) const
-    {
-        return operator[](std::u8string(key.cbegin(), key.cend()));
-    }
+        bool HasKey(const std::u8string &key) const
+        {
+            return (value.count(key) > 0);
+        }
+        bool HasKey(const std::string &key) const
+        {
+            return HasKey(std::u8string(key.cbegin(), key.cend()));
+        }
 
-    bool HasKey(const std::u8string &key) const
-    {
-        return (value.count(key) > 0);
-    }
-    bool HasKey(const std::string &key) const
-    {
-        return HasKey(std::u8string(key.cbegin(), key.cend()));
-    }
+        // Return the underlying map of JSON objects
+        std::map<std::u8string, JSON> &operator*() { return value; }
+        const std::map<std::u8string, JSON> &operator*() const { return value; }
 
-    // Return the underlying map of JSON objects
-    std::map<std::u8string, JSON> &operator*() { return value; }
-    const std::map<std::u8string, JSON> &operator*() const { return value; }
+        std::size_t Size() const { return value.size(); }
 
-    std::size_t Size() const { return value.size(); }
+        bool operator==(const JSONObject &other) const;
+        bool operator!=(const JSONObject &other) const;
 
-    bool operator==(const JSONObject &other) const;
-    bool operator!=(const JSONObject &other) const;
+        std::string ToString() const;
 
-    std::string ToString() const;
+    protected:
+        std::map<std::u8string, JSON> value;
 };
-
-// Streaming operator for JSONObject output
-std::ostream &operator<<(std::ostream &o, const JSONObject &object);
 
 // JSON type to hold a JSON value type of array
-struct JSONArray
+class JSONArray
 {
-    std::vector<JSON> value;
+    public:
+        JSONArray() = default;
+        JSONArray(const std::initializer_list<JSON> &list);
+        ~JSONArray() = default;
 
-    JSONArray() = default;
-    JSONArray(const std::initializer_list<JSON> &list);
-    ~JSONArray() = default;
+        JSON &operator[](const std::size_t index);
+        const JSON &operator[](const std::size_t index) const;
 
-    JSON &operator[](const std::size_t index);
-    const JSON &operator[](const std::size_t index) const;
+        // Return the underlying array of JSON objects
+        std::vector<JSON> &operator*() { return value; }
+        const std::vector<JSON> &operator*() const { return value; }
 
-    // Return the underlying array of JSON objects
-    std::vector<JSON> &operator*() { return value; }
-    const std::vector<JSON> &operator*() const { return value; }
+        bool operator==(const JSONArray &other) const;
+        bool operator!=(const JSONArray &other) const;
 
-    bool operator==(const JSONArray &other) const;
-    bool operator!=(const JSONArray &other) const;
+        std::size_t Size() const;
 
-    std::size_t Size() const;
+        std::string ToString() const;
 
-    std::string ToString() const;
+    protected:
+        std::vector<JSON> value;
 };
-
-// Streaming operator for JSONArray output
-std::ostream &operator<<(std::ostream &o, const JSONArray &array);
 
 // Define a type that will hold any one of the JSON types
 using JSONValue =
@@ -333,8 +271,8 @@ using JSONValue =
 class JSON
 {
     public:
-        JSON() { AssignType(JSONValueType::Object); }
-        JSON(JSONValueType type) { AssignType(type); }
+        JSON();
+        JSON(JSONValueType type);
         JSON(const JSONValue &value) : value{value} {}
         JSON(JSONValue &&value) : value{std::move(value)} {}
         JSON(const JSONString &string) : value{string} {}
@@ -351,11 +289,9 @@ class JSON
             JSON(JSONString(reinterpret_cast<const char8_t *>(string)))
         {
         }
-        template<typename T,
-                 typename std::enable_if<std::is_integral<T>::value ||
-                                             std::is_floating_point<T>::value,
-                                         bool>::type = true>
-        JSON(T value) : value{JSONNumber(value)} {}
+        template<typename T>
+            requires std::floating_point<T> || std::integral<T>
+        JSON(T number);
 
         ~JSON() = default;
 
@@ -380,25 +316,9 @@ class JSON
             return *this;
         }
 
-        template<typename T,
-                 typename std::enable_if<std::is_floating_point<T>::value ||
-                                             (std::is_integral<T>::value &&
-                                              std::is_signed<T>::value),
-                                         bool>::type = true>
-        JSON &operator=(const T assignment)
-        {
-            value = JSONNumber(assignment);
-            return *this;
-        }
-        template<typename T,
-                 typename std::enable_if<std::is_integral<T>::value &&
-                                             std::is_unsigned<T>::value,
-                                         bool>::type = true>
-        JSON &operator=(const T assignment)
-        {
-            value = JSONNumber(assignment);
-            return *this;
-        }
+        template<typename T>
+            requires std::floating_point<T> || std::integral<T>
+        JSON &operator=(const T number);
 
         JSON &operator=(const JSONLiteral assignment)
         {
@@ -413,18 +333,18 @@ class JSON
         }
         JSON &operator=(JSONNumber &&assignment)
         {
-            value = assignment;
+            value = std::move(assignment);
             return *this;
         }
 
         JSON &operator=(const JSONString &assignment)
         {
-            value = assignment;
+            value = std::move(assignment);
             return *this;
         }
         JSON &operator=(JSONString &&assignment)
         {
-            value = assignment;
+            value = std::move(assignment);
             return *this;
         }
 
@@ -435,7 +355,7 @@ class JSON
         }
         JSON &operator=(JSONArray &&assignment)
         {
-            value = assignment;
+            value = std::move(assignment);
             return *this;
         }
 
@@ -446,51 +366,21 @@ class JSON
         }
         JSON &operator=(JSONObject &&assignment)
         {
-            value = assignment;
+            value = std::move(assignment);
             return *this;
         }
 
         // Functions to return a reference to the underlying JSONValue variant
         JSONValue &operator*() { return value; }
         const JSONValue &operator*() const { return value; }
-        JSONValue &GetValue() { return value; }
-        const JSONValue &GetValue() const { return value; }
-
-        // Function to return a reference to the underlying type
-        template<typename T>
-        T &GetValue()
-        {
-            if (std::holds_alternative<T>(value))
-            {
-                return std::get<T>(value);
-            }
-
-            throw JSONException("JSON object contains a different value type");
-        }
-        template<typename T>
-        const T &GetValue() const
-        {
-            if (std::holds_alternative<T>(value))
-            {
-                return std::get<T>(value);
-            }
-
-            throw JSONException("JSON object contains a different value type");
-        }
 
         // Operators to ease access to the JSON information
         JSON &operator[](std::size_t index);
         const JSON &operator[](std::size_t index) const;
         JSON &operator[](const std::u8string &key);
         const JSON &operator[](const std::u8string &key) const;
-        JSON &operator[](const std::string &key)
-        {
-            return operator[](std::u8string(key.cbegin(), key.cend()));
-        }
-        const JSON &operator[](const std::string &key) const
-        {
-            return operator[](std::u8string(key.cbegin(), key.cend()));
-        }
+        JSON &operator[](const std::string &key);
+        const JSON &operator[](const std::string &key) const;
 
         bool operator==(const JSON &other) const;
         bool operator!=(const JSON &other) const;
@@ -501,118 +391,26 @@ class JSON
         JSONValue value;
 };
 
-// Streaming operator for JSON output
-std::ostream &operator<<(std::ostream &o, const JSON &json);
-
-// Define the JSONParser object used to deserialize JSON text
-class JSONParser
-{
-    public:
-        JSONParser() = default;
-        ~JSONParser() = default;
-
-        JSON Parse(const std::string_view content);
-        JSON Parse(const std::u8string_view content);
-
-    protected:
-        struct CompositeContext
-        {
-            JSONValue *value;
-            bool opening_seen;
-            bool member_seen;
-            bool closing_seen;
-        };
-
-        constexpr bool EndOfInput() const { return p >= q; }
-        constexpr std::size_t RemainingInput() const { return q - p; }
-        constexpr void AdvanceReadPosition(std::size_t steps = 1)
-        {
-            auto old_p = p;
-            p = std::min(q, p + steps);
-            column += p - old_p;
-        }
-        void ConsumeWhitespace();
-        JSONValueType DetermineValueType() const;
-        JSONValue ParseInitialValue();
-        JSONValue ParsePrimitiveValue(JSONValueType value_type);
-        void ParseCompositeValue();
-        JSONString ParseString();
-        void ParseUnicode(JSONString &json_string);
-        JSONNumber ParseNumber();
-        void ParseObject();
-        void ParseArray();
-        JSONLiteral ParseLiteral();
-
-        const char8_t *p;                       // Start of content
-        const char8_t *q;                       // One past end of data
-        std::size_t line;                       // Current line number
-        std::size_t column;                     // Current column
-
-        // Used to parse composite types
-        std::vector<CompositeContext> composite_context;
-};
-
-// Define the JSONFormatter object used format JSON text
-class JSONFormatter
-{
-    public:
-        JSONFormatter(std::size_t indention = 2, bool allman_style = false) :
-            o{nullptr},
-            indention{indention},
-            current_indention{0},
-            allman_style{allman_style}
-        {
-        }
-        ~JSONFormatter() = default;
-
-        std::string Print(const JSON &json);
-        std::string Print(const std::string_view content);
-        std::string Print(const std::u8string_view content);
-        void Print(std::ostream &stream, const std::string_view content);
-        void Print(std::ostream &stream, const std::u8string_view content);
-
-    protected:
-        struct CompositeContext
-        {
-            JSONValue *value;
-            bool opening_seen;
-            bool member_seen;
-            bool closing_seen;
-        };
-
-        constexpr bool EndOfInput() const { return p >= q; }
-        constexpr std::size_t RemainingInput() const { return q - p; }
-        constexpr void AdvanceReadPosition(std::size_t steps = 1)
-        {
-            auto old_p = p;
-            p = std::min(q, p + steps);
-            column += p - old_p;
-        }
-        void ProduceIndentation();
-        void ConsumeWhitespace();
-        JSONValueType DetermineValueType() const;
-
-        void PrintInitialValue();
-        void PrintPrimitiveValue(JSONValueType value_type);
-        void PrintCompositeValue();
-
-        void PrintString();
-        void PrintNumber();
-        void PrintObject();
-        void PrintArray();
-        void PrintLiteral();
-
-        std::ostream *o;                        // Output stream pointer
-        std::size_t indention;                  // Indention amount
-        std::size_t current_indention;          // Current indention amount
-        bool allman_style;                      // Allman coding style
-        const char8_t *p;                       // Start of content
-        const char8_t *q;                       // One past end of data
-        std::size_t line;                       // Current line number
-        std::size_t column;                     // Current column
-
-        // Used to print composite types
-        std::vector<CompositeContext> composite_context;
-};
-
 } // namespace Terra::JSON
+
+// Streaming operator for JSONString output
+std::ostream &operator<<(std::ostream &o,
+                         const Terra::JSON::JSONString &string);
+
+// Streaming operator for JSONLiteral output
+std::ostream &operator<<(std::ostream &o,
+                         const Terra::JSON::JSONLiteral literal);
+
+// Streaming operator for JSONNumber output
+std::ostream &operator<<(std::ostream &o, const Terra::JSON::JSONNumber &value);
+
+// Streaming operator for JSONObject output
+std::ostream &operator<<(std::ostream &o,
+                         const Terra::JSON::JSONObject &object);
+
+// Streaming operator for JSONArray output
+std::ostream &operator<<(std::ostream &o, const Terra::JSON::JSONArray &array);
+
+// Streaming operator for JSON output
+std::ostream &operator<<(std::ostream &o, const Terra::JSON::JSON &json);
+

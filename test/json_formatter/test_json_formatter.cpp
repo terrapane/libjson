@@ -20,6 +20,7 @@
 
 #include <algorithm>
 #include <terra/json/json.h>
+#include <terra/json/json_formatter.h>
 #include <terra/stf/stf.h>
 
 using namespace Terra::JSON;

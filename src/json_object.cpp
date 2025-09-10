@@ -23,47 +23,6 @@ namespace Terra::JSON
 {
 
 /*
- *  operator<<()
- *
- *  Description:
- *      Streaming operator to produce JSON text for a JSONObject type.
- *
- *  Parameters:
- *      o [in]
- *          A reference to the steaming operator onto which the JSON string
- *          will be appended.
- *
- *      object [in]
- *          The JSONObject to output as JSON text.
- *
- *  Returns:
- *      A reference to the streaming operator passed in as input.
- *
- *  Comments:
- *      None.
- */
-std::ostream &operator<<(std::ostream &o, const JSONObject &object)
-{
-    bool need_comma = false;
-
-    // Output the opening brace
-    o << '{';
-
-    // Iterate over the map, outputting each element
-    for (const auto &[key, value] : *object)
-    {
-        if (need_comma) o << ", ";
-        o << JSONString(key) << ": " << value;
-        need_comma = true;
-    }
-
-    // Output the closing brace
-    o << '}';
-
-    return o;
-}
-
-/*
  *  JSONObject::JSONObject()
  *
  *  Description:
@@ -183,3 +142,44 @@ std::string JSONObject::ToString() const
 }
 
 } // namespace Terra::JSON
+
+/*
+ *  operator<<()
+ *
+ *  Description:
+ *      Streaming operator to produce JSON text for a JSONObject type.
+ *
+ *  Parameters:
+ *      o [in]
+ *          A reference to the steaming operator onto which the JSON string
+ *          will be appended.
+ *
+ *      object [in]
+ *          The JSONObject to output as JSON text.
+ *
+ *  Returns:
+ *      A reference to the streaming operator passed in as input.
+ *
+ *  Comments:
+ *      None.
+ */
+std::ostream &operator<<(std::ostream &o, const Terra::JSON::JSONObject &object)
+{
+    bool need_comma = false;
+
+    // Output the opening brace
+    o << '{';
+
+    // Iterate over the map, outputting each element
+    for (const auto &[key, value] : *object)
+    {
+        if (need_comma) o << ", ";
+        o << Terra::JSON::JSONString(key) << ": " << value;
+        need_comma = true;
+    }
+
+    // Output the closing brace
+    o << '}';
+
+    return o;
+}

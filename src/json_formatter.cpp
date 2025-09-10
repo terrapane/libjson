@@ -33,6 +33,7 @@
 #include <sstream>
 #include <cctype>
 #include <terra/json/json.h>
+#include <terra/json/json_formatter.h>
 #include "unicode_constants.h"
 #include "has_format.h"
 
@@ -1036,9 +1037,9 @@ void JSONFormatter::PrintObject()
         // it into the parsing context
         if (value_type == JSONValueType::Object)
         {
-            json_object.value[u8""] = JSONObject();
+            (*json_object)[u8""] = JSONObject();
             composite_context.emplace_back(
-                &(*json_object.value[u8""]),
+                &(*(*json_object)[u8""]),
                 false,
                 false,
                 false);
@@ -1049,9 +1050,9 @@ void JSONFormatter::PrintObject()
         // it into the parsing context
         if (value_type == JSONValueType::Array)
         {
-            json_object.value[u8""] = JSONArray();
+            (*json_object)[u8""] = JSONArray();
             composite_context.emplace_back(
-                &(*json_object.value[u8""]),
+                &(*(*json_object)[u8""]),
                 false,
                 false,
                 false);
@@ -1203,9 +1204,9 @@ void JSONFormatter::PrintArray()
         // it into the parsing context
         if (value_type == JSONValueType::Object)
         {
-            json_array.value.emplace_back(JSONObject());
+            (*json_array).emplace_back(JSONObject());
             composite_context.emplace_back(
-                &(*json_array.value.back()),
+                &(*(*json_array).back()),
                 false,
                 false,
                 false);
@@ -1216,9 +1217,9 @@ void JSONFormatter::PrintArray()
         // it into the parsing context
         if (value_type == JSONValueType::Array)
         {
-            json_array.value.emplace_back(JSONArray());
+            (*json_array).emplace_back(JSONArray());
             composite_context.emplace_back(
-                &(*json_array.value.back()),
+                &(*(*json_array).back()),
                 false,
                 false,
                 false);

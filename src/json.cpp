@@ -22,73 +22,75 @@
 namespace Terra::JSON
 {
 
-// This is used to facilitate comparing variant types in the JSON object
-struct EqualsVisitor
-{
-    template<typename T>
-    bool operator()(const T &lhs, const T &rhs) const
-    {
-        return lhs == rhs;
-    }
-
-    template<typename T, typename U>
-    bool operator()(const T &, const U &) const
-    {
-        return false;
-    }
-};
-
 /*
- *  operator<<()
+ *  JSON::JSON()
  *
  *  Description:
- *      Streaming operator to produce JSON text for a JSON type.
+ *      Default constructor for the JSON object.  It will assign a type of
+ *      JSONValueType::Object to the new object.
  *
  *  Parameters:
- *      o [in]
- *          A reference to the steaming operator onto which the JSON string
- *          will be appended.
- *
- *      json [in]
- *          The JSON object to output as JSON text.
+ *      None.
  *
  *  Returns:
- *      A reference to the streaming operator passed in as input.
+ *      Nothing.
  *
  *  Comments:
  *      None.
  */
-std::ostream &operator<<(std::ostream &o, const JSON &json)
+JSON::JSON() { AssignType(JSONValueType::Object); }
+
+/*
+ *  JSON::JSON()
+ *
+ *  Description:
+ *      Constructor for the JSON object used to initialize the object to
+ *      contain the specified object type.
+ *
+ *  Parameters:
+ *      type [in]
+ *          The type of data the JSON object is to hold.
+ *
+ *  Returns:
+ *      Nothing.
+ *
+ *  Comments:
+ *      None.
+ */
+JSON::JSON(JSONValueType type) { AssignType(type); }
+
+/*
+ *  JSON::JSON()
+ *
+ *  Description:
+ *      Constructor for the JSON object used to initialize the object with
+ *      a JSONNumber type by specifying literal number values.
+ *
+ *  Parameters:
+ *      number [in]
+ *          The value to assign to the JSONNumber stored inside the object.
+ *
+ *  Returns:
+ *      Nothing.
+ *
+ *  Comments:
+ *      None.
+ */
+template<typename T>
+    requires std::floating_point<T> || std::integral<T>
+JSON::JSON(T number) : value{JSONNumber(number)}
 {
-    // Produce the object based on the type
-    switch (json.GetValueType())
-    {
-        case JSONValueType::String:
-            o << json.GetValue<JSONString>();
-            break;
-
-        case JSONValueType::Number:
-            o << json.GetValue<JSONNumber>();
-            break;
-
-        case JSONValueType::Object:
-            o << json.GetValue<JSONObject>();
-            break;
-
-        case JSONValueType::Array:
-            o << json.GetValue<JSONArray>();
-            break;
-
-        case JSONValueType::Literal:
-            o << json.GetValue<JSONLiteral>();
-            break;
-
-        default:
-            throw JSONException("Unknown JSON object type");
-    }
-
-    return o;
 }
+
+//Specializations for the different type of C++ integer / floating point values
+template JSON::JSON(int);
+template JSON::JSON(long);
+template JSON::JSON(long long);
+template JSON::JSON(unsigned int);
+template JSON::JSON(unsigned long);
+template JSON::JSON(unsigned long long);
+template JSON::JSON(float);
+template JSON::JSON(double);
 
 /*
  *  JSON::GetValueType()
@@ -179,6 +181,92 @@ void JSON::AssignType(JSONValueType type)
 }
 
 /*
+ *  JSON::operator=()
+ *
+ *  Description:
+ *      Assignment operator for the JSON object used to assign a numeric value
+ *      that gets stored as a JSONNumber type.
+ *
+ *  Parameters:
+ *      number [in]
+ *          The value to assign to the JSONNumber stored inside the object.
+ *
+ *  Returns:
+ *      Nothing.
+ *
+ *  Comments:
+ *      None.
+ */
+template<typename T>
+    requires std::floating_point<T> || std::integral<T>
+JSON &JSON::operator=(const T number)
+{
+    value = JSONNumber(number);
+    return *this;
+}
+
+//Specializations for the different type of C++ integer / floating point values
+template JSON &JSON::operator=(int);
+template JSON &JSON::operator=(long);
+template JSON &JSON::operator=(long long);
+template JSON &JSON::operator=(unsigned int);
+template JSON &JSON::operator=(unsigned long);
+template JSON &JSON::operator=(unsigned long long);
+template JSON &JSON::operator=(float);
+template JSON &JSON::operator=(double);
+
+// /*
+//  *  JSON::GetValue()
+//  *
+//  *  Description:
+//  *      This template function is used to get the value of the variant.
+//  *
+//  *  Parameters:
+//  *      None.
+//  *
+//  *  Returns:
+//  *      Nothing.
+//  *
+//  *  Comments:
+//  *      None.
+//  */
+// template<typename T>
+// T &JSON::GetValue()
+// {
+//     if (std::holds_alternative<T>(value))
+//     {
+//         return std::get<T>(value);
+//     }
+
+//     throw JSONException("JSON object contains a different value type");
+// }
+
+// //Specializations for the different types
+// template JSONString &JSON::GetValue<JSONString>();
+// template JSONLiteral &JSON::GetValue<JSONLiteral>();
+// template JSONNumber &JSON::GetValue<JSONNumber>();
+// template JSONObject &JSON::GetValue<JSONObject>();
+// template JSONArray &JSON::GetValue<JSONArray>();
+
+// template<typename T>
+// const T &JSON::GetValue() const
+// {
+//     if (std::holds_alternative<T>(value))
+//     {
+//         return std::get<T>(value);
+//     }
+
+//     throw JSONException("JSON object contains a different value type");
+// }
+
+// //Specializations for the different types
+// template const JSONString &JSON::GetValue<JSONString>() const;
+// template const JSONLiteral &JSON::GetValue<JSONLiteral>() const;
+// template const JSONNumber &JSON::GetValue<JSONNumber>() const;
+// template const JSONObject &JSON::GetValue<JSONObject>() const;
+// template const JSONArray &JSON::GetValue<JSONArray>() const;
+
+/*
  *  JSON::operator[]()
  *
  *  Description:
@@ -252,7 +340,7 @@ const JSON &JSON::operator[](std::size_t index) const
  *          The key used to access information in the JSON object.
  *
  *  Returns:
- *      A reference to the JSON object at the given index position of the array.
+ *      A reference to the value for the given key.
  *
  *  Comments:
  *      None.
@@ -282,7 +370,7 @@ JSON &JSON::operator[](const std::u8string &key)
  *          The key used to access information in the JSON object.
  *
  *  Returns:
- *      A reference to the JSON object at the given index position of the array.
+ *      A constant reference to the value for the given key.
  *
  *  Comments:
  *      None.
@@ -296,6 +384,54 @@ const JSON &JSON::operator[](const std::u8string &key) const
     }
 
     return std::get<JSONObject>(value)[key];
+}
+
+/*
+ *  JSON::operator[]()
+ *
+ *  Description:
+ *      This function is used to access the JSON object with the assumption
+ *      that it is holding an object.  It will verify that it does hold an
+ *      object and, if so, access the index operator of the object to
+ *      retrieve the JSON object having the given key.
+ *
+ *  Parameters:
+ *      key [in]
+ *          The key used to access information in the JSON object.
+ *
+ *  Returns:
+ *      A reference to the value for the given key.
+ *
+ *  Comments:
+ *      None.
+ */
+JSON &JSON::operator[](const std::string &key)
+{
+    return operator[](std::u8string(key.cbegin(), key.cend()));
+}
+
+/*
+ *  JSON::operator[]()
+ *
+ *  Description:
+ *      This function is used to access the JSON object with the assumption
+ *      that it is holding an object.  It will verify that it does hold an
+ *      object and, if so, access the index operator of the object to
+ *      retrieve the JSON object having the given key.
+ *
+ *  Parameters:
+ *      key [in]
+ *          The key used to access information in the JSON object.
+ *
+ *  Returns:
+ *      A constant reference to the value for the given key.
+ *
+ *  Comments:
+ *      None.
+ */
+const JSON &JSON::operator[](const std::string &key) const
+{
+    return operator[](std::u8string(key.cbegin(), key.cend()));
 }
 
 /*
@@ -316,8 +452,34 @@ const JSON &JSON::operator[](const std::u8string &key) const
  */
 bool JSON::operator==(const JSON &other) const
 {
+    // If this and the other don't have the same type, they are not equal
     if (value.index() != other.value.index()) return false;
-    return std::visit(EqualsVisitor{}, value, other.value);
+
+    // Given they have the same type, compare by types
+    if (std::holds_alternative<JSONString>(value))
+    {
+        return std::get<JSONString>(value) == std::get<JSONString>(other.value);
+    }
+    if (std::holds_alternative<JSONNumber>(value))
+    {
+        return std::get<JSONNumber>(value) == std::get<JSONNumber>(other.value);
+    }
+    if (std::holds_alternative<JSONObject>(value))
+    {
+        return std::get<JSONObject>(value) == std::get<JSONObject>(other.value);
+    }
+    if (std::holds_alternative<JSONArray>(value))
+    {
+        return std::get<JSONArray>(value) == std::get<JSONArray>(other.value);
+    }
+    if (std::holds_alternative<JSONLiteral>(value))
+    {
+        return std::get<JSONLiteral>(value) ==
+               std::get<JSONLiteral>(other.value);
+    }
+
+    // We should never get to this point
+    throw JSONException("JSON object has an unexpected variant type");
 }
 
 /*
@@ -367,3 +529,55 @@ std::string JSON::ToString() const
 }
 
 } // namespace Terra::JSON
+
+/*
+ *  operator<<()
+ *
+ *  Description:
+ *      Streaming operator to produce JSON text for a JSON type.
+ *
+ *  Parameters:
+ *      o [in]
+ *          A reference to the steaming operator onto which the JSON string
+ *          will be appended.
+ *
+ *      json [in]
+ *          The JSON object to output as JSON text.
+ *
+ *  Returns:
+ *      A reference to the streaming operator passed in as input.
+ *
+ *  Comments:
+ *      None.
+ */
+std::ostream &operator<<(std::ostream &o, const Terra::JSON::JSON &json)
+{
+    // Produce the object based on the type
+    switch (json.GetValueType())
+    {
+        case Terra::JSON::JSONValueType::String:
+            o << std::get<Terra::JSON::JSONString>(*json);
+            break;
+
+        case Terra::JSON::JSONValueType::Number:
+            o << std::get<Terra::JSON::JSONNumber>(*json);
+            break;
+
+        case Terra::JSON::JSONValueType::Object:
+            o << std::get<Terra::JSON::JSONObject>(*json);
+            break;
+
+        case Terra::JSON::JSONValueType::Array:
+            o << std::get<Terra::JSON::JSONArray>(*json);
+            break;
+
+        case Terra::JSON::JSONValueType::Literal:
+            o << std::get<Terra::JSON::JSONLiteral>(*json);
+            break;
+
+        default:
+            throw Terra::JSON::JSONException("Unknown JSON object type");
+    }
+
+    return o;
+}

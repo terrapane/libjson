@@ -2,6 +2,7 @@
 
 v1.0.8
 
+- Worked to reduce binary size
 - CMake changes to support downstream unit testing
 - Updated dependencies
 

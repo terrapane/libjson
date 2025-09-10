@@ -28,30 +28,102 @@
 namespace Terra::JSON
 {
 
-namespace
-{
-
 /*
- *  ConvertToStdString()
+ *  JSONString::JSONString()
  *
  *  Description:
- *      This function will convert a std::u8string to std::string.  The
- *      purpose is to facilitate producing error output.
+ *      Constructor for the JSONString object.
  *
  *  Parameters:
  *      string [in]
- *          The std::u8string to convert to std::string.
+ *          String to assign to the object's internal value variable.
  *
  *  Returns:
- *      The converted std::string.
+ *      Nothing.
  *
  *  Comments:
  *      None.
  */
-std::string ConvertToStdString(const std::u8string &string)
+JSONString::JSONString(const std::string_view string) :
+    value{std::u8string(string.cbegin(), string.cend())}
 {
-    return {string.cbegin(), string.cend()};
+    // Nothing more to do
 }
+
+/*
+ *  JSONString::JSONString()
+ *
+ *  Description:
+ *      Constructor for the JSONString object.
+ *
+ *  Parameters:
+ *      string [in]
+ *          String to assign to the object's internal value variable.
+ *
+ *  Returns:
+ *      Nothing.
+ *
+ *  Comments:
+ *        Note that while this looks like like it might move the string, it
+ *        cannot since ths string types are different.  This actually performs
+ *        a copy and is here only for completeness.
+ */
+JSONString::JSONString(std::string &&string) :
+    value{std::u8string(string.cbegin(), string.cend())}
+{
+    // Nothing more to do
+}
+
+/*
+ *  JSONString::operator=()
+ *
+ *  Description:
+ *      Assign the given string to this object.
+ *
+ *  Parameters:
+ *      string [in]
+ *          String to assign to the object's internal value variable.
+ *
+ *  Returns:
+ *      Nothing.
+ *
+ *  Comments:
+ *      None.
+ */
+JSONString &JSONString::operator=(const std::string_view string)
+{
+    value = std::u8string(string.cbegin(), string.cend());
+    return *this;
+}
+
+/*
+ *  JSONString::ToString()
+ *
+ *  Description:
+ *      This function will convert the JSONString object to a std::string.
+ *
+ *  Parameters:
+ *      None.
+ *
+ *  Returns:
+ *      A std::string containing JSON text derived from the JSONString object.
+ *
+ *  Comments:
+ *      None.
+ */
+std::string JSONString::ToString() const
+{
+    std::ostringstream oss;
+
+    oss << *this;
+
+    return oss.str();
+}
+
+} // namespace Terra::JSON
+
+namespace
+{
 
 /*
  *  UnicodeEscapeSequence()
@@ -106,16 +178,20 @@ std::string UnicodeEscapeSequence(std::uint16_t codepoint)
  *  Comments:
  *      None.
  */
-std::ostream &operator<<(std::ostream &o, const JSONString &string)
+std::ostream &operator<<(std::ostream &o, const Terra::JSON::JSONString &string)
 {
+    const char *Invalid_UTF8_Sequence = "Invalid UTF-8 character sequence";
+    const char *Invalid_Unicode_Character = "Invalid Unicode character";
     std::size_t expected_utf8_remaining{};
     std::uint32_t wide_character{};
+
+    using namespace Terra::JSON;
 
     // Write out the string start character
     o << '"';
 
     // Iterate over each character in the string
-    for (auto c : *string)
+    for (const auto c : *string)
     {
         // If expecting another UTF-8 character, handle it
         if (expected_utf8_remaining > 0)
@@ -123,9 +199,7 @@ std::ostream &operator<<(std::ostream &o, const JSONString &string)
             // Look for 10xxxxxx octets
             if ((c & 0xc0) != 0x80)
             {
-                throw JSONException(std::string("Invalid UTF-8 character "
-                                                "sequence: ") +
-                                    ConvertToStdString(*string));
+                throw JSONException(Invalid_UTF8_Sequence);
             }
 
             // Append additional bits to the wide character
@@ -140,18 +214,14 @@ std::ostream &operator<<(std::ostream &o, const JSONString &string)
                 // Verify the character is a valid Unicode value
                 if (wide_character > Unicode::Maximum_Character_Value)
                 {
-                    throw JSONException(std::string("Invalid Unicode "
-                                                    "character: ") +
-                                        ConvertToStdString(*string));
+                    throw JSONException(Invalid_Unicode_Character);
                 }
 
                 // Ensure the character code is not within the surrogate range
                 if ((wide_character >= Unicode::Surrogate_High_Min) &&
                     (wide_character <= Unicode::Surrogate_Low_Max))
                 {
-                    throw JSONException(std::string("Invalid UTF-8 character "
-                                                    "sequence: ") +
-                                        ConvertToStdString(*string));
+                    throw JSONException(std::string(Invalid_UTF8_Sequence));
                 }
 
                 // Encode using surrogate code points
@@ -248,9 +318,7 @@ std::ostream &operator<<(std::ostream &o, const JSONString &string)
                     }
 
                     // Any other value would be an invalid character
-                    throw JSONException(std::string("Invalid UTF-8 character "
-                                                    "sequence: ") +
-                                        ConvertToStdString(*string));
+                    throw JSONException(Invalid_UTF8_Sequence);
                 }
 
                 // Output regular ASCII character
@@ -263,8 +331,7 @@ std::ostream &operator<<(std::ostream &o, const JSONString &string)
     // If still processing a UTF-8 sequence, that is an error
     if (expected_utf8_remaining > 0)
     {
-        throw JSONException(std::string("Invalid UTF-8 character sequence: ") +
-                            ConvertToStdString(*string));
+        throw JSONException(Invalid_UTF8_Sequence);
     }
 
     // Write out the string end character
@@ -272,29 +339,3 @@ std::ostream &operator<<(std::ostream &o, const JSONString &string)
 
     return o;
 }
-
-/*
- *  JSONString::ToString()
- *
- *  Description:
- *      This function will convert the JSONString object to a std::string.
- *
- *  Parameters:
- *      None.
- *
- *  Returns:
- *      A std::string containing JSON text derived from the JSONString object.
- *
- *  Comments:
- *      None.
- */
-std::string JSONString::ToString() const
-{
-    std::ostringstream oss;
-
-    oss << *this;
-
-    return oss.str();
-}
-
-} // namespace Terra::JSON

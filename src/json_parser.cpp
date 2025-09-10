@@ -19,6 +19,7 @@
 
 #include <cctype>
 #include <terra/json/json.h>
+#include <terra/json/json_parser.h>
 #include "unicode_constants.h"
 #include "has_format.h"
 #ifndef TERRA_HAS_FORMAT
@@ -596,27 +597,27 @@ JSONString JSONParser::ParseString()
             {
                 case 'b':
                     AdvanceReadPosition();
-                    json_string.value.push_back('\b');
+                    (*json_string).push_back('\b');
                     break;
 
                 case 'f':
                     AdvanceReadPosition();
-                    json_string.value.push_back('\f');
+                    (*json_string).push_back('\f');
                     break;
 
                 case 'n':
                     AdvanceReadPosition();
-                    json_string.value.push_back('\n');
+                    (*json_string).push_back('\n');
                     break;
 
                 case 'r':
                     AdvanceReadPosition();
-                    json_string.value.push_back('\r');
+                    (*json_string).push_back('\r');
                     break;
 
                 case 't':
                     AdvanceReadPosition();
-                    json_string.value.push_back('\t');
+                    (*json_string).push_back('\t');
                     break;
 
                 case 'u':
@@ -625,7 +626,7 @@ JSONString JSONParser::ParseString()
                     break;
 
                 default:
-                    json_string.value.push_back(*p);
+                    (*json_string).push_back(*p);
                     AdvanceReadPosition();
             };
 
@@ -652,7 +653,7 @@ JSONString JSONParser::ParseString()
         }
 
         // Add the current character to the parsed string
-        json_string.value.push_back(*p);
+        (*json_string).push_back(*p);
 
         // Advance the read position
         AdvanceReadPosition();
@@ -804,34 +805,34 @@ void JSONParser::ParseUnicode(JSONString &json_string)
     if (code_value <= 0x7f)
     {
         // 0nnnnnn
-        json_string.value.push_back(static_cast<char8_t>(code_value));
+        (*json_string).push_back(static_cast<char8_t>(code_value));
         return;
     }
 
     if (code_value <= 0x7ff)
     {
         // 110nnnnn 10nnnnnn
-        json_string.value.push_back(0xc0 | ((code_value >> 6) & 0x1f));
-        json_string.value.push_back(0x80 | ((code_value     ) & 0x3f));
+        (*json_string).push_back(0xc0 | ((code_value >> 6) & 0x1f));
+        (*json_string).push_back(0x80 | ((code_value     ) & 0x3f));
         return;
     }
 
     if (code_value <= 0xffff)
     {
         // 1110nnnn 10nnnnnn 10nnnnnn
-        json_string.value.push_back(0xe0 | ((code_value >> 12) & 0x0f));
-        json_string.value.push_back(0x80 | ((code_value >>  6) & 0x3f));
-        json_string.value.push_back(0x80 | ((code_value      ) & 0x3f));
+        (*json_string).push_back(0xe0 | ((code_value >> 12) & 0x0f));
+        (*json_string).push_back(0x80 | ((code_value >>  6) & 0x3f));
+        (*json_string).push_back(0x80 | ((code_value      ) & 0x3f));
         return;
     }
 
     if (code_value <= 0x10ffff)
     {
         // 11110nnn 10nnnnnn 10nnnnnn 10nnnnnn
-        json_string.value.push_back(0xf0 | ((code_value >> 18) & 0x07));
-        json_string.value.push_back(0x80 | ((code_value >> 12) & 0x3f));
-        json_string.value.push_back(0x80 | ((code_value >>  6) & 0x3f));
-        json_string.value.push_back(0x80 | ((code_value      ) & 0x3f));
+        (*json_string).push_back(0xf0 | ((code_value >> 18) & 0x07));
+        (*json_string).push_back(0x80 | ((code_value >> 12) & 0x3f));
+        (*json_string).push_back(0x80 | ((code_value >>  6) & 0x3f));
+        (*json_string).push_back(0x80 | ((code_value      ) & 0x3f));
         return;
     }
 
@@ -1221,26 +1222,26 @@ void JSONParser::ParseObject()
         // What is the type of data to consume?
         JSONValueType value_type = DetermineValueType();
 
-        // If the next type is an JSONObject type, create that type and put
+        // If the next type is a JSONObject type, create that type and put
         // it into the parsing context
         if (value_type == JSONValueType::Object)
         {
-            json_object.value[*name] = JSONObject();
+            (*json_object)[*name] = JSONObject();
             composite_context.emplace_back(
-                &(*json_object.value[*name]),
+                &(*(*json_object)[*name]),
                 false,
                 false,
                 false);
             return;
         }
 
-        // If the next type is an JSONObject type, create that type and put
+        // If the next type is a JSONArray type, create that type and put
         // it into the parsing context
         if (value_type == JSONValueType::Array)
         {
-            json_object.value[*name] = JSONArray();
+            (*json_object)[*name] = JSONArray();
             composite_context.emplace_back(
-                &(*json_object.value[*name]),
+                &(*(*json_object)[*name]),
                 false,
                 false,
                 false);
@@ -1248,7 +1249,7 @@ void JSONParser::ParseObject()
         }
 
         // Parse the primitive JSON value that follows, placing it into the map
-        json_object.value[*name] = ParsePrimitiveValue(value_type);
+        (*json_object)[*name] = ParsePrimitiveValue(value_type);
     }
 
     // Ensure the closing brace was seen
@@ -1373,26 +1374,26 @@ void JSONParser::ParseArray()
         // What is the type of data to consume?
         JSONValueType value_type = DetermineValueType();
 
-        // If the next type is an JSONObject type, create that type and put
+        // If the next type is a JSONObject type, create that type and put
         // it into the parsing context
         if (value_type == JSONValueType::Object)
         {
-            json_array.value.emplace_back(JSONObject());
+            (*json_array).emplace_back(JSONObject());
             composite_context.emplace_back(
-                &(*json_array.value.back()),
+                &(*(*json_array).back()),
                 false,
                 false,
                 false);
             return;
         }
 
-        // If the next type is an JSONObject type, create that type and put
+        // If the next type is a JSONArray type, create that type and put
         // it into the parsing context
         if (value_type == JSONValueType::Array)
         {
-            json_array.value.emplace_back(JSONArray());
+            (*json_array).emplace_back(JSONArray());
             composite_context.emplace_back(
-                &(*json_array.value.back()),
+                &(*(*json_array).back()),
                 false,
                 false,
                 false);
@@ -1400,7 +1401,7 @@ void JSONParser::ParseArray()
         }
 
         // Parse the JSON value that follows, placing it into the map
-        json_array.value.emplace_back(ParsePrimitiveValue(value_type));
+        (*json_array).emplace_back(ParsePrimitiveValue(value_type));
     }
 
     // Ensure the closing brace was seen

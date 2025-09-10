@@ -199,3 +199,33 @@ STF_TEST(JSONNumber, NumberUnequal)
     STF_ASSERT_NE(number, other_number);
     STF_ASSERT_NE(number, yet_another_number);
 }
+
+// Test re-assignment
+STF_TEST(JSONNumber, ReAssignment1)
+{
+    JSONNumber number = 1;
+
+    STF_ASSERT_TRUE(number.IsInteger());
+    STF_ASSERT_EQ(1, number.GetInteger());
+
+    number = 5.3;
+
+    STF_ASSERT_TRUE(number.IsFloat());
+    STF_ASSERT_EQ(5.3, number.GetFloat());
+}
+
+// Test re-assignment
+STF_TEST(JSONNumber, ReAssignment2)
+{
+    const double new_value = 2.3;
+
+    JSONNumber number = 1;
+
+    STF_ASSERT_TRUE(number.IsInteger());
+    STF_ASSERT_EQ(1, number.GetInteger());
+
+    number = new_value;
+
+    STF_ASSERT_TRUE(number.IsFloat());
+    STF_ASSERT_EQ(new_value, number.GetFloat());
+}

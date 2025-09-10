@@ -16,6 +16,7 @@
  */
 
 #include <terra/json/json.h>
+#include <terra/json/json_parser.h>
 #include <terra/stf/stf.h>
 
 using namespace Terra::JSON;
@@ -49,7 +50,7 @@ STF_TEST(JSONObject, InitializerList1)
     };
 
     // Verify there are five elements in the map
-    STF_ASSERT_EQ(5, object.value.size());
+    STF_ASSERT_EQ(5, (*object).size());
     STF_ASSERT_EQ(5, object.Size());
 }
 
@@ -78,7 +79,7 @@ STF_TEST(JSONObject, InitializerList2)
     };
 
     // Verify the number of elements
-    STF_ASSERT_EQ(11, object.value.size());
+    STF_ASSERT_EQ(11, (*object).size());
     STF_ASSERT_EQ(11, object.Size());
 
     // Verify the types
@@ -105,12 +106,12 @@ STF_TEST(JSONObject, BasicAssignment)
     object["Key3"] = {1, 2, 3};
 
     // Verify there are three elements in the map
-    STF_ASSERT_EQ(3, object.value.size());
+    STF_ASSERT_EQ(3, (*object).size());
     STF_ASSERT_EQ(3, object.Size());
 
     // Verify the last item is an array with three elements
     STF_ASSERT_EQ(JSONValueType::Array, object["Key3"].GetValueType());
-    STF_ASSERT_EQ(3, object["Key3"].GetValue<JSONArray>().Size());
+    STF_ASSERT_EQ(3, std::get<JSONArray>(*(object["Key3"])).Size());
 }
 
 // Test assignment operator
@@ -129,7 +130,7 @@ STF_TEST(JSONObject, IndexOperator1)
     object["key8"] = 3.14;
 
     // Verify there are seven elements in the map
-    STF_ASSERT_EQ(8, object.value.size());
+    STF_ASSERT_EQ(8, (*object).size());
     STF_ASSERT_EQ(8, object.Size());
 
     // Verify that the type are assigned as expected
@@ -143,8 +144,8 @@ STF_TEST(JSONObject, IndexOperator1)
     STF_ASSERT_EQ(JSONValueType::Number, object["key8"].GetValueType());
 
     // Verify the the numbers are recognized as the right type
-    STF_ASSERT_TRUE(object["key2"].GetValue<JSONNumber>().IsInteger());
-    STF_ASSERT_TRUE(object["key8"].GetValue<JSONNumber>().IsFloat());
+    STF_ASSERT_TRUE(std::get<JSONNumber>(*(object["key2"])).IsInteger());
+    STF_ASSERT_TRUE(std::get<JSONNumber>(*(object["key8"])).IsFloat());
 }
 
 // Test reading JSONObjects using assignment operator
@@ -158,7 +159,7 @@ STF_TEST(JSONObject, IndexOperator2)
     object["key3"] = 30;
 
     // Verify there are three elements in the map
-    STF_ASSERT_EQ(3, object.value.size());
+    STF_ASSERT_EQ(3, (*object).size());
     STF_ASSERT_EQ(3, object.Size());
 
     // Now attempt to read
@@ -168,7 +169,7 @@ STF_TEST(JSONObject, IndexOperator2)
     STF_ASSERT_EQ(JSONValueType::Number, json_number.GetValueType());
 
     // Verify the value is correct
-    STF_ASSERT_EQ(20, json_number.GetValue<JSONNumber>().GetInteger());
+    STF_ASSERT_EQ(20, std::get<JSONNumber>(*json_number).GetInteger());
 }
 
 // Test streaming operator
@@ -240,10 +241,10 @@ STF_TEST(JSONObject, Output3)
     STF_ASSERT_EQ(JSONValueType::Object, json.GetValueType());
 
     // Re-assign object to be that of the JSON value
-    object = json.GetValue<JSONObject>();
+    object = std::get<JSONObject>(*json);
 
     // Verify the number of elements
-    STF_ASSERT_EQ(11, object.value.size());
+    STF_ASSERT_EQ(11, (*object).size());
     STF_ASSERT_EQ(11, object.Size());
 
     // Verify the types
