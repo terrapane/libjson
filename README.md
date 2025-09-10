@@ -67,48 +67,35 @@ Knowing the type of data, accessing it using the `[]` operator.  For example,
 to get the integer value in array position 3 of a JSONArray, one can do this:
 
 ```cpp
-std::int64_t number = json[3].GetValue<JSONNumber>().GetInteger();
+std::int64_t number = std::get<JSONNumber>(*json[3]).GetInteger();
 ```
 
-Note the use of `GetValue<T>()` here.  This is always required when accessing
-a `JSON` object since the type of data held might be one of the aforementioned
-types.
+All of the various JSON objects have an `operator*()` which returns a reference
+to the internal type.  In the above case, the `json[3]` returns the third
+element, then the `*` dereferences the internal type (which is a variant).  The
+`std::get<JSONNumber>` call is used to access the `JSONNumber` variant value.
 
-The functions `GetValue<T>()` and `[]` return a reference, allowing one to
-access members more easily.  Consider array position 4 in the example in
-the previous section.  This is also a JSON object.  To make it easier to
-manipulate, one may do this:
+Consider array position 4 in the example in the previous section.  This is also
+a JSON object.  To make it easier to manipulate, one may do this:
 
 ```cpp
 // Get a reference to the object in array position 4
-JSONObject &json_object = json[4].GetValue<JSONObject>();
+JSONObject &json_object = std::get<JSONObject>(*json[4]);
 
 // Get the literal value at "key1"
-JSONLiteral literal = json_object["key1"].GetValue<JSONLiteral>();
+JSONLiteral literal = std::get<JSONLiteral>(*json_object["key1"]);
 
 // Assign the literal value
 json_object["key1"] = JSONLiteral::Null;
 
 // Get the string value at "key2"
-std::u8string string = json_object["key2"].GetValue<JSONString>().value;
+std::u8string string = *std::get<JSONString>(*json_object["key2"]);
 ```
 
-Note the `value` member in that last example.  For most types (`JSONObject`,
-`JSONNumber`, `JSONString`, and `JSONArray`) there is a `value` member to allow
-direct access to the data.  It's not required, but it is a public member to give
-the user flexibility.  One may also access the value member by using
-`operator*()` as in the following alternative form of the above string
-assignment:
-
-```cpp
-// Get the string value at "key2" (alternative form)
-std::u8string string = *json_object["key2"].GetValue<JSONString>();
-```
-
-In the example above, `GetValue<JSONString>` is used to return a `JSONString`
-reference.  If the key value was not a string, this would cause an exception
-to be thrown.  Thus, it is important to check the type of value before
-accessing it.
+Note the `*` at the front of that last example.  What we want is the internal
+`std::u8string` and `std::get<JSONString>` returns a `JSONString`.  By using
+the `operator*()` at the start, one can dereference the `JSONString` to get
+a reference to the internal `std::u8string`.
 
 While accessing some of the data appears verbose, data structures are
 generally known and checks can be skipped.  Checking each type is generally
