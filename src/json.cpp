@@ -215,57 +215,6 @@ template JSON &JSON::operator=(unsigned long long);
 template JSON &JSON::operator=(float);
 template JSON &JSON::operator=(double);
 
-// /*
-//  *  JSON::GetValue()
-//  *
-//  *  Description:
-//  *      This template function is used to get the value of the variant.
-//  *
-//  *  Parameters:
-//  *      None.
-//  *
-//  *  Returns:
-//  *      Nothing.
-//  *
-//  *  Comments:
-//  *      None.
-//  */
-// template<typename T>
-// T &JSON::GetValue()
-// {
-//     if (std::holds_alternative<T>(value))
-//     {
-//         return std::get<T>(value);
-//     }
-
-//     throw JSONException("JSON object contains a different value type");
-// }
-
-// //Specializations for the different types
-// template JSONString &JSON::GetValue<JSONString>();
-// template JSONLiteral &JSON::GetValue<JSONLiteral>();
-// template JSONNumber &JSON::GetValue<JSONNumber>();
-// template JSONObject &JSON::GetValue<JSONObject>();
-// template JSONArray &JSON::GetValue<JSONArray>();
-
-// template<typename T>
-// const T &JSON::GetValue() const
-// {
-//     if (std::holds_alternative<T>(value))
-//     {
-//         return std::get<T>(value);
-//     }
-
-//     throw JSONException("JSON object contains a different value type");
-// }
-
-// //Specializations for the different types
-// template const JSONString &JSON::GetValue<JSONString>() const;
-// template const JSONLiteral &JSON::GetValue<JSONLiteral>() const;
-// template const JSONNumber &JSON::GetValue<JSONNumber>() const;
-// template const JSONObject &JSON::GetValue<JSONObject>() const;
-// template const JSONArray &JSON::GetValue<JSONArray>() const;
-
 /*
  *  JSON::operator[]()
  *
