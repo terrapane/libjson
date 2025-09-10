@@ -25,56 +25,6 @@ namespace Terra::JSON
 {
 
 /*
- *  JSONNumber::JSONNumber()
- *
- *  Description:
- *      Constructor for the JSONNumber type that accepts any type of number.
- *
- *  Parameters:
- *      number [in]
- *          The number to assign to the JSONNumber object.
- *
- *  Returns:
- *      Nothing.
- *
- *  Comments:
- *      None.
- */
-template<typename T>
-    requires std::floating_point<T> || std::integral<T>
-JSONNumber::JSONNumber(T number)
-{
-    if constexpr (std::floating_point<T>)
-    {
-        value = static_cast<JSONFloat>(number);
-    }
-    else if constexpr (std::unsigned_integral<T>)
-    {
-        // Insure the unsigned value does not exceed the max value of a
-        // signed integer, as we only store a signed integer type
-        if (number > std::numeric_limits<JSONInteger>::max())
-        {
-            throw JSONException("Unsigned integer exceeds limits");
-        }
-        value = static_cast<JSONInteger>(number);
-    }
-    else
-    {
-        value = static_cast<JSONInteger>(number);
-    }
-}
-
-//Specializations for the different type of C++ integer / floating point values
-template JSONNumber::JSONNumber(int);
-template JSONNumber::JSONNumber(long);
-template JSONNumber::JSONNumber(long long);
-template JSONNumber::JSONNumber(unsigned int);
-template JSONNumber::JSONNumber(unsigned long);
-template JSONNumber::JSONNumber(unsigned long long);
-template JSONNumber::JSONNumber(float);
-template JSONNumber::JSONNumber(double);
-
-/*
  *  JSONNumber::operator==()
  *
  *  Description:
@@ -91,20 +41,13 @@ template JSONNumber::JSONNumber(double);
  */
 bool JSONNumber::operator==(const JSONNumber &other) const
 {
-    if (std::holds_alternative<JSONInteger>(value) &&
-        std::holds_alternative<JSONInteger>(other.value))
-    {
-        return std::get<JSONInteger>(value) ==
-            std::get<JSONInteger>(other.value);
-    }
+    // If they're not the same type, then they are not equal
+    if (value.index() != other.value.index()) return false;
 
-    if (std::holds_alternative<JSONFloat>(value) &&
-        std::holds_alternative<JSONFloat>(other.value))
-    {
-        return std::get<JSONFloat>(value) == std::get<JSONFloat>(other.value);
-    }
-
-    return false;
+    // Compare values assuming the same type
+    return std::visit([](auto first, auto second) { return first == second; },
+                      value,
+                      other.value);
 }
 
 /*

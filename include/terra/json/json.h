@@ -156,7 +156,27 @@ class JSONNumber
         JSONNumber() = default;
         template<typename T>
             requires std::floating_point<T> || std::integral<T>
-        JSONNumber(T number);
+        JSONNumber(T number)
+        {
+            if constexpr (std::floating_point<T>)
+            {
+                value = static_cast<JSONFloat>(number);
+            }
+            else if constexpr (std::unsigned_integral<T>)
+            {
+                // Insure the unsigned value does not exceed the max value of a
+                // signed integer, as we only store a signed integer type
+                if (number > std::numeric_limits<JSONInteger>::max())
+                {
+                    throw JSONException("Unsigned integer exceeds limits");
+                }
+                value = static_cast<JSONInteger>(number);
+            }
+            else
+            {
+                value = static_cast<JSONInteger>(number);
+            }
+        }
         ~JSONNumber() = default;
 
         bool operator==(const JSONNumber &other) const;
@@ -291,7 +311,9 @@ class JSON
         }
         template<typename T>
             requires std::floating_point<T> || std::integral<T>
-        JSON(T number);
+        JSON(T number) : value{JSONNumber(number)}
+        {
+        }
 
         ~JSON() = default;
 
@@ -318,7 +340,11 @@ class JSON
 
         template<typename T>
             requires std::floating_point<T> || std::integral<T>
-        JSON &operator=(const T number);
+        JSON &operator=(const T number)
+        {
+            value = JSONNumber(number);
+            return *this;
+        }
 
         JSON &operator=(const JSONLiteral assignment)
         {

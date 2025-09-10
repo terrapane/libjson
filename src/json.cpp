@@ -22,6 +22,32 @@
 namespace Terra::JSON
 {
 
+namespace
+{
+
+template <class... Ts>
+struct overloads : Ts... { using Ts::operator()...; };
+
+// This is used to facilitate comparing variant types in the JSON object
+struct EqualsVisitor
+{
+    // Operator used to compare like-types (actually perform compare)
+    template<typename T>
+    bool operator()(const T &lhs, const T &rhs) const
+    {
+        return lhs == rhs;
+    }
+
+    // Operator used to compare unlike-types (always returns false)
+    template<typename T, typename U>
+    bool operator()(const T &, const U &) const
+    {
+        return false;
+    }
+};
+
+}
+
 /*
  *  JSON::JSON()
  *
@@ -60,39 +86,6 @@ JSON::JSON() { AssignType(JSONValueType::Object); }
 JSON::JSON(JSONValueType type) { AssignType(type); }
 
 /*
- *  JSON::JSON()
- *
- *  Description:
- *      Constructor for the JSON object used to initialize the object with
- *      a JSONNumber type by specifying literal number values.
- *
- *  Parameters:
- *      number [in]
- *          The value to assign to the JSONNumber stored inside the object.
- *
- *  Returns:
- *      Nothing.
- *
- *  Comments:
- *      None.
- */
-template<typename T>
-    requires std::floating_point<T> || std::integral<T>
-JSON::JSON(T number) : value{JSONNumber(number)}
-{
-}
-
-//Specializations for the different type of C++ integer / floating point values
-template JSON::JSON(int);
-template JSON::JSON(long);
-template JSON::JSON(long long);
-template JSON::JSON(unsigned int);
-template JSON::JSON(unsigned long);
-template JSON::JSON(unsigned long long);
-template JSON::JSON(float);
-template JSON::JSON(double);
-
-/*
  *  JSON::GetValueType()
  *
  *  Description:
@@ -110,28 +103,15 @@ template JSON::JSON(double);
  */
 JSONValueType JSON::GetValueType() const
 {
-    if (std::holds_alternative<JSONString>(value))
-    {
-        return JSONValueType::String;
-    }
-    if (std::holds_alternative<JSONNumber>(value))
-    {
-        return JSONValueType::Number;
-    }
-    if (std::holds_alternative<JSONObject>(value))
-    {
-        return JSONValueType::Object;
-    }
-    if (std::holds_alternative<JSONArray>(value))
-    {
-        return JSONValueType::Array;
-    }
-    if (std::holds_alternative<JSONLiteral>(value))
-    {
-        return JSONValueType::Literal;
-    }
-
-    throw JSONException("JSON object has no value");
+    return std::visit(
+        overloads{
+            [](const JSONLiteral &) { return JSONValueType::Literal; },
+            [](const JSONString &) { return JSONValueType::String; },
+            [](const JSONNumber &) { return JSONValueType::Number; },
+            [](const JSONObject &) { return JSONValueType::Object; },
+            [](const JSONArray &) { return JSONValueType::Array; },
+        },
+        value);
 }
 
 /*
@@ -179,41 +159,6 @@ void JSON::AssignType(JSONValueType type)
             break;
     }
 }
-
-/*
- *  JSON::operator=()
- *
- *  Description:
- *      Assignment operator for the JSON object used to assign a numeric value
- *      that gets stored as a JSONNumber type.
- *
- *  Parameters:
- *      number [in]
- *          The value to assign to the JSONNumber stored inside the object.
- *
- *  Returns:
- *      Nothing.
- *
- *  Comments:
- *      None.
- */
-template<typename T>
-    requires std::floating_point<T> || std::integral<T>
-JSON &JSON::operator=(const T number)
-{
-    value = JSONNumber(number);
-    return *this;
-}
-
-//Specializations for the different type of C++ integer / floating point values
-template JSON &JSON::operator=(int);
-template JSON &JSON::operator=(long);
-template JSON &JSON::operator=(long long);
-template JSON &JSON::operator=(unsigned int);
-template JSON &JSON::operator=(unsigned long);
-template JSON &JSON::operator=(unsigned long long);
-template JSON &JSON::operator=(float);
-template JSON &JSON::operator=(double);
 
 /*
  *  JSON::operator[]()
@@ -401,34 +346,7 @@ const JSON &JSON::operator[](const std::string &key) const
  */
 bool JSON::operator==(const JSON &other) const
 {
-    // If this and the other don't have the same type, they are not equal
-    if (value.index() != other.value.index()) return false;
-
-    // Given they have the same type, compare by types
-    if (std::holds_alternative<JSONString>(value))
-    {
-        return std::get<JSONString>(value) == std::get<JSONString>(other.value);
-    }
-    if (std::holds_alternative<JSONNumber>(value))
-    {
-        return std::get<JSONNumber>(value) == std::get<JSONNumber>(other.value);
-    }
-    if (std::holds_alternative<JSONObject>(value))
-    {
-        return std::get<JSONObject>(value) == std::get<JSONObject>(other.value);
-    }
-    if (std::holds_alternative<JSONArray>(value))
-    {
-        return std::get<JSONArray>(value) == std::get<JSONArray>(other.value);
-    }
-    if (std::holds_alternative<JSONLiteral>(value))
-    {
-        return std::get<JSONLiteral>(value) ==
-               std::get<JSONLiteral>(other.value);
-    }
-
-    // We should never get to this point
-    throw JSONException("JSON object has an unexpected variant type");
+    return std::visit(EqualsVisitor{}, value, other.value);
 }
 
 /*
