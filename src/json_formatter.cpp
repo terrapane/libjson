@@ -618,10 +618,10 @@ void JSONFormatter::PrintString()
         // Control characters are not permitted in strings
         if (*p < 0x20)
         {
-            throw JSONException(ParsingErrorString(line,
-                                                   column,
-                                                   "Illegal control character "
-                                                   "in string"));
+            throw JSONException(
+                ParsingErrorString(line,
+                                   column,
+                                   "Illegal control character in string"));
         }
 
         // If there was an escape on the last iteration, handle it
@@ -664,10 +664,10 @@ void JSONFormatter::PrintString()
     // Error if the closing quote was not seen
     if (!close_quote)
     {
-        throw JSONException(ParsingErrorString(line,
-                                               column,
-                                               "No closing quote parsing "
-                                               "string"));
+        throw JSONException(
+            ParsingErrorString(line,
+                               column,
+                               "No closing quote parsing string"));
     }
 }
 
@@ -750,10 +750,8 @@ void JSONFormatter::PrintNumber()
                 {
                     if (!valid_number)
                     {
-                        throw JSONException(ParsingErrorString(line,
-                                                               column,
-                                                               "Invalid "
-                                                               "number"));
+                        throw JSONException(
+                            ParsingErrorString(line, column, "Invalid number"));
                     }
                     *o << static_cast<char>(*p);
                     AdvanceReadPosition();
@@ -766,10 +764,8 @@ void JSONFormatter::PrintNumber()
                 {
                     if (!valid_number)
                     {
-                        throw JSONException(ParsingErrorString(line,
-                                                               column,
-                                                               "Invalid "
-                                                               "number"));
+                        throw JSONException(
+                            ParsingErrorString(line, column, "Invalid number"));
                     }
                     *o << static_cast<char>(*p);
                     AdvanceReadPosition();
@@ -796,10 +792,8 @@ void JSONFormatter::PrintNumber()
                 {
                     if (!valid_number)
                     {
-                        throw JSONException(ParsingErrorString(line,
-                                                               column,
-                                                               "Invalid "
-                                                               "number"));
+                        throw JSONException(
+                            ParsingErrorString(line, column, "Invalid number"));
                     }
                     *o << static_cast<char>(*p);
                     AdvanceReadPosition();
@@ -970,10 +964,10 @@ void JSONFormatter::PrintObject()
             // Ensure this is not an out-of-place closing brace
             if (*p == '}')
             {
-                throw JSONException(ParsingErrorString(line,
-                                                       column,
-                                                       "Premature end of JSON "
-                                                       "object"));
+                throw JSONException(
+                    ParsingErrorString(line,
+                                       column,
+                                       "Premature end of JSON object"));
             }
         }
 
@@ -1184,10 +1178,10 @@ void JSONFormatter::PrintArray()
             // Ensure this is not an out-of-place closing bracket
             if (*p == ']')
             {
-                throw JSONException(ParsingErrorString(line,
-                                                       column,
-                                                       "Premature end of JSON "
-                                                       "array"));
+                throw JSONException(
+                    ParsingErrorString(line,
+                                       column,
+                                       "Premature end of JSON array"));
             }
         }
 

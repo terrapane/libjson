@@ -40,13 +40,14 @@ struct EqualsVisitor
 
     // Operator used to compare unlike-types (always returns false)
     template<typename T, typename U>
-    bool operator()(const T &, const U &) const
+    bool operator()([[maybe_unused]] const T &lhs,
+                    [[maybe_unused]] const U &rhs) const
     {
         return false;
     }
 };
 
-}
+} // namespace
 
 /*
  *  JSON::JSON()

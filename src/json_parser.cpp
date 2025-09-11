@@ -340,9 +340,8 @@ JSONValueType JSONParser::DetermineValueType() const
             }
             else
             {
-                throw JSONException(ParsingErrorString(line,
-                                                       column,
-                                                       "Unknown value type"));
+                throw JSONException(
+                    ParsingErrorString(line, column, "Unknown value type"));
             }
             break;
     }
@@ -583,10 +582,10 @@ JSONString JSONParser::ParseString()
         // Control characters are not permitted in strings
         if (*p < 0x20)
         {
-            throw JSONException(ParsingErrorString(line,
-                                                   column,
-                                                   "Illegal control character "
-                                                   "in string"));
+            throw JSONException(
+                ParsingErrorString(line,
+                                   column,
+                                   "Illegal control character in string"));
         }
 
         // If there was an escape on the last iteration, handle it
@@ -662,10 +661,10 @@ JSONString JSONParser::ParseString()
     // Error if the closing quote was not seen
     if (!close_quote)
     {
-        throw JSONException(ParsingErrorString(line,
-                                               column,
-                                               "No closing quote parsing "
-                                               "string"));
+        throw JSONException(
+            ParsingErrorString(line,
+                               column,
+                               "No closing quote parsing string"));
     }
 
     return json_string;
@@ -702,10 +701,10 @@ void JSONParser::ParseUnicode(JSONString &json_string)
     // Ensure there are at least 4 octets to consume
     if (RemainingInput() < 4)
     {
-        throw JSONException(ParsingErrorString(line,
-                                               column,
-                                               "Insufficient input following "
-                                               "\\u sequence"));
+        throw JSONException(
+            ParsingErrorString(line,
+                               column,
+                               "Insufficient input following \\u sequence"));
     }
 
     // Extract the hex digit string
@@ -736,30 +735,30 @@ void JSONParser::ParseUnicode(JSONString &json_string)
         if ((code_value >= Unicode::Surrogate_Low_Min) &&
             (code_value <= Unicode::Surrogate_Low_Max))
         {
-            throw JSONException(ParsingErrorString(line,
-                                                   column - 6,
-                                                   "Unexpected low Unicode "
-                                                   "surrogate found"));
+            throw JSONException(
+                ParsingErrorString(line,
+                                   column - 6,
+                                   "Unexpected low Unicode surrogate found"));
         }
 
         // Ensure there are at least 6 octets to consume ('\uNNNN')
         if (RemainingInput() < 6)
         {
-            throw JSONException(ParsingErrorString(line,
-                                                   column,
-                                                   "Insufficient input "
-                                                   "following high Unicode "
-                                                   "surrogate"));
+            throw JSONException(
+                ParsingErrorString(
+                    line,
+                    column,
+                    "Insufficient input following high Unicode surrogate"));
         }
 
         // The following characters should be '\uNNNN' where 'N' is hex
         if ((p[0] != '\\') || (p[1] != 'u'))
         {
-            throw JSONException(ParsingErrorString(line,
-                                                   column,
-                                                   "Expected low Unicode "
-                                                   "surrogate, but did not "
-                                                   "find one"));
+            throw JSONException(
+                ParsingErrorString(
+                    line,
+                    column,
+                    "Expected low Unicode surrogate, but did not find one"));
         }
 
         // Advance over '\u'
@@ -788,10 +787,10 @@ void JSONParser::ParseUnicode(JSONString &json_string)
         if ((low_code_value < Unicode::Surrogate_Low_Min) ||
             (low_code_value > Unicode::Surrogate_Low_Max))
         {
-            throw JSONException(ParsingErrorString(line,
-                                                   column - 6,
-                                                   "Expected low Unicode "
-                                                   "surrogate value"));
+            throw JSONException(
+                ParsingErrorString(line,
+                                   column - 6,
+                                   "Expected low Unicode surrogate value"));
         }
 
         // Convert the high / low code point values to a UTF-32 value
@@ -926,10 +925,8 @@ JSONNumber JSONParser::ParseNumber()
                 {
                     if (!valid_number)
                     {
-                        throw JSONException(ParsingErrorString(line,
-                                                               column,
-                                                               "Invalid "
-                                                               "number"));
+                        throw JSONException(
+                            ParsingErrorString(line, column, "Invalid number"));
                     }
                     number.push_back(static_cast<char>(*p));
                     AdvanceReadPosition();
@@ -943,10 +940,8 @@ JSONNumber JSONParser::ParseNumber()
                 {
                     if (!valid_number)
                     {
-                        throw JSONException(ParsingErrorString(line,
-                                                               column,
-                                                               "Invalid "
-                                                               "number"));
+                        throw JSONException(
+                            ParsingErrorString(line, column, "Invalid number"));
                     }
                     number.push_back(static_cast<char>(*p));
                     AdvanceReadPosition();
@@ -974,10 +969,8 @@ JSONNumber JSONParser::ParseNumber()
                 {
                     if (!valid_number)
                     {
-                        throw JSONException(ParsingErrorString(line,
-                                                               column,
-                                                               "Invalid "
-                                                               "number"));
+                        throw JSONException(
+                            ParsingErrorString(line, column, "Invalid number"));
                     }
                     number.push_back(static_cast<char>(*p));
                     AdvanceReadPosition();
@@ -1167,10 +1160,10 @@ void JSONParser::ParseObject()
             // Ensure this is not an out-of-place closing brace
             if (*p == '}')
             {
-                throw JSONException(ParsingErrorString(line,
-                                                       column,
-                                                       "Premature end of JSON "
-                                                       "object"));
+                throw JSONException(
+                    ParsingErrorString(line,
+                                       column,
+                                       "Premature end of JSON object"));
             }
         }
 
@@ -1361,10 +1354,10 @@ void JSONParser::ParseArray()
             // Ensure this is not an out-of-place closing bracket
             if (*p == ']')
             {
-                throw JSONException(ParsingErrorString(line,
-                                                       column,
-                                                       "Premature end of JSON "
-                                                       "array"));
+                throw JSONException(
+                    ParsingErrorString(line,
+                                       column,
+                                       "Premature end of JSON array"));
             }
         }
 

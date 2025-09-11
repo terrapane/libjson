@@ -25,8 +25,8 @@
  *      JSONArray and JSONObject each holds any number of JSON objects (not to
  *      be confused with JSONObject).
  *
- *      JSON was initially documented here: https://www.json.org/.  It is
- *      also formally defined in RFC 8259.
+ *      JSON was initially documented here: https://www.json.org/.  It is also
+ *      formally defined in RFC 8259.
  *
  *      There is also a JSONParser that will parse and deserializes JSON text
  *      and forms a JSON object (see json_parser.h).
@@ -439,4 +439,3 @@ std::ostream &operator<<(std::ostream &o, const Terra::JSON::JSONArray &array);
 
 // Streaming operator for JSON output
 std::ostream &operator<<(std::ostream &o, const Terra::JSON::JSON &json);
-
