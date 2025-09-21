@@ -201,8 +201,8 @@ JSON JSONParser::Parse(const std::u8string_view content)
     if (content.empty()) throw JSONException("The content string is empty");
 
     // Initialize the parsing context variables
-    p = content.data();
-    q = content.data() + content.size();
+    p = content.begin();
+    q = content.end();
     line = 0;
     column = 0;
 
@@ -216,7 +216,7 @@ JSON JSONParser::Parse(const std::u8string_view content)
     }
 
     // Create a JSON object holding the expected type
-    JSON json(ParseInitialValue());
+    JSON json(ParseContent());
 
     // Consume any trailing whitespace
     ConsumeWhitespace();
@@ -247,7 +247,7 @@ JSON JSONParser::Parse(const std::u8string_view content)
  *  Comments:
  *      None.
  */
-void JSONParser::ConsumeWhitespace()
+void JSONParser::ConsumeWhitespace() noexcept
 {
     // Iterate over input until the end of input
     while (!EndOfInput())
@@ -264,6 +264,7 @@ void JSONParser::ConsumeWhitespace()
         {
             AdvanceReadPosition();
             column = 0;
+            line++;
             continue;
         }
 
@@ -350,11 +351,10 @@ JSONValueType JSONParser::DetermineValueType() const
 }
 
 /*
- *  JSONParser::ParseInitialValue()
+ *  JSONParser::ParseContent()
  *
  *  Description:
- *      This function will parse the initial data type. It will inspect the
- *      input stream and then parse the data and following data accordingly.
+ *      This function will parse the content passed to parse().
  *
  *  Parameters:
  *      None.
@@ -366,7 +366,7 @@ JSONValueType JSONParser::DetermineValueType() const
  *  Comments:
  *      None.
  */
-JSONValue JSONParser::ParseInitialValue()
+JSONValue JSONParser::ParseContent()
 {
     // Determine the value type
     JSONValueType value_type = DetermineValueType();
@@ -762,8 +762,7 @@ void JSONParser::ParseUnicode(JSONString &json_string)
         }
 
         // Advance over '\u'
-        p += 2;
-        column += 2;
+        AdvanceReadPosition(2);
 
         // Extract the hex digit string
         hex_digits[0] = static_cast<char>(p[0]);

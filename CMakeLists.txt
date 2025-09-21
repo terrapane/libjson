@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.21)
 
 # Define the JSON Library project
 project(libjson
-        VERSION 1.0.8.0
+        VERSION 1.0.9.0
         DESCRIPTION "JSON Library"
         LANGUAGES CXX)
 

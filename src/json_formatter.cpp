@@ -218,8 +218,8 @@ void JSONFormatter::Print(std::ostream &stream,
     this->o = &stream;
 
     // Initialize the parsing context variables
-    p = content.data();
-    q = content.data() + content.size();
+    p = content.begin();
+    q = content.end();
     line = 0;
     column = 0;
 
@@ -233,7 +233,7 @@ void JSONFormatter::Print(std::ostream &stream,
     }
 
     // Print the text given the determined data type
-    PrintInitialValue();
+    PrintContent();
 
     // Consume any trailing whitespace
     ConsumeWhitespace();
@@ -283,7 +283,7 @@ void JSONFormatter::ProduceIndentation()
  *  Comments:
  *      None.
  */
-void JSONFormatter::ConsumeWhitespace()
+void JSONFormatter::ConsumeWhitespace() noexcept
 {
     // Iterate over input until the end of input
     while (!EndOfInput())
@@ -300,6 +300,7 @@ void JSONFormatter::ConsumeWhitespace()
         {
             AdvanceReadPosition();
             column = 0;
+            line++;
             continue;
         }
 
@@ -387,17 +388,13 @@ JSONValueType JSONFormatter::DetermineValueType() const
 }
 
 /*
- *  JSONFormatter::PrintInitialValue()
+ *  JSONFormatter::PrintContent()
  *
  *  Description:
- *      This function will parse and print the next single value of the given
- *      type.  The caller of this function should have verified that the
- *      upcoming text contains the specified type.  That would be done by first
- *      calling the function DetermineValueType().
+ *      This function will parse and print the content passed to Print().
  *
  *  Parameters:
- *      value_type [in]
- *          The type of next value type to assume when parsing.
+ *      None.
  *
  *  Returns:
  *      Nothing.
@@ -405,7 +402,7 @@ JSONValueType JSONFormatter::DetermineValueType() const
  *  Comments:
  *      None.
  */
-void JSONFormatter::PrintInitialValue()
+void JSONFormatter::PrintContent()
 {
     // Determine the value type
     JSONValueType value_type = DetermineValueType();
@@ -1267,8 +1264,7 @@ void JSONFormatter::PrintLiteral()
             if ((p[0] == 'f') && (p[1] == 'a') && (p[2] == 'l') &&
                 (p[3] == 's') && (p[4] == 'e'))
             {
-                p += 5;
-                column += 5;
+                AdvanceReadPosition(5);
                 *o << "false";
                 return;
             }
@@ -1279,8 +1275,7 @@ void JSONFormatter::PrintLiteral()
             if ((p[0] == 't') && (p[1] == 'r') && (p[2] == 'u') &&
                 (p[3] == 'e'))
             {
-                p += 4;
-                column += 4;
+                AdvanceReadPosition(4);
                 *o << "true";
                 return;
             }
@@ -1291,8 +1286,7 @@ void JSONFormatter::PrintLiteral()
             if ((p[0] == 'n') && (p[1] == 'u') && (p[2] == 'l') &&
                 (p[3] == 'l'))
             {
-                p += 4;
-                column += 4;
+                AdvanceReadPosition(4);
                 *o << "null";
                 return;
             }

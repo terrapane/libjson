@@ -1,5 +1,11 @@
 # Change Log
 
+v1.0.9
+
+- Removed use of raw pointers
+- Renamed ParseInitialValue and PrintInitialValue functions
+- Updated dependencies
+
 v1.0.8
 
 - Worked to reduce binary size

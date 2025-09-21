@@ -104,6 +104,9 @@ JSON::JSON(JSONValueType type) { AssignType(type); }
  */
 JSONValueType JSON::GetValueType() const
 {
+    static_assert(std::variant_size_v<decltype(value)> == 5,
+                  "Update GetValueType for new variant types");
+
     return std::visit(
         overloads{
             [](const JSONLiteral &) { return JSONValueType::Literal; },

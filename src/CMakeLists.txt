@@ -1,3 +1,6 @@
+# Include standard installation directory variables
+include(GNUInstallDirs)
+
 # Create the library
 add_library(json STATIC
     json.cpp
@@ -42,7 +45,6 @@ target_compile_options(json
 
 # Install target and associated include files
 if(libjson_INSTALL)
-    include(GNUInstallDirs)
     install(TARGETS json EXPORT jsonTargets ARCHIVE)
     install(DIRECTORY ${PROJECT_SOURCE_DIR}/include/ TYPE INCLUDE)
     install(EXPORT jsonTargets

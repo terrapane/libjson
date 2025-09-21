@@ -748,3 +748,82 @@ STF_TEST(JSONParser, TestInequality)
 
     STF_ASSERT_NE(result1, result2);
 }
+
+// Test parsing an object with a syntax error
+STF_TEST(JSONParser, ParseSyntaxError1)
+{
+    std::string error_string;
+    JSONParser json_parser;
+
+    std::u8string json_text = u8R"(
+        [ 1, "This is a string", true 2, { "": false } ]
+    )";
+
+    auto parse = [&]() { json_parser.Parse(json_text); };
+
+    try
+    {
+        parse();
+    }
+    catch(const JSONException &e)
+    {
+        error_string = e.what();
+    }
+
+    STF_ASSERT_EQ(error_string,
+                  std::string("JSON parsing error at line 1, column 38: "
+                              "Expected a comma"));
+}
+
+// Test parsing an object with a syntax error
+STF_TEST(JSONParser, ParseSyntaxError2)
+{
+    std::string error_string;
+
+    JSONParser json_parser;
+    std::u8string json_text = u8R"(
+        [ 1, "This is a string", true, { x } ]
+    )";
+
+    auto parse = [&]() { json_parser.Parse(json_text); };
+
+    try
+    {
+        parse();
+    }
+    catch(const JSONException &e)
+    {
+        error_string = e.what();
+    }
+
+    STF_ASSERT_EQ(error_string,
+                  std::string("JSON parsing error at line 1, column 41: "
+                              "Unknown value type"));
+}
+
+// Test parsing an object with a syntax error
+STF_TEST(JSONParser, ParseSyntaxError3)
+{
+    std::string error_string;
+
+    JSONParser json_parser;
+    std::u8string json_text = u8R"(
+        [ 1, "This
+        is a string", true, { x } ]
+    )";
+
+    auto parse = [&]() { json_parser.Parse(json_text); };
+
+    try
+    {
+        parse();
+    }
+    catch(const JSONException &e)
+    {
+        error_string = e.what();
+    }
+
+    STF_ASSERT_EQ(error_string,
+                  std::string("JSON parsing error at line 1, column 18: "
+                              "Illegal control character in string"));
+}

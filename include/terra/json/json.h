@@ -128,7 +128,7 @@ class JSONString
         std::u8string &operator*() { return value; }
         const std::u8string &operator*() const { return value; }
 
-        std::size_t Size() const { return value.size(); }
+        std::size_t Size() const noexcept { return value.size(); }
 
         std::string ToString() const;
 
@@ -246,7 +246,7 @@ class JSONObject
         std::map<std::u8string, JSON> &operator*() { return value; }
         const std::map<std::u8string, JSON> &operator*() const { return value; }
 
-        std::size_t Size() const { return value.size(); }
+        std::size_t Size() const noexcept { return value.size(); }
 
         bool operator==(const JSONObject &other) const;
         bool operator!=(const JSONObject &other) const;
@@ -275,7 +275,7 @@ class JSONArray
         bool operator==(const JSONArray &other) const;
         bool operator!=(const JSONArray &other) const;
 
-        std::size_t Size() const;
+        std::size_t Size() const noexcept;
 
         std::string ToString() const;
 

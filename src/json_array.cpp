@@ -145,7 +145,7 @@ bool JSONArray::operator!=(const JSONArray &other) const
  *  Comments:
  *      None.
  */
-std::size_t JSONArray::Size() const
+std::size_t JSONArray::Size() const noexcept
 {
     return value.size();
 }

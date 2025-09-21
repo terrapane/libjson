@@ -59,19 +59,22 @@ class JSONFormatter
             bool closing_seen;
         };
 
-        constexpr bool EndOfInput() const { return p >= q; }
-        constexpr std::size_t RemainingInput() const { return q - p; }
-        constexpr void AdvanceReadPosition(std::size_t steps = 1)
+        constexpr bool EndOfInput() const noexcept { return p == q; }
+        constexpr std::size_t RemainingInput() const noexcept
         {
-            auto old_p = p;
-            p = std::min(q, p + steps);
-            column += p - old_p;
+            return static_cast<std::size_t>(q - p);
+        }
+        void AdvanceReadPosition(std::size_t steps = 1) noexcept
+        {
+            auto advance = std::min(steps, static_cast<std::size_t>(q - p));
+            p += advance;
+            column += advance;
         }
         void ProduceIndentation();
-        void ConsumeWhitespace();
+        void ConsumeWhitespace() noexcept;
         JSONValueType DetermineValueType() const;
 
-        void PrintInitialValue();
+        void PrintContent();
         void PrintPrimitiveValue(JSONValueType value_type);
         void PrintCompositeValue();
 
@@ -85,8 +88,8 @@ class JSONFormatter
         std::size_t indention;                  // Indention amount
         std::size_t current_indention;          // Current indention amount
         bool allman_style;                      // Allman coding style
-        const char8_t *p;                       // Start of content
-        const char8_t *q;                       // One past end of data
+        std::u8string_view::const_iterator p;   // Input iterator (start)
+        std::u8string_view::const_iterator q;   // Input iterator (end)
         std::size_t line;                       // Current line number
         std::size_t column;                     // Current column
 
