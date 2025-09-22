@@ -18,7 +18,8 @@ target_include_directories(json
     PRIVATE
         $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}>
     PUBLIC
-        $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include>)
+        $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include>
+        $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>)
 
 # Specify the C++ standard to observe
 set_target_properties(json
