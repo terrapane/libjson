@@ -765,7 +765,7 @@ STF_TEST(JSONParser, ParseSyntaxError1)
     {
         parse();
     }
-    catch(const JSONException &e)
+    catch (const JSONException &e)
     {
         error_string = e.what();
     }
@@ -791,7 +791,7 @@ STF_TEST(JSONParser, ParseSyntaxError2)
     {
         parse();
     }
-    catch(const JSONException &e)
+    catch (const JSONException &e)
     {
         error_string = e.what();
     }
@@ -818,7 +818,7 @@ STF_TEST(JSONParser, ParseSyntaxError3)
     {
         parse();
     }
-    catch(const JSONException &e)
+    catch (const JSONException &e)
     {
         error_string = e.what();
     }

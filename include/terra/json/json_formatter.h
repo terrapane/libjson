@@ -26,6 +26,8 @@
 
 #pragma once
 
+#include <algorithm>
+#include <iterator>
 #include "json.h"
 
 namespace Terra::JSON
@@ -62,11 +64,11 @@ class JSONFormatter
         constexpr bool EndOfInput() const noexcept { return p == q; }
         constexpr std::size_t RemainingInput() const noexcept
         {
-            return static_cast<std::size_t>(q - p);
+            return static_cast<std::size_t>(std::distance(p, q));
         }
         void AdvanceReadPosition(std::size_t steps = 1) noexcept
         {
-            auto advance = std::min(steps, static_cast<std::size_t>(q - p));
+            auto advance = std::min(steps, RemainingInput());
             p += advance;
             column += advance;
         }

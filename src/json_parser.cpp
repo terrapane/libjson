@@ -695,11 +695,14 @@ JSONString JSONParser::ParseString()
  */
 void JSONParser::ParseUnicode(JSONString &json_string)
 {
+    constexpr std::size_t Escape_Char_Length = 2;
+    constexpr std::size_t Unicode_Hex_Length = 4;
+    constexpr std::size_t Unicode_Escape_Hex_Length = 6;
     std::uint32_t code_value{};
     std::size_t initial_column = column;
 
     // Ensure there are at least 4 octets to consume
-    if (RemainingInput() < 4)
+    if (RemainingInput() < Unicode_Hex_Length)
     {
         throw JSONException(
             ParsingErrorString(line,
@@ -708,12 +711,9 @@ void JSONParser::ParseUnicode(JSONString &json_string)
     }
 
     // Extract the hex digit string
-    std::string hex_digits(4, ' ');
-    hex_digits[0] = static_cast<char>(p[0]);
-    hex_digits[1] = static_cast<char>(p[1]);
-    hex_digits[2] = static_cast<char>(p[2]);
-    hex_digits[3] = static_cast<char>(p[3]);
-    AdvanceReadPosition(4);
+    std::string hex_digits(Unicode_Hex_Length, ' ');
+    std::ranges::copy(p, p + Unicode_Hex_Length, hex_digits.begin());
+    AdvanceReadPosition(Unicode_Hex_Length);
 
     // Get the value of the hex string
     try
@@ -722,7 +722,8 @@ void JSONParser::ParseUnicode(JSONString &json_string)
     }
     catch (const std::invalid_argument &e)
     {
-        throw JSONException(ParsingErrorString(line, column - 4, e.what()));
+        throw JSONException(
+            ParsingErrorString(line, column - Unicode_Hex_Length, e.what()));
     }
 
     // Is this code in the surrogate range?
@@ -737,12 +738,12 @@ void JSONParser::ParseUnicode(JSONString &json_string)
         {
             throw JSONException(
                 ParsingErrorString(line,
-                                   column - 6,
+                                   column - Unicode_Escape_Hex_Length,
                                    "Unexpected low Unicode surrogate found"));
         }
 
         // Ensure there are at least 6 octets to consume ('\uNNNN')
-        if (RemainingInput() < 6)
+        if (RemainingInput() < Unicode_Escape_Hex_Length)
         {
             throw JSONException(
                 ParsingErrorString(
@@ -752,7 +753,7 @@ void JSONParser::ParseUnicode(JSONString &json_string)
         }
 
         // The following characters should be '\uNNNN' where 'N' is hex
-        if ((p[0] != '\\') || (p[1] != 'u'))
+        if (std::u8string_view(p, p + Escape_Char_Length) != u8"\\u")
         {
             throw JSONException(
                 ParsingErrorString(
@@ -762,14 +763,11 @@ void JSONParser::ParseUnicode(JSONString &json_string)
         }
 
         // Advance over '\u'
-        AdvanceReadPosition(2);
+        AdvanceReadPosition(Escape_Char_Length);
 
         // Extract the hex digit string
-        hex_digits[0] = static_cast<char>(p[0]);
-        hex_digits[1] = static_cast<char>(p[1]);
-        hex_digits[2] = static_cast<char>(p[2]);
-        hex_digits[3] = static_cast<char>(p[3]);
-        AdvanceReadPosition(4);
+        std::ranges::copy(p, p + Unicode_Hex_Length, hex_digits.begin());
+        AdvanceReadPosition(Unicode_Hex_Length);
 
         // Get the value of the hex string
         try
@@ -778,8 +776,9 @@ void JSONParser::ParseUnicode(JSONString &json_string)
         }
         catch (const std::invalid_argument &e)
         {
-            throw JSONException(
-                ParsingErrorString(line, column - 4, e.what()));
+            throw JSONException(ParsingErrorString(line,
+                                                   column - Unicode_Hex_Length,
+                                                   e.what()));
         }
 
         // Ensure the low surrogate value is within the expected range
@@ -788,7 +787,7 @@ void JSONParser::ParseUnicode(JSONString &json_string)
         {
             throw JSONException(
                 ParsingErrorString(line,
-                                   column - 6,
+                                   column - Unicode_Escape_Hex_Length,
                                    "Expected low Unicode surrogate value"));
         }
 
@@ -1436,34 +1435,28 @@ JSONLiteral JSONParser::ParseLiteral()
     switch (*p)
     {
         case 'f':
-            if (RemainingInput() < 5) break;
-            if ((p[0] == 'f') && (p[1] == 'a') && (p[2] == 'l') &&
-                (p[3] == 's') && (p[4] == 'e'))
+            if ((RemainingInput() >= 5) &&
+                (std::u8string_view(p, p + 5) == u8"false"))
             {
-                p += 5;
-                column += 5;
+                AdvanceReadPosition(5);
                 return JSONLiteral::False;
             }
             break;
 
         case 't':
-            if (RemainingInput() < 4) break;
-            if ((p[0] == 't') && (p[1] == 'r') && (p[2] == 'u') &&
-                (p[3] == 'e'))
+            if ((RemainingInput() >= 4) &&
+                (std::u8string_view(p, p + 4) == u8"true"))
             {
-                p += 4;
-                column += 4;
+                AdvanceReadPosition(4);
                 return JSONLiteral::True;
             }
             break;
 
         case 'n':
-            if (RemainingInput() < 4) break;
-            if ((p[0] == 'n') && (p[1] == 'u') && (p[2] == 'l') &&
-                (p[3] == 'l'))
+            if ((RemainingInput() >= 4) &&
+                (std::u8string_view(p, p + 4) == u8"null"))
             {
-                p += 4;
-                column += 4;
+                AdvanceReadPosition(4);
                 return JSONLiteral::Null;
             }
             break;

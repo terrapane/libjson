@@ -1260,9 +1260,8 @@ void JSONFormatter::PrintLiteral()
     switch (*p)
     {
         case 'f':
-            if (RemainingInput() < 5) break;
-            if ((p[0] == 'f') && (p[1] == 'a') && (p[2] == 'l') &&
-                (p[3] == 's') && (p[4] == 'e'))
+            if ((RemainingInput() >= 5) &&
+                (std::u8string_view(p, p + 5) == u8"false"))
             {
                 AdvanceReadPosition(5);
                 *o << "false";
@@ -1271,9 +1270,8 @@ void JSONFormatter::PrintLiteral()
             break;
 
         case 't':
-            if (RemainingInput() < 4) break;
-            if ((p[0] == 't') && (p[1] == 'r') && (p[2] == 'u') &&
-                (p[3] == 'e'))
+            if ((RemainingInput() >= 4) &&
+                (std::u8string_view(p, p + 4) == u8"true"))
             {
                 AdvanceReadPosition(4);
                 *o << "true";
@@ -1282,9 +1280,8 @@ void JSONFormatter::PrintLiteral()
             break;
 
         case 'n':
-            if (RemainingInput() < 4) break;
-            if ((p[0] == 'n') && (p[1] == 'u') && (p[2] == 'l') &&
-                (p[3] == 'l'))
+            if ((RemainingInput() >= 4) &&
+                (std::u8string_view(p, p + 4) == u8"null"))
             {
                 AdvanceReadPosition(4);
                 *o << "null";
