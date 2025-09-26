@@ -1,4 +1,4 @@
-# Create the test excutable
+# Create the test executable
 add_executable(test_json_array test_json_array.cpp)
 
 # Link to the required libraries
