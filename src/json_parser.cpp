@@ -712,7 +712,7 @@ void JSONParser::ParseUnicode(JSONString &json_string)
 
     // Extract the hex digit string
     std::string hex_digits(Unicode_Hex_Length, ' ');
-    std::ranges::copy(p, p + Unicode_Hex_Length, hex_digits.begin());
+    std::ranges::copy(p, std::next(p, Unicode_Hex_Length), hex_digits.begin());
     AdvanceReadPosition(Unicode_Hex_Length);
 
     // Get the value of the hex string
@@ -753,7 +753,7 @@ void JSONParser::ParseUnicode(JSONString &json_string)
         }
 
         // The following characters should be '\uNNNN' where 'N' is hex
-        if (std::u8string_view(p, p + Escape_Char_Length) != u8"\\u")
+        if (std::u8string_view(p, std::next(p, Escape_Char_Length)) != u8"\\u")
         {
             throw JSONException(
                 ParsingErrorString(
@@ -766,7 +766,9 @@ void JSONParser::ParseUnicode(JSONString &json_string)
         AdvanceReadPosition(Escape_Char_Length);
 
         // Extract the hex digit string
-        std::ranges::copy(p, p + Unicode_Hex_Length, hex_digits.begin());
+        std::ranges::copy(p,
+                          std::next(p, Unicode_Hex_Length),
+                          hex_digits.begin());
         AdvanceReadPosition(Unicode_Hex_Length);
 
         // Get the value of the hex string
@@ -1436,7 +1438,7 @@ JSONLiteral JSONParser::ParseLiteral()
     {
         case 'f':
             if ((RemainingInput() >= 5) &&
-                (std::u8string_view(p, p + 5) == u8"false"))
+                (std::u8string_view(p, std::next(p, 5)) == u8"false"))
             {
                 AdvanceReadPosition(5);
                 return JSONLiteral::False;
@@ -1445,7 +1447,7 @@ JSONLiteral JSONParser::ParseLiteral()
 
         case 't':
             if ((RemainingInput() >= 4) &&
-                (std::u8string_view(p, p + 4) == u8"true"))
+                (std::u8string_view(p, std::next(p, 4)) == u8"true"))
             {
                 AdvanceReadPosition(4);
                 return JSONLiteral::True;
@@ -1454,7 +1456,7 @@ JSONLiteral JSONParser::ParseLiteral()
 
         case 'n':
             if ((RemainingInput() >= 4) &&
-                (std::u8string_view(p, p + 4) == u8"null"))
+                (std::u8string_view(p, std::next(p, 4)) == u8"null"))
             {
                 AdvanceReadPosition(4);
                 return JSONLiteral::Null;

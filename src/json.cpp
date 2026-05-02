@@ -25,8 +25,10 @@ namespace Terra::JSON
 namespace
 {
 
+// NOLINTBEGIN(fuchsia-multiple-inheritance)
 template <class... Ts>
 struct overloads : Ts... { using Ts::operator()...; };
+// NOLINTEND(fuchsia-multiple-inheritance)
 
 // This is used to facilitate comparing variant types in the JSON object
 struct EqualsVisitor

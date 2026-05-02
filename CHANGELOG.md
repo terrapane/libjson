@@ -1,5 +1,9 @@
 # Change Log
 
+v1.1.0
+
+- Removed pointer arithmetic, replacing with std::next()
+
 v1.0.9
 
 - Removed use of raw pointers

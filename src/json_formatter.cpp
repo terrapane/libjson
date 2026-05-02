@@ -1261,7 +1261,7 @@ void JSONFormatter::PrintLiteral()
     {
         case 'f':
             if ((RemainingInput() >= 5) &&
-                (std::u8string_view(p, p + 5) == u8"false"))
+                (std::u8string_view(p, std::next(p, 5)) == u8"false"))
             {
                 AdvanceReadPosition(5);
                 *o << "false";
@@ -1271,7 +1271,7 @@ void JSONFormatter::PrintLiteral()
 
         case 't':
             if ((RemainingInput() >= 4) &&
-                (std::u8string_view(p, p + 4) == u8"true"))
+                (std::u8string_view(p, std::next(p, 4)) == u8"true"))
             {
                 AdvanceReadPosition(4);
                 *o << "true";
@@ -1281,7 +1281,7 @@ void JSONFormatter::PrintLiteral()
 
         case 'n':
             if ((RemainingInput() >= 4) &&
-                (std::u8string_view(p, p + 4) == u8"null"))
+                (std::u8string_view(p, std::next(p, 4)) == u8"null"))
             {
                 AdvanceReadPosition(4);
                 *o << "null";
