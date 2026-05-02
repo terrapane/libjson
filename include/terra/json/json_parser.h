@@ -41,8 +41,8 @@ class JSONParser
         JSONParser() = default;
         ~JSONParser() = default;
 
-        JSON Parse(const std::string_view content);
-        JSON Parse(const std::u8string_view content);
+        JSON Parse(std::string_view content);
+        JSON Parse(std::u8string_view content);
 
     protected:
         struct CompositeContext

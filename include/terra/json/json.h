@@ -98,9 +98,9 @@ class JSONString
 {
     public:
         JSONString() = default;
-        JSONString(const std::u8string_view string) : value{string} {}
+        JSONString(std::u8string_view string) : value{string} {}
         JSONString(std::u8string &&string) : value{std::move(string)} {}
-        JSONString(const std::string_view string);
+        JSONString(std::string_view string);
         JSONString(std::string &&string);
         JSONString(const char8_t *string) : value{string} {}
         JSONString(const char *string) :
@@ -108,8 +108,8 @@ class JSONString
         {
         }
 
-        JSONString &operator=(const std::string_view string);
-        JSONString &operator=(const std::u8string_view string)
+        JSONString &operator=(std::string_view string);
+        JSONString &operator=(std::u8string_view string)
         {
             value = string;
             return *this;

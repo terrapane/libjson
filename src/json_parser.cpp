@@ -169,7 +169,7 @@ std::string ParsingErrorString(std::size_t line,
  *  Comments:
  *      None.
  */
-JSON JSONParser::Parse(const std::string_view content)
+JSON JSONParser::Parse(std::string_view content)
 {
     return Parse(
         std::u8string_view(reinterpret_cast<const char8_t *>(content.data()),
@@ -195,7 +195,7 @@ JSON JSONParser::Parse(const std::string_view content)
  *  Comments:
  *      None.
  */
-JSON JSONParser::Parse(const std::u8string_view content)
+JSON JSONParser::Parse(std::u8string_view content)
 {
     // Ensure the content is not empty
     if (content.empty()) throw JSONException("The content string is empty");

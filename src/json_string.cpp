@@ -44,7 +44,7 @@ namespace Terra::JSON
  *  Comments:
  *      None.
  */
-JSONString::JSONString(const std::string_view string) :
+JSONString::JSONString(std::string_view string) :
     value{std::u8string(string.cbegin(), string.cend())}
 {
     // Nothing more to do
@@ -90,7 +90,7 @@ JSONString::JSONString(std::string &&string) :
  *  Comments:
  *      None.
  */
-JSONString &JSONString::operator=(const std::string_view string)
+JSONString &JSONString::operator=(std::string_view string)
 {
     value = std::u8string(string.cbegin(), string.cend());
     return *this;
