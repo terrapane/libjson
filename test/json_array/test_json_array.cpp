@@ -1,7 +1,7 @@
 /*
  *  test_json_array.cpp
  *
- *  Copyright (C) 2024, 2025
+ *  Copyright (C) 2024, 2025, 2026
  *  Terrapane Corporation
  *  All Rights Reserved
  *
@@ -23,7 +23,7 @@ using namespace Terra::JSON;
 // Test initialization via assignment
 STF_TEST(JSONArray, InitializerList1)
 {
-    // This will initialize the array of JSON objects holding JSONNumber types
+    // This will initialize a JSONArray with a few numbers
     JSONArray array({1, 2, 3});
 
     // Verify there are three elements in the array
@@ -34,7 +34,7 @@ STF_TEST(JSONArray, InitializerList1)
 // Test initialization via the constructor
 STF_TEST(JSONArray, InitializerList2)
 {
-    // This will initialize the array of JSON objects holding JSONNumber types
+    // This will initialize a JSONArray with a few numbers
     JSONArray array({1, 2, 3});
 
     // Verify there are three elements in the array
@@ -42,10 +42,42 @@ STF_TEST(JSONArray, InitializerList2)
     STF_ASSERT_EQ(3, array.Size());
 }
 
+// Test initialization via assignment
+STF_TEST(JSONArray, InitializerList3)
+{
+    // This will initialize a JSONArray with an embedded array
+    JSONArray array({1, { {"a", "b"} }, 2});
+
+    // Verify there are three elements in the array
+    STF_ASSERT_EQ(3, (*array).size());
+    STF_ASSERT_EQ(3, array.Size());
+
+    // Verify the types in the array
+    STF_ASSERT_EQ(JSONValueType::Number, array[0].GetValueType());
+    STF_ASSERT_EQ(JSONValueType::Array, array[1].GetValueType());
+    STF_ASSERT_EQ(JSONValueType::Number, array[2].GetValueType());
+}
+
+// Test initialization via assignment
+STF_TEST(JSONArray, InitializerList4)
+{
+    // This will initialize a JSONArray with an embedded object
+    JSONArray array({ 1, {{ {"key1", "a"}, {"key2", "b"} }}, 2 });
+
+    // Verify there are three elements in the array
+    STF_ASSERT_EQ(3, (*array).size());
+    STF_ASSERT_EQ(3, array.Size());
+
+    // Verify the types in the array
+    STF_ASSERT_EQ(JSONValueType::Number, array[0].GetValueType());
+    STF_ASSERT_EQ(JSONValueType::Object, array[1].GetValueType());
+    STF_ASSERT_EQ(JSONValueType::Number, array[2].GetValueType());
+}
+
 // Test the indexing operator
 STF_TEST(JSONArray, IndexOperator1)
 {
-    // This will initialize the array of JSON objects holding JSONNumber types
+    // This will initialize a JSONArray with a few numbers
     JSONArray array({1, 2, 3});
 
     // This should return a JSON object holding a number
@@ -61,7 +93,7 @@ STF_TEST(JSONArray, IndexOperator1)
 // Test the indexing operator
 STF_TEST(JSONArray, IndexOperator2)
 {
-    // This will initialize the array of JSON objects holding JSONNumber types
+    // This will initialize a JSONArray with a few numbers
     JSONArray array({1, 2, 3});
 
     // Assign array position 1 with the value 12
@@ -77,7 +109,7 @@ STF_TEST(JSONArray, IndexOperator2)
 // Test streaming output operator
 STF_TEST(JSONArray, Output1)
 {
-    // This will initialize the array of JSON objects holding JSONNumber types
+    // This will initialize a JSONArray with a few numbers
     JSONArray array({1, 2, 3});
 
     std::string expected = R"([1, 2, 3])";
@@ -92,7 +124,6 @@ STF_TEST(JSONArray, Output1)
 // Test streaming output operator (empty array)
 STF_TEST(JSONArray, Output2)
 {
-    // This will initialize the array of JSON objects holding JSONNumber types
     JSONArray array;
 
     std::string expected = R"([])";
@@ -107,7 +138,7 @@ STF_TEST(JSONArray, Output2)
 // Test the ToString() function
 STF_TEST(JSONArray, ToString)
 {
-    // This will initialize the array of JSON objects holding JSONNumber types
+    // This will initialize the JSONArray object holding JSONNumber types
     JSONArray array({1, 2, 3});
 
     std::string expected = R"([1, 2, 3])";
@@ -120,7 +151,7 @@ STF_TEST(JSONArray, ToString)
 // Test equality
 STF_TEST(JSONArray, TestEquality)
 {
-    // This will initialize the array of JSON objects holding JSONNumber types
+    // This will initialize JSONArray objects holding a few elements
     JSONArray array1({1, {{{"Key1", "Value1"}, {"Key2", "Value2"}}}, 2});
     JSONArray array2({1, {{{"Key2", "Value2"}, {"Key1", "Value1"}}}, 2});
 
@@ -130,7 +161,7 @@ STF_TEST(JSONArray, TestEquality)
 // Test equality
 STF_TEST(JSONArray, TestInequality)
 {
-    // This will initialize the array of JSON objects holding JSONNumber types
+    // This will initialize JSONArray objects holding a few elements
     JSONArray array1({1, {{{"Key1", "Value1"}, {"Key2", "Value2"}}}, 2});
     JSONArray array2({2, {{{"Key2", "Value2"}, {"Key1", "Value1"}}}, 1});
 

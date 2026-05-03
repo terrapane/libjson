@@ -1,7 +1,7 @@
 /*
  *  json_object.cpp
  *
- *  Copyright (C) 2024, 2025
+ *  Copyright (C) 2024, 2025, 2026
  *  Terrapane Corporation
  *  All Rights Reserved
  *
@@ -40,7 +40,7 @@ namespace Terra::JSON
  *      None.
  */
 JSONObject::JSONObject(
-    const std::initializer_list<std::pair<const std::u8string, JSON>> &list) :
+    std::initializer_list<std::pair<const std::u8string, JSON>> list) :
     value{list}
 {
 }
@@ -63,8 +63,7 @@ JSONObject::JSONObject(
  *      None.
  */
 JSONObject::JSONObject(
-    const std::initializer_list<std::pair<const std::string, JSON>> &list) :
-    value{}
+    std::initializer_list<std::pair<const std::string, JSON>> list) : value{}
 {
     // Add items from the list into the map, converting the string type
     for (const auto &item : list)

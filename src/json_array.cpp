@@ -1,7 +1,7 @@
 /*
  *  json_array.cpp
  *
- *  Copyright (C) 2024, 2025
+ *  Copyright (C) 2024, 2025, 2026
  *  Terrapane Corporation
  *  All Rights Reserved
  *
@@ -39,7 +39,7 @@ namespace Terra::JSON
  *  Comments:
  *      None.
  */
-JSONArray::JSONArray(const std::initializer_list<JSON> &list) : value{}
+JSONArray::JSONArray(std::initializer_list<JSON> list) : value{}
 {
     value.insert(value.end(), list);
 }

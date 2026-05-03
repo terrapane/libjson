@@ -1,7 +1,7 @@
 /*
  *  json.h
  *
- *  Copyright (C) 2024, 2025
+ *  Copyright (C) 2024, 2025, 2026
  *  Terrapane Corporation
  *  All Rights Reserved
  *
@@ -103,10 +103,7 @@ class JSONString
         JSONString(std::string_view string);
         JSONString(std::string &&string);
         JSONString(const char8_t *string) : value{string} {}
-        JSONString(const char *string) :
-            value{std::u8string(reinterpret_cast<const char8_t *>(string))}
-        {
-        }
+        JSONString(const char *string) : JSONString(std::string_view(string)) {}
 
         JSONString &operator=(std::string_view string);
         JSONString &operator=(std::u8string_view string)
@@ -212,11 +209,9 @@ class JSONObject
     public:
         JSONObject() = default;
         JSONObject(
-            const std::initializer_list<std::pair<const std::u8string, JSON>>
-                &list);
+            std::initializer_list<std::pair<const std::u8string, JSON>> list);
         JSONObject(
-            const std::initializer_list<std::pair<const std::string, JSON>>
-                &list);
+            std::initializer_list<std::pair<const std::string, JSON>> list);
         ~JSONObject() = default;
 
         JSON &operator[](const std::u8string &key) { return value[key]; }
@@ -262,7 +257,7 @@ class JSONArray
 {
     public:
         JSONArray() = default;
-        JSONArray(const std::initializer_list<JSON> &list);
+        JSONArray(std::initializer_list<JSON> list);
         ~JSONArray() = default;
 
         JSON &operator[](const std::size_t index);
@@ -304,9 +299,9 @@ class JSON
         JSON(const JSONArray &array) : value{array} {}
         JSON(JSONArray &&array) : value{std::move(array)} {}
         JSON(const JSONLiteral value) : value{value} {}
-        JSON(const char8_t *string) : JSON(JSONString(string)) {}
+        JSON(const char8_t *string) : value{JSONString(string)} {}
         JSON(const char *string) :
-            JSON(JSONString(reinterpret_cast<const char8_t *>(string)))
+            value{JSONString(reinterpret_cast<const char8_t *>(string))}
         {
         }
         template<typename T>
