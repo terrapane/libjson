@@ -68,10 +68,10 @@ JSONString::JSONString(std::string_view string) :
  *        cannot since ths string types are different.  This actually performs
  *        a copy and is here only for completeness.
  */
-JSONString::JSONString(std::string &&string) :
-    value{std::u8string(string.cbegin(), string.cend())}
+JSONString::JSONString(std::string &&string) : value{}
 {
-    // Nothing more to do
+    std::string s = std::move(string);
+    value = std::u8string(s.cbegin(), s.cend());
 }
 
 /*
