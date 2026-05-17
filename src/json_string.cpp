@@ -18,11 +18,17 @@
 
 #include <ostream>
 #include <sstream>
+#include <cstddef>
+#include <cstdint>
+#include <string_view>
+#include <string>
+#include <utility>
 #include <terra/json/json.h>
+#include <terra/json/json_exception.h>
 #include "unicode_constants.h"
 #include "has_format.h"
 #ifndef TERRA_HAS_FORMAT
-#include <iomanip>
+#include <format>
 #endif
 
 namespace Terra::JSON
@@ -68,9 +74,9 @@ JSONString::JSONString(std::string_view string) :
  *        cannot since ths string types are different.  This actually performs
  *        a copy and is here only for completeness.
  */
-JSONString::JSONString(std::string &&string) : value{}
+JSONString::JSONString(std::string &&string)
 {
-    std::string s = std::move(string);
+    const std::string s = std::move(string);
     value = std::u8string(s.cbegin(), s.cend());
 }
 
@@ -185,7 +191,7 @@ std::ostream &operator<<(std::ostream &o, const Terra::JSON::JSONString &string)
     std::size_t expected_utf8_remaining{};
     std::uint32_t wide_character{};
 
-    using namespace Terra::JSON;
+    using namespace Terra::JSON; // NOLINT
 
     // Write out the string start character
     o << '"';
@@ -197,13 +203,13 @@ std::ostream &operator<<(std::ostream &o, const Terra::JSON::JSONString &string)
         if (expected_utf8_remaining > 0)
         {
             // Look for 10xxxxxx octets
-            if ((c & 0xc0) != 0x80)
+            if ((c & 0xc0U) != 0x80)
             {
                 throw JSONException(Invalid_UTF8_Sequence);
             }
 
             // Append additional bits to the wide character
-            wide_character = (wide_character << 6) | (c & 0x3f);
+            wide_character = (wide_character << 6U) | (c & 0x3fU);
 
             // Decrement the number of expected octets remaining
             expected_utf8_remaining--;
@@ -231,10 +237,11 @@ std::ostream &operator<<(std::ostream &o, const Terra::JSON::JSONString &string)
                     // (See: https://www.Unicode.org/faq/utf_bom.html#utf16-3)
 
                     o << UnicodeEscapeSequence(static_cast<std::uint16_t>(
-                        Unicode::Lead_Offset + (wide_character >> 10)));
+                        Unicode::Lead_Offset + (wide_character >> 10U)));
 
-                    o << UnicodeEscapeSequence(static_cast<std::uint16_t>(
-                        Unicode::Surrogate_Low_Min + (wide_character & 0x3ff)));
+                    o << UnicodeEscapeSequence(
+                        static_cast<std::uint16_t>(Unicode::Surrogate_Low_Min +
+                                                   (wide_character & 0x3ffU)));
                 }
                 else
                 {
@@ -294,25 +301,25 @@ std::ostream &operator<<(std::ostream &o, const Terra::JSON::JSONString &string)
                 if (c > 0x7f)
                 {
                     // Two octet UTF-8 sequence (110xxxxx)
-                    if ((c & 0xe0) == 0xc0)
+                    if ((c & 0xe0U) == 0xc0)
                     {
-                        wide_character = c & 0x3f;
+                        wide_character = c & 0x3fU;
                         expected_utf8_remaining = 1;
                         continue;
                     }
 
                     // Three octet UTF-8 sequence (1110xxxx)
-                    if ((c & 0xf0) == 0xe0)
+                    if ((c & 0xf0U) == 0xe0)
                     {
-                        wide_character = c & 0x0f;
+                        wide_character = c & 0x0fU;
                         expected_utf8_remaining = 2;
                         continue;
                     }
 
                     // Four octet UTF-8 sequence (11110xxx)
-                    if ((c & 0xf8) == 0xf0)
+                    if ((c & 0xf8U) == 0xf0)
                     {
-                        wide_character = c & 0x07;
+                        wide_character = c & 0x07U;
                         expected_utf8_remaining = 3;
                         continue;
                     }

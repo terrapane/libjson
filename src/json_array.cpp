@@ -16,7 +16,11 @@
  *      None.
  */
 
+#include <iostream>
 #include <sstream>
+#include <cstddef>
+#include <string>
+#include <initializer_list>
 #include <terra/json/json.h>
 
 namespace Terra::JSON
@@ -39,7 +43,7 @@ namespace Terra::JSON
  *  Comments:
  *      None.
  */
-JSONArray::JSONArray(std::initializer_list<JSON> list) : value{}
+JSONArray::JSONArray(std::initializer_list<JSON> list)
 {
     value.insert(value.end(), list);
 }

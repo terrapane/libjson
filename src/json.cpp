@@ -16,8 +16,13 @@
  *      None.
  */
 
+#include <iostream>
 #include <sstream>
+#include <cstddef>
+#include <variant>
+#include <string>
 #include <terra/json/json.h>
+#include <terra/json/json_exception.h>
 
 namespace Terra::JSON
 {
@@ -25,10 +30,10 @@ namespace Terra::JSON
 namespace
 {
 
-// NOLINTBEGIN(fuchsia-multiple-inheritance)
+// NOLINTBEGIN(misc-multiple-inheritance)
 template <class... Ts>
 struct overloads : Ts... { using Ts::operator()...; };
-// NOLINTEND(fuchsia-multiple-inheritance)
+// NOLINTEND(misc-multiple-inheritance)
 
 // This is used to facilitate comparing variant types in the JSON object
 struct EqualsVisitor

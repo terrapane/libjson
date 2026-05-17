@@ -5,6 +5,7 @@ v1.1.0
 - Removed pointer arithmetic, replacing with std::next()
 - Replaced `const std::string_view` with `std::string_view` (and same
   for std::u8string_view) as these are already effectively read-only
+- Addressed clang-tidy recommendations
 - Minor improvements, additional tests
 
 v1.0.9

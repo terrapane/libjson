@@ -17,12 +17,24 @@
  *      None.
  */
 
+#include <algorithm>
 #include <cctype>
+#include <cstddef>
+#include <cstdint>
+#include <string_view>
+#include <string>
+#include <stdexcept>
+#include <exception>
+#include <variant>
+#include <iterator>
 #include <terra/json/json.h>
+#include <terra/json/json_exception.h>
 #include <terra/json/json_parser.h>
 #include "unicode_constants.h"
 #include "has_format.h"
-#ifndef TERRA_HAS_FORMAT
+#ifdef TERRA_HAS_FORMAT
+#include <format>
+#else
 #include <sstream>
 #endif
 
@@ -99,11 +111,11 @@ std::uint32_t ConvertHexStringToInt(const std::string &hex_string)
 
     // Convert each digit, shifting 4 bits to accommodate the next digit
     std::uint32_t value = ConvertHexCharToInt(hex_string[0]);
-    value <<= 4;
+    value <<= 4U;
     value |= ConvertHexCharToInt(hex_string[1]);
-    value <<= 4;
+    value <<= 4U;
     value |= ConvertHexCharToInt(hex_string[2]);
-    value <<= 4;
+    value <<= 4U;
     value |= ConvertHexCharToInt(hex_string[3]);
 
     return value;
@@ -369,7 +381,7 @@ JSONValueType JSONParser::DetermineValueType() const
 JSONValue JSONParser::ParseContent()
 {
     // Determine the value type
-    JSONValueType value_type = DetermineValueType();
+    const JSONValueType value_type = DetermineValueType();
 
     // If the initial value is an object, put one on the context and handle it
     if (value_type == JSONValueType::Object)
@@ -699,7 +711,7 @@ void JSONParser::ParseUnicode(JSONString &json_string)
     constexpr std::size_t Unicode_Hex_Length = 4;
     constexpr std::size_t Unicode_Escape_Hex_Length = 6;
     std::uint32_t code_value{};
-    std::size_t initial_column = column;
+    const std::size_t initial_column = column;
 
     // Ensure there are at least 4 octets to consume
     if (RemainingInput() < Unicode_Hex_Length)
@@ -796,7 +808,7 @@ void JSONParser::ParseUnicode(JSONString &json_string)
         // Convert the high / low code point values to a UTF-32 value
         // (See: https://www.Unicode.org/faq/utf_bom.html#utf16-3)
         code_value =
-            (code_value << 10) + low_code_value + Unicode::Surrogate_Offset;
+            (code_value << 10U) + low_code_value + Unicode::Surrogate_Offset;
     }
 
     // The following will produce the UTF-8 code point(s)
@@ -811,27 +823,27 @@ void JSONParser::ParseUnicode(JSONString &json_string)
     if (code_value <= 0x7ff)
     {
         // 110nnnnn 10nnnnnn
-        (*json_string).push_back(0xc0 | ((code_value >> 6) & 0x1f));
-        (*json_string).push_back(0x80 | ((code_value     ) & 0x3f));
+        (*json_string).push_back(0xc0U | ((code_value >> 6U) & 0x1fU));
+        (*json_string).push_back(0x80U | ((code_value      ) & 0x3fU));
         return;
     }
 
     if (code_value <= 0xffff)
     {
         // 1110nnnn 10nnnnnn 10nnnnnn
-        (*json_string).push_back(0xe0 | ((code_value >> 12) & 0x0f));
-        (*json_string).push_back(0x80 | ((code_value >>  6) & 0x3f));
-        (*json_string).push_back(0x80 | ((code_value      ) & 0x3f));
+        (*json_string).push_back(0xe0U | ((code_value >> 12U) & 0x0fU));
+        (*json_string).push_back(0x80U | ((code_value >>  6U) & 0x3fU));
+        (*json_string).push_back(0x80U | ((code_value       ) & 0x3fU));
         return;
     }
 
     if (code_value <= 0x10ffff)
     {
         // 11110nnn 10nnnnnn 10nnnnnn 10nnnnnn
-        (*json_string).push_back(0xf0 | ((code_value >> 18) & 0x07));
-        (*json_string).push_back(0x80 | ((code_value >> 12) & 0x3f));
-        (*json_string).push_back(0x80 | ((code_value >>  6) & 0x3f));
-        (*json_string).push_back(0x80 | ((code_value      ) & 0x3f));
+        (*json_string).push_back(0xf0U | ((code_value >> 18U) & 0x07U));
+        (*json_string).push_back(0x80U | ((code_value >> 12U) & 0x3fU));
+        (*json_string).push_back(0x80U | ((code_value >>  6U) & 0x3fU));
+        (*json_string).push_back(0x80U | ((code_value       ) & 0x3fU));
         return;
     }
 
@@ -1168,7 +1180,7 @@ void JSONParser::ParseObject()
         }
 
         // We should find a key / value pair, so check the key type
-        JSONValueType key_type = DetermineValueType();
+        const JSONValueType key_type = DetermineValueType();
 
         // This should be a string
         if (key_type != JSONValueType::String)
@@ -1213,7 +1225,7 @@ void JSONParser::ParseObject()
         member_seen = true;
 
         // What is the type of data to consume?
-        JSONValueType value_type = DetermineValueType();
+        const JSONValueType value_type = DetermineValueType();
 
         // If the next type is a JSONObject type, create that type and put
         // it into the parsing context
@@ -1365,7 +1377,7 @@ void JSONParser::ParseArray()
         member_seen = true;
 
         // What is the type of data to consume?
-        JSONValueType value_type = DetermineValueType();
+        const JSONValueType value_type = DetermineValueType();
 
         // If the next type is a JSONObject type, create that type and put
         // it into the parsing context

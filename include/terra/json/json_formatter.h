@@ -37,14 +37,18 @@ namespace Terra::JSON
 class JSONFormatter
 {
     public:
-        JSONFormatter(std::size_t indention = 2, bool allman_style = false) :
+        explicit JSONFormatter(std::size_t indention = 2,
+                               bool allman_style = false) :
             o{nullptr},
             indention{indention},
             current_indention{0},
-            allman_style{allman_style}
+            allman_style{allman_style},
+            p{},
+            q{},
+            line{},
+            column{}
         {
         }
-        ~JSONFormatter() = default;
 
         std::string Print(const JSON &json);
         std::string Print(std::string_view content);
@@ -69,7 +73,7 @@ class JSONFormatter
         void AdvanceReadPosition(std::size_t steps = 1) noexcept
         {
             auto advance = std::min(steps, RemainingInput());
-            p += advance;
+            std::advance(p, advance);
             column += advance;
         }
         void ProduceIndentation();

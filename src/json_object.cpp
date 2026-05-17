@@ -16,7 +16,11 @@
  *      None.
  */
 
+#include <iostream>
 #include <sstream>
+#include <utility>
+#include <string>
+#include <initializer_list>
 #include <terra/json/json.h>
 
 namespace Terra::JSON
@@ -63,12 +67,12 @@ JSONObject::JSONObject(
  *      None.
  */
 JSONObject::JSONObject(
-    std::initializer_list<std::pair<const std::string, JSON>> list) : value{}
+    std::initializer_list<std::pair<const std::string, JSON>> list)
 {
     // Add items from the list into the map, converting the string type
     for (const auto &item : list)
     {
-        std::u8string item_string(item.first.cbegin(), item.first.cend());
+        const std::u8string item_string(item.first.cbegin(), item.first.cend());
         value.insert({item_string, item.second});
     }
 }

@@ -30,12 +30,27 @@
  *      None.
  */
 
+#include <iostream>
 #include <sstream>
 #include <cctype>
+#include <cstdint>
+#include <cstddef>
+#include <string>
+#include <string_view>
+#include <variant>
+#include <iterator>
 #include <terra/json/json.h>
+#include <terra/json/json_exception.h>
 #include <terra/json/json_formatter.h>
-#include "unicode_constants.h"
 #include "has_format.h"
+#ifdef TERRA_HAS_FORMAT
+#include <format>
+#else
+#include <sstream>
+#endif
+
+
+// NOLINTBEGIN(performance-avoid-endl)
 
 namespace Terra::JSON
 {
@@ -405,7 +420,7 @@ JSONValueType JSONFormatter::DetermineValueType() const
 void JSONFormatter::PrintContent()
 {
     // Determine the value type
-    JSONValueType value_type = DetermineValueType();
+    const JSONValueType value_type = DetermineValueType();
 
     // If the initial value is an object, put one on the context and handle it
     if (value_type == JSONValueType::Object)
@@ -1008,7 +1023,7 @@ void JSONFormatter::PrintObject()
         member_seen = true;
 
         // Determine the type of the initial value
-        JSONValueType value_type = DetermineValueType();
+        const JSONValueType value_type = DetermineValueType();
 
         // Output the colon character and one space (conditionally)
         if (allman_style && ((value_type == JSONValueType::Array) ||
@@ -1189,7 +1204,7 @@ void JSONFormatter::PrintArray()
         ProduceIndentation();
 
         // Determine the type of the initial value
-        JSONValueType value_type = DetermineValueType();
+        const JSONValueType value_type = DetermineValueType();
 
         // If the next type is an JSONObject type, create that type and put
         // it into the parsing context
@@ -1298,3 +1313,5 @@ void JSONFormatter::PrintLiteral()
 }
 
 } // namespace Terra::JSON
+
+// NOLINTEND(performance-avoid-endl)

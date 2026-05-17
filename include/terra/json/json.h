@@ -77,6 +77,8 @@
 #include <concepts>
 #include "json_exception.h"
 
+// NOLINTBEGIN(google-explicit-constructor,hicpp-explicit-conversions,misc-no-recursion)
+
 namespace Terra::JSON
 {
 
@@ -84,7 +86,7 @@ namespace Terra::JSON
 class JSON;
 
 // Define an enumeration for the JSON value types
-enum class JSONValueType
+enum class JSONValueType : std::uint8_t
 {
     String,
     Number,
@@ -99,11 +101,16 @@ class JSONString
     public:
         JSONString() = default;
         JSONString(std::u8string_view string) : value{string} {}
-        JSONString(std::u8string &&string) : value{std::move(string)} {}
+        JSONString(std::u8string &&string) : value{std::move(string)}
+        {
+        }
         JSONString(std::string_view string);
         JSONString(std::string &&string);
         JSONString(const char8_t *string) : value{string} {}
-        JSONString(const char *string) : JSONString(std::string_view(string)) {}
+        JSONString(const char *string) :
+            JSONString(std::string_view(string))
+        {
+        }
 
         JSONString &operator=(std::string_view string);
         JSONString &operator=(std::u8string_view string)
@@ -135,11 +142,11 @@ class JSONString
 
 // Define JSON Number types for convenience; these should be the largest
 // possible numeric types (one integer and one floating point)
-using JSONInteger = long long;
+using JSONInteger = std::int64_t;
 using JSONFloat = double;
 
 // JSON type to hold a JSON value type of literal
-enum class JSONLiteral
+enum class JSONLiteral : std::uint8_t
 {
     True,
     False,
@@ -174,7 +181,6 @@ class JSONNumber
                 value = static_cast<JSONInteger>(number);
             }
         }
-        ~JSONNumber() = default;
 
         bool operator==(const JSONNumber &other) const;
         bool operator!=(const JSONNumber &other) const;
@@ -209,10 +215,9 @@ class JSONObject
     public:
         JSONObject() = default;
         JSONObject(
-            std::initializer_list<std::pair<const std::u8string, JSON>> list);
+            const std::initializer_list<std::pair<const std::u8string, JSON>> list);
         JSONObject(
-            std::initializer_list<std::pair<const std::string, JSON>> list);
-        ~JSONObject() = default;
+            const std::initializer_list<std::pair<const std::string, JSON>> list);
 
         JSON &operator[](const std::u8string &key) { return value[key]; }
         const JSON &operator[](const std::u8string &key) const
@@ -230,7 +235,7 @@ class JSONObject
 
         bool HasKey(const std::u8string &key) const
         {
-            return (value.count(key) > 0);
+            return value.contains(key);
         }
         bool HasKey(const std::string &key) const
         {
@@ -257,8 +262,7 @@ class JSONArray
 {
     public:
         JSONArray() = default;
-        JSONArray(std::initializer_list<JSON> list);
-        ~JSONArray() = default;
+        JSONArray(const std::initializer_list<JSON> list);
 
         JSON &operator[](const std::size_t index);
         const JSON &operator[](const std::size_t index) const;
@@ -293,6 +297,7 @@ class JSON
         JSON(const JSONString &string) : value{string} {}
         JSON(JSONString &&string) : value{std::move(string)} {}
         JSON(const JSONNumber &number) : value{number} {}
+        // NOLINTNEXTLINE(hicpp-move-const-arg,performance-move-const-arg)
         JSON(JSONNumber &&number) : value{std::move(number)} {}
         JSON(const JSONObject &object) : value{object} {}
         JSON(JSONObject &&object) : value{std::move(object)} {}
@@ -309,8 +314,6 @@ class JSON
         JSON(T number) : value{JSONNumber(number)}
         {
         }
-
-        ~JSON() = default;
 
         // Return the type of the JSON value held by this object
         JSONValueType GetValueType() const;
@@ -354,13 +357,14 @@ class JSON
         }
         JSON &operator=(JSONNumber &&assignment)
         {
+            // NOLINTNEXTLINE(hicpp-move-const-arg,performance-move-const-arg)
             value = std::move(assignment);
             return *this;
         }
 
         JSON &operator=(const JSONString &assignment)
         {
-            value = std::move(assignment);
+            value = assignment;
             return *this;
         }
         JSON &operator=(JSONString &&assignment)
@@ -434,3 +438,5 @@ std::ostream &operator<<(std::ostream &o, const Terra::JSON::JSONArray &array);
 
 // Streaming operator for JSON output
 std::ostream &operator<<(std::ostream &o, const Terra::JSON::JSON &json);
+
+// NOLINTEND(google-explicit-constructor,hicpp-explicit-conversions,misc-no-recursion)

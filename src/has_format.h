@@ -27,20 +27,20 @@
 
     // XCode reports that std::format with std::to_char support exists in
     // OS X 10.3 or later; XCode 16.4 does not set the C++ feature definitions
-    #if defined(__APPLE__)
+    #ifdef  __APPLE__
 
         #if defined(__ENVIRONMENT_MAC_OS_X_VERSION_MIN_REQUIRED__) && \
             (__ENVIRONMENT_MAC_OS_X_VERSION_MIN_REQUIRED__ >= 130300)
 
-            #define TERRA_HAS_FORMAT 1
+            #define TERRA_HAS_FORMAT 1 // NOLINT(cppcoreguidelines-macro-usage)
 
         #endif
 
-    #else // defined(__APPLE__)
+    #else // Not __APPLE__
 
         #if defined(__cpp_lib_format) && defined(__cpp_lib_to_chars)
 
-            #define TERRA_HAS_FORMAT 1
+            #define TERRA_HAS_FORMAT 1 // NOLINT(cppcoreguidelines-macro-usage)
 
         #endif
 

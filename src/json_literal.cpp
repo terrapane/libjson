@@ -16,7 +16,9 @@
  *      None.
  */
 
+#include <iostream>
 #include <terra/json/json.h>
+#include <terra/json/json_exception.h>
 
 /*
  *  operator<<()

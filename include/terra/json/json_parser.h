@@ -38,8 +38,7 @@ namespace Terra::JSON
 class JSONParser
 {
     public:
-        JSONParser() = default;
-        ~JSONParser() = default;
+        JSONParser() : p{}, q{}, line{}, column{} {}
 
         JSON Parse(std::string_view content);
         JSON Parse(std::u8string_view content);
@@ -60,8 +59,8 @@ class JSONParser
         }
         void AdvanceReadPosition(std::size_t steps = 1) noexcept
         {
-            auto advance = std::min(steps, RemainingInput());
-            p += advance;
+            const auto advance = std::min(steps, RemainingInput());
+            std::advance(p, advance);
             column += advance;
         }
         void ConsumeWhitespace() noexcept;
