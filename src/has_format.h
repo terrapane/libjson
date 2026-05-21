@@ -20,13 +20,12 @@
 
 #pragma once
 
-// Check to see if the <format> header exists
-#if defined(__has_include) && __has_include(<format>)
+#include <version>
 
-    #include <format>
+// Check to see if <format> is supported
+#if defined(__cpp_lib_format)
 
-    // XCode reports that std::format with std::to_char support exists in
-    // OS X 10.3 or later; XCode 16.4 does not set the C++ feature definitions
+    // XCode reports that std::format support exists in OS X 10.3 or later
     #ifdef  __APPLE__
 
         #if defined(__ENVIRONMENT_MAC_OS_X_VERSION_MIN_REQUIRED__) && \
@@ -38,12 +37,8 @@
 
     #else // Not __APPLE__
 
-        #if defined(__cpp_lib_format) && defined(__cpp_lib_to_chars)
-
-            #define TERRA_HAS_FORMAT 1 // NOLINT(cppcoreguidelines-macro-usage)
-
-        #endif
+        #define TERRA_HAS_FORMAT 1 // NOLINT(cppcoreguidelines-macro-usage)
 
     #endif // defined(__APPLE__)
 
-#endif // defined(__has_include) && __has_include(<format>)
+#endif // defined(__cpp_lib_format)
