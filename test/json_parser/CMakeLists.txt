@@ -20,5 +20,3 @@ target_compile_options(test_json_parser
 # Ensure CTest can find the test
 add_test(NAME test_json_parser
          COMMAND test_json_parser)
-
-target_link_options(test_json_parser PRIVATE -fsanitize=address)
