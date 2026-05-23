@@ -28,6 +28,9 @@
 
 #include <algorithm>
 #include <iterator>
+#include <deque>
+#include <cstddef>
+#include <string>
 #include "json.h"
 
 namespace Terra::JSON
@@ -72,7 +75,7 @@ class JSONFormatter
         }
         void AdvanceReadPosition(std::size_t steps = 1) noexcept
         {
-            auto advance = std::min(steps, RemainingInput());
+            const std::size_t advance = std::min(steps, RemainingInput());
             std::advance(p, advance);
             column += advance;
         }
@@ -100,7 +103,7 @@ class JSONFormatter
         std::size_t column;                     // Current column
 
         // Used to print composite types
-        std::vector<CompositeContext> composite_context;
+        std::deque<CompositeContext> composite_context;
 };
 
 } // namespace Terra::JSON

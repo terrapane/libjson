@@ -23,7 +23,7 @@
 #include <version>
 
 // Check to see if <format> is supported
-#if defined(__cpp_lib_format)
+#ifdef __cpp_lib_format
 
     // XCode reports that std::format support exists in OS X 10.3 or later
     #ifdef  __APPLE__

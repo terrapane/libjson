@@ -15,7 +15,7 @@ set_target_properties(test_json_number
 target_compile_options(test_json_number
     PRIVATE
         $<$<OR:$<CXX_COMPILER_ID:Clang>,$<CXX_COMPILER_ID:AppleClang>,$<CXX_COMPILER_ID:GNU>>: -Wpedantic -Wextra -Wall>
-        $<$<CXX_COMPILER_ID:MSVC>: >)
+        $<$<CXX_COMPILER_ID:MSVC>:/W4 /WX>)
 
 # Ensure CTest can find the test
 add_test(NAME test_json_number

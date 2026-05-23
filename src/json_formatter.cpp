@@ -519,7 +519,7 @@ void JSONFormatter::PrintPrimitiveValue(JSONValueType value_type)
  *
  *  Description:
  *      This function will parse and print a composite value based on the type
- *      of value found at the back of the composite_context vector.
+ *      of value found at the back of the composite_context deque.
  *
  *      A composite type is an array or object.
  *
@@ -541,7 +541,7 @@ void JSONFormatter::PrintCompositeValue()
         throw JSONException("Composite context unexpectedly empty");
     }
 
-    // Loop until the composite vector is fully consumed
+    // Loop until the composite context deque is fully consumed
     while (!composite_context.empty())
     {
         // If the back element is a JSON object, parse it

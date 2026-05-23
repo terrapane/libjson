@@ -7,6 +7,9 @@ v1.1.0
   for std::u8string_view) as these are already effectively read-only
 - Addressed clang-tidy recommendations
 - Minor improvements, additional tests
+- Replaced the parsing context vector with deque, as it's more efficient
+  when popping elements from the end
+- Ensure unit tests are built more strictly on Windows
 
 v1.0.9
 

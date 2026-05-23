@@ -484,7 +484,7 @@ JSONValue JSONParser::ParsePrimitiveValue(JSONValueType value_type)
  *
  *  Description:
  *      This function will parse a composite value based on the type of value
- *      found at the back of the composite_context vector.
+ *      found at the back of the composite_context deque.
  *
  *      A composite type is an array or object.
  *
@@ -506,7 +506,7 @@ void JSONParser::ParseCompositeValue()
         throw JSONException("Composite context unexpectedly empty");
     }
 
-    // Loop until the composite vector is fully consumed
+    // Loop until the composite context deque is fully consumed
     while (!composite_context.empty())
     {
         // If the back element is a JSON object, parse it
@@ -1075,9 +1075,9 @@ JSONNumber JSONParser::ParseNumber()
  *  Description:
  *      This function will begin processing a JSON object or, if the opening
  *      brace is already seen, continue processing.  This function behaves
- *      differently than other JSON types since objects can be nested.
+ *      differently than primitive JSON types since objects can be nested.
  *      While this function takes no input parameters, it operates on the
- *      member vector composite_context to maintain state.
+ *      member composite_context to maintain state.
  *
  *  Parameters:
  *      None.
@@ -1269,15 +1269,17 @@ void JSONParser::ParseObject()
  *  JSONParser::ParseArray()
  *
  *  Description:
- *      This function assumes the subsequent input is a JSON array and will
- *      return a JSONArray type.
+ *      This function will begin processing a JSON array or, if the opening
+ *      bracket is already seen, continue processing.  This function behaves
+ *      differently than primitive JSON types since arrays can be nested.
+ *      While this function takes no input parameters, it operates on the
+ *      member composite_context to maintain state.
  *
  *  Parameters:
  *      None.
  *
  *  Returns:
- *      A JSONArray holding the parsed value.  An exception will be
- *      thrown if there is a parsing error.
+ *      Nothing.
  *
  *  Comments:
  *      It is assumed the read position is at the start of the array without

@@ -27,6 +27,7 @@
 #include <string>
 #include <algorithm>
 #include <iterator>
+#include <deque>
 #include "json.h"
 
 #pragma once
@@ -81,7 +82,7 @@ class JSONParser
         std::size_t column;                     // Current column
 
         // Used to parse composite types
-        std::vector<CompositeContext> composite_context;
+        std::deque<CompositeContext> composite_context;
 };
 
 } // namespace Terra::JSON
