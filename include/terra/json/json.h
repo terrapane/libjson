@@ -246,10 +246,28 @@ class JSONObject
         std::map<std::u8string, JSON> &operator*() { return value; }
         const std::map<std::u8string, JSON> &operator*() const { return value; }
 
-        std::size_t Size() const noexcept { return value.size(); }
-
         bool operator==(const JSONObject &other) const;
         bool operator!=(const JSONObject &other) const;
+
+        // Allow for iterating over the underlying std::map
+        std::map<std::u8string, JSON>::const_iterator begin() const noexcept
+        {
+            return value.begin();
+        }
+        std::map<std::u8string, JSON>::const_iterator end() const noexcept
+        {
+            return value.end();
+        }
+        std::map<std::u8string, JSON>::iterator begin() noexcept
+        {
+            return value.begin();
+        }
+        std::map<std::u8string, JSON>::iterator end() noexcept
+        {
+            return value.end();
+        }
+
+        std::size_t Size() const noexcept { return value.size(); }
 
         std::string ToString() const;
 
@@ -273,6 +291,18 @@ class JSONArray
 
         bool operator==(const JSONArray &other) const;
         bool operator!=(const JSONArray &other) const;
+
+        // Allow for iterating over the underlying array
+        std::vector<JSON>::const_iterator begin() const noexcept
+        {
+            return value.begin();
+        }
+        std::vector<JSON>::const_iterator end() const noexcept
+        {
+            return value.end();
+        }
+        std::vector<JSON>::iterator begin() noexcept { return value.begin(); }
+        std::vector<JSON>::iterator end() noexcept { return value.end(); }
 
         std::size_t Size() const noexcept;
 

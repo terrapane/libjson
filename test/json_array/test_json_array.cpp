@@ -149,7 +149,7 @@ STF_TEST(JSONArray, ToString)
 }
 
 // Test equality
-STF_TEST(JSONArray, TestEquality)
+STF_TEST(JSONArray, Equality)
 {
     // This will initialize JSONArray objects holding a few elements
     JSONArray array1({1, {{{"Key1", "Value1"}, {"Key2", "Value2"}}}, 2});
@@ -159,11 +159,46 @@ STF_TEST(JSONArray, TestEquality)
 }
 
 // Test equality
-STF_TEST(JSONArray, TestInequality)
+STF_TEST(JSONArray, Inequality)
 {
     // This will initialize JSONArray objects holding a few elements
     JSONArray array1({1, {{{"Key1", "Value1"}, {"Key2", "Value2"}}}, 2});
     JSONArray array2({2, {{{"Key2", "Value2"}, {"Key1", "Value1"}}}, 1});
 
     STF_ASSERT_NE(array1, array2);
+}
+
+// Test const iterators
+STF_TEST(JSONArray, ConstIterator)
+{
+    const JSONArray array({1, 2, 3});
+
+    JSONInteger sum{};
+    for (const auto &element : array)
+    {
+        STF_ASSERT_EQ(JSONValueType::Number, element.GetValueType());
+        const JSONNumber &number = std::get<JSONNumber>(*element);
+        STF_ASSERT_TRUE(number.IsInteger());
+        sum += number.GetInteger();
+    }
+
+    STF_ASSERT_EQ(6, sum);
+}
+
+// Test non-const iterator
+STF_TEST(JSONArray, NonConstIterator)
+{
+    JSONArray array({1, 2, 3});
+
+    JSONInteger sum{};
+    for (auto &element : array)
+    {
+        STF_ASSERT_EQ(JSONValueType::Number, element.GetValueType());
+        JSONNumber &number = std::get<JSONNumber>(*element);
+        STF_ASSERT_TRUE(number.IsInteger());
+        number = number.GetInteger() + 1;
+        sum += number.GetInteger();
+    }
+
+    STF_ASSERT_EQ(9, sum);
 }

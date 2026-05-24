@@ -376,3 +376,50 @@ STF_TEST(JSONObject, TestInequality)
 
     STF_ASSERT_NE(object1, object2);
 }
+
+// Test const iterator
+STF_TEST(JSONObject, ConstIterator)
+{
+    const JSONObject object(
+        {{"key1", 1},
+         {"key2", 2},
+         {"key3", 3}});
+
+    STF_ASSERT_EQ(3, object.Size());
+
+    JSONInteger sum{};
+    for (const auto &element : object)
+    {
+        STF_ASSERT_EQ(JSONValueType::Number, element.second.GetValueType());
+
+        const JSONNumber &number = std::get<JSONNumber>(*(element.second));
+        STF_ASSERT_TRUE(number.IsInteger());
+        sum += number.GetInteger();
+    }
+
+    STF_ASSERT_EQ(6, sum);
+}
+
+// Test non-const iterator
+STF_TEST(JSONObject, NonConstIterator)
+{
+    JSONObject object(
+        {{"key1", 1},
+         {"key2", 2},
+         {"key3", 3}});
+
+    STF_ASSERT_EQ(3, object.Size());
+
+    JSONInteger sum{};
+    for (auto &element : object)
+    {
+        STF_ASSERT_EQ(JSONValueType::Number, element.second.GetValueType());
+
+        JSONNumber &number = std::get<JSONNumber>(*(element.second));
+        STF_ASSERT_TRUE(number.IsInteger());
+        number = number.GetInteger() + 1;
+        sum += number.GetInteger();
+    }
+
+    STF_ASSERT_EQ(9, sum);
+}

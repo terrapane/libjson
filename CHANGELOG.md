@@ -7,8 +7,9 @@ v1.1.0
   for std::u8string_view) as these are already effectively read-only
 - Addressed clang-tidy recommendations
 - Minor improvements, additional tests
-- Replaced the parsing context vector with deque, as it's more efficient
-  when popping elements from the end
+- Replaced the parsing context `std::vector` with `std::deque`, as it's more
+  efficient when popping elements from the end
+- Added ability to iterate over JSONObject and JSONArray types
 - Ensure unit tests are built more strictly on Windows
 
 v1.0.9
@@ -36,7 +37,7 @@ v1.0.6
 v1.0.5
 
 - If std::format is disabled, the \<format\> header should not be included
-- Remove the constexpr on `ConvertToStdString()`, as that doesn't work on
+- Remove the `constexpr` on `ConvertToStdString()`, as that doesn't work on
   slightly older systems and it doesn't add significant benefit
 
 v1.0.4
