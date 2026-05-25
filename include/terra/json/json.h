@@ -158,28 +158,40 @@ class JSONNumber
 {
     public:
         JSONNumber() = default;
-        template<typename T>
-            requires std::floating_point<T> || std::integral<T>
+        template<std::integral T>
         JSONNumber(T number)
         {
-            if constexpr (std::floating_point<T>)
+            if constexpr (std::unsigned_integral<T>)
             {
-                value = static_cast<JSONFloat>(number);
-            }
-            else if constexpr (std::unsigned_integral<T>)
-            {
-                // Insure the unsigned value does not exceed the max value of a
+                // Ensure the unsigned value does not exceed the max value of a
                 // signed integer, as we only store a signed integer type
                 if (number > std::numeric_limits<JSONInteger>::max())
                 {
                     throw JSONException("Unsigned integer exceeds limits");
                 }
-                value = static_cast<JSONInteger>(number);
             }
             else
             {
-                value = static_cast<JSONInteger>(number);
+                // Ensure the signed value does not exceed the max value of a
+                // signed integer used by the library
+                if ((number > std::numeric_limits<JSONInteger>::max()) ||
+                    (number < std::numeric_limits<JSONInteger>::min()))
+                {
+                    throw JSONException("Unsigned integer exceeds limits");
+                }
             }
+
+            value = static_cast<JSONInteger>(number);
+        }
+        template<std::floating_point T>
+        JSONNumber(T number)
+        {
+            if ((number > std::numeric_limits<JSONFloat>::max()) ||
+                (number < std::numeric_limits<JSONFloat>::min()))
+            {
+                throw JSONException("Floating point value exceeds limits");
+            }
+            value = static_cast<JSONFloat>(number);
         }
 
         bool operator==(const JSONNumber &other) const;
