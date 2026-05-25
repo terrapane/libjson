@@ -175,7 +175,7 @@ class JSONNumber
                 // Ensure the signed value does not exceed the max value of a
                 // signed integer used by the library
                 if ((number > std::numeric_limits<JSONInteger>::max()) ||
-                    (number < std::numeric_limits<JSONInteger>::min()))
+                    (number < std::numeric_limits<JSONInteger>::lowest()))
                 {
                     throw JSONException("Unsigned integer exceeds limits");
                 }
@@ -187,10 +187,11 @@ class JSONNumber
         JSONNumber(T number)
         {
             if ((number > std::numeric_limits<JSONFloat>::max()) ||
-                (number < std::numeric_limits<JSONFloat>::min()))
+                (number < std::numeric_limits<JSONFloat>::lowest()))
             {
                 throw JSONException("Floating point value exceeds limits");
             }
+
             value = static_cast<JSONFloat>(number);
         }
 
