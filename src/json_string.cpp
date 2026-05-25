@@ -108,7 +108,10 @@ JSONString &JSONString::operator=(std::string_view string)
  *  JSONString::ToString()
  *
  *  Description:
- *      This function will convert the JSONString object to a std::string.
+ *      This function will convert the JSONString object to a std::string
+ *      containing a valid representation of a JSON string.  Note that this
+ *      is NOT a conversion to a sequence of raw octets.  The output
+ *      will include surrogate pairs like \ud83d\ude01 expected in JSON.
  *
  *  Parameters:
  *      None.

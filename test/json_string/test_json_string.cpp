@@ -168,6 +168,7 @@ STF_TEST(JSONString, Output3)
 // Test JSON text output
 STF_TEST(JSONString, Output4)
 {
+    // Encoded 😁
     Terra::JSON::JSONString string = u8"This string contains ";
     (*string).push_back(0xf0);
     (*string).push_back(0x9f);
@@ -185,6 +186,7 @@ STF_TEST(JSONString, Output4)
 // Test JSON text output
 STF_TEST(JSONString, Output5)
 {
+    // Encoded 小
     Terra::JSON::JSONString string = u8"This string contains ";
     (*string).push_back(0xe5);
     (*string).push_back(0xb0);
@@ -202,6 +204,7 @@ STF_TEST(JSONString, Output5)
 // Test the ToString() function
 STF_TEST(JSONString, ToString)
 {
+    // Encoded 小
     Terra::JSON::JSONString string = u8"This string contains ";
     (*string).push_back(0xe5);
     (*string).push_back(0xb0);
