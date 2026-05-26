@@ -77,7 +77,7 @@
 #include <concepts>
 #include "json_exception.h"
 
-// NOLINTBEGIN(google-explicit-constructor,hicpp-explicit-conversions,misc-no-recursion)
+// NOLINTBEGIN(hicpp-explicit-conversions,misc-no-recursion)
 
 namespace Terra::JSON
 {
@@ -482,4 +482,7 @@ std::ostream &operator<<(std::ostream &o, const Terra::JSON::JSONArray &array);
 // Streaming operator for JSON output
 std::ostream &operator<<(std::ostream &o, const Terra::JSON::JSON &json);
 
-// NOLINTEND(google-explicit-constructor,hicpp-explicit-conversions,misc-no-recursion)
+// Streaming operator for JSONValue output
+std::ostream &operator<<(std::ostream &o, const Terra::JSON::JSONValue &value);
+
+// NOLINTEND(hicpp-explicit-conversions,misc-no-recursion)

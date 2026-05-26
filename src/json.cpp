@@ -143,6 +143,9 @@ JSONValueType JSON::GetValueType() const
  */
 void JSON::AssignType(JSONValueType type)
 {
+    static_assert(std::variant_size_v<decltype(value)> == 5,
+                  "Update AssignType for new variant types");
+
     switch(type)
     {
         case JSONValueType::String:
@@ -430,32 +433,9 @@ std::string JSON::ToString() const
  */
 std::ostream &operator<<(std::ostream &o, const Terra::JSON::JSON &json)
 {
-    // Produce the object based on the type
-    switch (json.GetValueType())
-    {
-        case Terra::JSON::JSONValueType::String:
-            o << std::get<Terra::JSON::JSONString>(*json);
-            break;
-
-        case Terra::JSON::JSONValueType::Number:
-            o << std::get<Terra::JSON::JSONNumber>(*json);
-            break;
-
-        case Terra::JSON::JSONValueType::Object:
-            o << std::get<Terra::JSON::JSONObject>(*json);
-            break;
-
-        case Terra::JSON::JSONValueType::Array:
-            o << std::get<Terra::JSON::JSONArray>(*json);
-            break;
-
-        case Terra::JSON::JSONValueType::Literal:
-            o << std::get<Terra::JSON::JSONLiteral>(*json);
-            break;
-
-        default:
-            throw Terra::JSON::JSONException("Unknown JSON object type");
-    }
+    // Dereference the JSON object to get the underlying JSONValue type
+    // so that the operator<< for JSONValue is called
+    o << *json;
 
     return o;
 }

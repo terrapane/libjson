@@ -11,6 +11,7 @@ v1.1.0
   efficient when popping elements from the end
 - Added ability to iterate over JSONObject and JSONArray types
 - Ensure unit tests are built more strictly on Windows
+- Added an operator<< for the JSONValue variant
 
 v1.0.9
 

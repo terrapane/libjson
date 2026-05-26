@@ -10,7 +10,8 @@ add_library(json STATIC
     json_number.cpp
     json_object.cpp
     json_parser.cpp
-    json_string.cpp)
+    json_string.cpp
+    json_value.cpp)
 add_library(Terra::json ALIAS json)
 
 # Make project include directory available to external projects
