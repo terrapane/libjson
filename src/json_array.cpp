@@ -91,7 +91,7 @@ const JSON &JSONArray::operator[](const std::size_t index) const
 }
 
 /*
- *  operator==()
+ *  JSONArray::operator==()
  *
  *  Description:
  *      This function will compare two JSONArray values for equality.
@@ -112,7 +112,7 @@ bool JSONArray::operator==(const JSONArray &other) const
 }
 
 /*
- *  operator!=()
+ *  JSONArray::operator!=()
  *
  *  Description:
  *      This function will compare two JSONArray values for inequality.
@@ -131,6 +131,86 @@ bool JSONArray::operator==(const JSONArray &other) const
 bool JSONArray::operator!=(const JSONArray &other) const
 {
     return !operator==(other);
+}
+
+/*
+ *  JSONArray::begin()
+ *
+ *  Description:
+ *      Allow for iterating over the underlying array.
+ *
+ *  Parameters:
+ *      None.
+ *
+ *  Returns:
+ *      Constant begin iterator over the underlying array.
+ *
+ *  Comments:
+ *      None.
+ */
+std::vector<JSON>::const_iterator JSONArray::begin() const noexcept
+{
+    return value.begin();
+}
+
+/*
+ *  JSONArray::end()
+ *
+ *  Description:
+ *      Allow for iterating over the underlying array.
+ *
+ *  Parameters:
+ *      None.
+ *
+ *  Returns:
+ *      Constant end iterator over the underlying array.
+ *
+ *  Comments:
+ *      None.
+ */
+std::vector<JSON>::const_iterator JSONArray::end() const noexcept
+{
+    return value.end();
+}
+
+/*
+ *  JSONArray::begin()
+ *
+ *  Description:
+ *      Allow for iterating over the underlying array.
+ *
+ *  Parameters:
+ *      None.
+ *
+ *  Returns:
+ *      Non-constant begin iterator over the underlying array.
+ *
+ *  Comments:
+ *      None.
+ */
+std::vector<JSON>::iterator JSONArray::begin() noexcept
+{
+    return value.begin();
+}
+
+/*
+ *  JSONArray::end()
+ *
+ *  Description:
+ *      Allow for iterating over the underlying array.
+ *
+ *  Parameters:
+ *      None.
+ *
+ *  Returns:
+ *      Non-constant end iterator over the underlying array.
+ *
+ *  Comments:
+ *      None.
+ */
+std::vector<JSON>::iterator JSONArray::end() noexcept
+{
+    return value.end();
 }
 
 /*

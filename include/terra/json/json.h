@@ -306,16 +306,10 @@ class JSONArray
         bool operator!=(const JSONArray &other) const;
 
         // Allow for iterating over the underlying array
-        std::vector<JSON>::const_iterator begin() const noexcept
-        {
-            return value.begin();
-        }
-        std::vector<JSON>::const_iterator end() const noexcept
-        {
-            return value.end();
-        }
-        std::vector<JSON>::iterator begin() noexcept { return value.begin(); }
-        std::vector<JSON>::iterator end() noexcept { return value.end(); }
+        std::vector<JSON>::const_iterator begin() const noexcept;
+        std::vector<JSON>::const_iterator end() const noexcept;
+        std::vector<JSON>::iterator begin() noexcept;
+        std::vector<JSON>::iterator end() noexcept;
 
         std::size_t Size() const noexcept;
 

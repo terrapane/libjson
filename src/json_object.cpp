@@ -78,7 +78,7 @@ JSONObject::JSONObject(
 }
 
 /*
- *  operator==()
+ *  JSONObject::operator==()
  *
  *  Description:
  *      This function will compare two JSONObject objects for equality.
@@ -99,7 +99,7 @@ bool JSONObject::operator==(const JSONObject &other) const
 }
 
 /*
- *  operator!=()
+ *  JSONObject::operator!=()
  *
  *  Description:
  *      This function will compare two JSONObject objects for inequality.
