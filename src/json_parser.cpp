@@ -66,19 +66,19 @@ constexpr std::uint8_t ConvertHexCharToInt(char hex_digit)
     // Get the numeric value of the digit character
     if ((hex_digit >= '0') && (hex_digit <= '9'))
     {
-        return hex_digit - '0';
+        return static_cast<std::uint8_t>(hex_digit - '0');
     }
 
     // Get the numeric value of the alphabetic character
     if ((hex_digit >= 'a') && (hex_digit <= 'f'))
     {
-        return hex_digit - 'a' + 10;
+        return static_cast<std::uint8_t>(hex_digit - 'a' + 10);
     }
 
     // Get the numeric value of the alphabetic character
     if ((hex_digit >= 'A') && (hex_digit <= 'F'))
     {
-        return hex_digit - 'A' + 10;
+        return static_cast<std::uint8_t>(hex_digit - 'A' + 10);
     }
 
     throw std::invalid_argument("Invalid hex digit");

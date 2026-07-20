@@ -1,5 +1,9 @@
 # Change Log
 
+v1.1.1
+
+- Stricter compiler warnings
+
 v1.1.0
 
 - Removed pointer arithmetic, replacing with std::next()

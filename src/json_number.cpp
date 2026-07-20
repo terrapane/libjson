@@ -51,10 +51,11 @@ bool JSONNumber::operator==(const JSONNumber &other) const
     // If they're not the same type, then they are not equal
     if (value.index() != other.value.index()) return false;
 
-    // Compare values assuming the same type
-    return std::visit([](auto first, auto second) { return first == second; },
-                      value,
-                      other.value);
+    // If they are integers, do an integer compare
+    if (IsInteger()) return GetInteger() == other.GetInteger();
+
+    // Perform an float comparison
+    return GetFloat() == other.GetFloat();
 }
 
 /*
