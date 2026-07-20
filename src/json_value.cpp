@@ -51,7 +51,7 @@ struct overloads : Ts... { using Ts::operator()...; };
  */
 std::ostream &operator<<(std::ostream &o, const Terra::JSON::JSONValue &value)
 {
-    std::visit(overloads{[&o](const auto &value) { o << value; }}, value);
+    std::visit(overloads{[&o](const auto &v) { o << v; }}, value);
 
     return o;
 }
