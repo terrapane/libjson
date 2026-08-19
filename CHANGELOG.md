@@ -1,5 +1,9 @@
 # Change Log
 
+v1.1.2
+
+- Updated dependencies
+
 v1.1.1
 
 - Stricter compiler warnings

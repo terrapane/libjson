@@ -20,6 +20,7 @@
 #include <sstream>
 #include <cstddef>
 #include <string>
+#include <vector>
 #include <initializer_list>
 #include <terra/json/json.h>
 
