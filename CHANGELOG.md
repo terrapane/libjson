@@ -2,6 +2,7 @@
 
 v1.1.2
 
+- Changed how the check for std::format is performed
 - Updated dependencies
 
 v1.1.1

@@ -42,13 +42,11 @@
 #include <terra/json/json.h>
 #include <terra/json/json_exception.h>
 #include <terra/json/json_formatter.h>
-#include "has_format.h"
 #ifdef TERRA_HAS_FORMAT
 #include <format>
 #else
 #include <sstream>
 #endif
-
 
 // NOLINTBEGIN(performance-avoid-endl)
 

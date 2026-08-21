@@ -26,7 +26,6 @@
 #include <terra/json/json.h>
 #include <terra/json/json_exception.h>
 #include "unicode_constants.h"
-#include "has_format.h"
 #ifdef TERRA_HAS_FORMAT
 #include <format>
 #else

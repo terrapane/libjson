@@ -27,6 +27,13 @@ set_target_properties(json
         CXX_STANDARD_REQUIRED ON
         CXX_EXTENSIONS OFF)
 
+# Include std::format check
+include(${CMAKE_CURRENT_SOURCE_DIR}/../cmake/format.cmake)
+
+if(HAVE_STD_FORMAT)
+    target_compile_definitions(json PRIVATE TERRA_HAS_FORMAT)
+endif()
+
 # If requesting clang-tidy, try to look for it
 if(libjson_CLANG_TIDY)
     find_program(CLANG_TIDY_COMMAND NAMES "clang-tidy")
