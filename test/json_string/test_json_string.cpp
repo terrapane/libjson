@@ -15,14 +15,18 @@
  *      None.
  */
 
+#include <string>
 #include <sstream>
 #include <terra/json/json.h>
 #include <terra/stf/stf.h>
 
+namespace
+{
+
 // Test initialization of JSONString
 STF_TEST(JSONString, Constructor1)
 {
-    Terra::JSON::JSONString string("Test");
+    const Terra::JSON::JSONString string("Test");
 
     STF_ASSERT_EQ(4, string.Size());
 }
@@ -30,7 +34,7 @@ STF_TEST(JSONString, Constructor1)
 // Test initialization of JSONString
 STF_TEST(JSONString, Constructor2)
 {
-    Terra::JSON::JSONString string(u8"Test");
+    const Terra::JSON::JSONString string(u8"Test");
 
     STF_ASSERT_EQ(4, string.Size());
 }
@@ -38,7 +42,7 @@ STF_TEST(JSONString, Constructor2)
 // Test initialization of JSONString
 STF_TEST(JSONString, Constructor3)
 {
-    Terra::JSON::JSONString string(std::string("Test"));
+    const Terra::JSON::JSONString string(std::string("Test"));
 
     STF_ASSERT_EQ(4, string.Size());
 }
@@ -46,7 +50,7 @@ STF_TEST(JSONString, Constructor3)
 // Test initialization of JSONString
 STF_TEST(JSONString, Constructor4)
 {
-    Terra::JSON::JSONString string(std::u8string(u8"Test"));
+    const Terra::JSON::JSONString string(std::u8string(u8"Test"));
 
     STF_ASSERT_EQ(4, string.Size());
 }
@@ -54,8 +58,9 @@ STF_TEST(JSONString, Constructor4)
 // Test initialization of JSONString
 STF_TEST(JSONString, Constructor5)
 {
-    Terra::JSON::JSONString string(std::u8string(u8"Test"));
-    Terra::JSON::JSONString string2(string);
+    const Terra::JSON::JSONString string(std::u8string(u8"Test"));
+    // NOLINTNEXTLINE(performance-unnecessary-copy-initialization)
+    const Terra::JSON::JSONString string2(string);
 
     STF_ASSERT_EQ(4, string.Size());
     STF_ASSERT_EQ(4, string2.Size());
@@ -64,8 +69,9 @@ STF_TEST(JSONString, Constructor5)
 // Test initialization of JSONString
 STF_TEST(JSONString, Constructor6)
 {
-    Terra::JSON::JSONString string(std::string("Test"));
-    Terra::JSON::JSONString string2(string);
+    const Terra::JSON::JSONString string(std::string("Test"));
+    // NOLINTNEXTLINE(performance-unnecessary-copy-initialization)
+    const Terra::JSON::JSONString string2(string);
 
     STF_ASSERT_EQ(4, string.Size());
     STF_ASSERT_EQ(4, string2.Size());
@@ -74,7 +80,7 @@ STF_TEST(JSONString, Constructor6)
 // Test initialization of JSONString
 STF_TEST(JSONString, Assignment1)
 {
-    Terra::JSON::JSONString string = "Test";
+    const Terra::JSON::JSONString string = "Test";
 
     STF_ASSERT_EQ(4, string.Size());
 }
@@ -82,7 +88,7 @@ STF_TEST(JSONString, Assignment1)
 // Test initialization of JSONString
 STF_TEST(JSONString, Assignment2)
 {
-    Terra::JSON::JSONString string = u8"Test";
+    const Terra::JSON::JSONString string = u8"Test";
 
     STF_ASSERT_EQ(4, string.Size());
 }
@@ -90,7 +96,7 @@ STF_TEST(JSONString, Assignment2)
 // Test initialization of JSONString
 STF_TEST(JSONString, Assignment3)
 {
-    Terra::JSON::JSONString string = std::string("Test");
+    const Terra::JSON::JSONString string = std::string("Test");
 
     STF_ASSERT_EQ(4, string.Size());
 }
@@ -98,7 +104,7 @@ STF_TEST(JSONString, Assignment3)
 // Test initialization of JSONString
 STF_TEST(JSONString, Assignment4)
 {
-    Terra::JSON::JSONString string = std::u8string(u8"Test");
+    const Terra::JSON::JSONString string = std::u8string(u8"Test");
 
     STF_ASSERT_EQ(4, string.Size());
 }
@@ -106,8 +112,9 @@ STF_TEST(JSONString, Assignment4)
 // Test initialization of JSONString
 STF_TEST(JSONString, Assignment5)
 {
-    Terra::JSON::JSONString string(std::u8string(u8"Test"));
-    Terra::JSON::JSONString string2 = string;
+    const Terra::JSON::JSONString string(std::u8string(u8"Test"));
+    // NOLINTNEXTLINE(performance-unnecessary-copy-initialization)
+    const Terra::JSON::JSONString string2 = string;
 
     STF_ASSERT_EQ(4, string.Size());
     STF_ASSERT_EQ(4, string2.Size());
@@ -116,8 +123,9 @@ STF_TEST(JSONString, Assignment5)
 // Test initialization of JSONString
 STF_TEST(JSONString, Assignment6)
 {
-    Terra::JSON::JSONString string(std::string("Test"));
-    Terra::JSON::JSONString string2 = string;
+    const Terra::JSON::JSONString string(std::string("Test"));
+    // NOLINTNEXTLINE(performance-unnecessary-copy-initialization)
+    const Terra::JSON::JSONString string2 = string;
 
     STF_ASSERT_EQ(4, string.Size());
     STF_ASSERT_EQ(4, string2.Size());
@@ -126,8 +134,8 @@ STF_TEST(JSONString, Assignment6)
 // Test JSON text output
 STF_TEST(JSONString, Output1)
 {
-    Terra::JSON::JSONString string(std::string("Test"));
-    std::string expected = R"("Test")";
+    const Terra::JSON::JSONString string(std::string("Test"));
+    const std::string expected = R"("Test")";
 
     std::ostringstream oss;
 
@@ -139,8 +147,8 @@ STF_TEST(JSONString, Output1)
 // Test JSON text output
 STF_TEST(JSONString, Output2)
 {
-    Terra::JSON::JSONString string(std::string("Test\tString"));
-    std::string expected = R"("Test\tString")";
+    const Terra::JSON::JSONString string(std::string("Test\tString"));
+    const std::string expected = R"("Test\tString")";
 
     std::ostringstream oss;
 
@@ -153,10 +161,10 @@ STF_TEST(JSONString, Output2)
 STF_TEST(JSONString, Output3)
 {
     Terra::JSON::JSONString string(std::string("Test"));
-    (*string).push_back(char8_t(0x05));
+    (*string).push_back(static_cast<char8_t>(0x05));
     *string += u8"String";
 
-    std::string expected = R"("Test\u0005String")";
+    const std::string expected = R"("Test\u0005String")";
 
     std::ostringstream oss;
 
@@ -212,7 +220,7 @@ STF_TEST(JSONString, ToString)
     *string += u8" character";
     const std::string expected = R"("This string contains \u5C0F character")";
 
-    std::string result = string.ToString();
+    const std::string result = string.ToString();
 
     STF_ASSERT_EQ(expected, result);
 }
@@ -220,8 +228,8 @@ STF_TEST(JSONString, ToString)
 // Test for equality
 STF_TEST(JSONString, StringsEqual)
 {
-    Terra::JSON::JSONString string = u8"Sample string";
-    Terra::JSON::JSONString other_string = u8"Sample string";
+    const Terra::JSON::JSONString string = u8"Sample string";
+    const Terra::JSON::JSONString other_string = u8"Sample string";
 
     STF_ASSERT_EQ(string, other_string);
 }
@@ -229,8 +237,10 @@ STF_TEST(JSONString, StringsEqual)
 // Test for inequality
 STF_TEST(JSONString, StringsUnequal)
 {
-    Terra::JSON::JSONString string = u8"Sample string";
-    Terra::JSON::JSONString other_string = u8"Different string";
+    const Terra::JSON::JSONString string = u8"Sample string";
+    const Terra::JSON::JSONString other_string = u8"Different string";
 
     STF_ASSERT_NE(string, other_string);
 }
+
+} // namespace

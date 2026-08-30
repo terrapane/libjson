@@ -19,12 +19,15 @@
 #include <terra/json/json.h>
 #include <terra/stf/stf.h>
 
+namespace
+{
+
 using namespace Terra::JSON;
 
 // Test initialization of a JSONNumber object
 STF_TEST(JSONNumber, Constructor1)
 {
-    JSONNumber number(1);
+    const JSONNumber number(1);
 
     STF_ASSERT_FALSE(number.IsFloat());
     STF_ASSERT_TRUE(number.IsInteger());
@@ -35,7 +38,7 @@ STF_TEST(JSONNumber, Constructor1)
 // Test initialization of a JSONNumber object
 STF_TEST(JSONNumber, Constructor2)
 {
-    JSONNumber number(1.0);
+    const JSONNumber number(1.0);
 
     STF_ASSERT_TRUE(number.IsFloat());
     STF_ASSERT_FALSE(number.IsInteger());
@@ -46,7 +49,7 @@ STF_TEST(JSONNumber, Constructor2)
 // Test initialization of a JSONNumber object
 STF_TEST(JSONNumber, Assignment1)
 {
-    JSONNumber number = 1;
+    const JSONNumber number = 1;
 
     STF_ASSERT_FALSE(number.IsFloat());
     STF_ASSERT_TRUE(number.IsInteger());
@@ -57,7 +60,7 @@ STF_TEST(JSONNumber, Assignment1)
 // Test initialization of a JSONNumber object
 STF_TEST(JSONNumber, Assignment2)
 {
-    JSONNumber number = 1.0;
+    const JSONNumber number = 1.0;
 
     STF_ASSERT_TRUE(number.IsFloat());
     STF_ASSERT_FALSE(number.IsInteger());
@@ -94,8 +97,8 @@ STF_TEST(JSONNumber, Assignment4)
 // Test streaming operator for positive integer
 STF_TEST(JSONNumber, Output1)
 {
-    JSONNumber number(12345);
-    std::string expected = R"(12345)";
+    const JSONNumber number(12345);
+    const std::string expected = R"(12345)";
 
     std::ostringstream oss;
 
@@ -107,8 +110,8 @@ STF_TEST(JSONNumber, Output1)
 // Test streaming operator for negative integer
 STF_TEST(JSONNumber, Output2)
 {
-    JSONNumber number(-34);
-    std::string expected = R"(-34)";
+    const JSONNumber number(-34);
+    const std::string expected = R"(-34)";
 
     std::ostringstream oss;
 
@@ -120,8 +123,8 @@ STF_TEST(JSONNumber, Output2)
 // Test streaming operator for floating point
 STF_TEST(JSONNumber, Output3)
 {
-    JSONNumber number(1.5);
-    std::string expected = R"(1.5)";
+    const JSONNumber number(1.5);
+    const std::string expected = R"(1.5)";
 
     std::ostringstream oss;
 
@@ -133,8 +136,8 @@ STF_TEST(JSONNumber, Output3)
 // Test streaming operator for very small floating point
 STF_TEST(JSONNumber, Output4)
 {
-    JSONNumber number(-0.0000000001234);
-    std::string expected = R"(-1.234e-10)";
+    const JSONNumber number(-0.0000000001234);
+    const std::string expected = R"(-1.234e-10)";
 
     std::ostringstream oss;
 
@@ -146,8 +149,8 @@ STF_TEST(JSONNumber, Output4)
 // Test streaming operator for negative zero
 STF_TEST(JSONNumber, Output5)
 {
-    JSONNumber number(-0.0);
-    std::string expected = R"(0)";
+    const JSONNumber number(-0.0);
+    const std::string expected = R"(0)";
 
     std::ostringstream oss;
 
@@ -159,8 +162,8 @@ STF_TEST(JSONNumber, Output5)
 // Test streaming operator for zero
 STF_TEST(JSONNumber, Output6)
 {
-    JSONNumber number(0.0);
-    std::string expected = R"(0)";
+    const JSONNumber number(0.0);
+    const std::string expected = R"(0)";
 
     std::ostringstream oss;
 
@@ -172,10 +175,10 @@ STF_TEST(JSONNumber, Output6)
 // Test the ToString() function
 STF_TEST(JSONNumber, ToString)
 {
-    JSONNumber number(-34);
-    std::string expected = R"(-34)";
+    const JSONNumber number(-34);
+    const std::string expected = R"(-34)";
 
-    std::string result = number.ToString();
+    const std::string result = number.ToString();
 
     STF_ASSERT_EQ(expected, result);
 }
@@ -183,8 +186,8 @@ STF_TEST(JSONNumber, ToString)
 // Test for equality
 STF_TEST(JSONNumber, NumberEqual)
 {
-    JSONNumber number(1.5);
-    JSONNumber other_number(1.5);
+    const JSONNumber number(1.5);
+    const JSONNumber other_number(1.5);
 
     STF_ASSERT_EQ(number, other_number);
 }
@@ -192,9 +195,9 @@ STF_TEST(JSONNumber, NumberEqual)
 // Test for inequality
 STF_TEST(JSONNumber, NumberUnequal)
 {
-    JSONNumber number(1.8);
-    JSONNumber other_number(1.5);
-    JSONNumber yet_another_number(2);
+    const JSONNumber number(1.8);
+    const JSONNumber other_number(1.5);
+    const JSONNumber yet_another_number(2);
 
     STF_ASSERT_NE(number, other_number);
     STF_ASSERT_NE(number, yet_another_number);
@@ -229,3 +232,5 @@ STF_TEST(JSONNumber, ReAssignment2)
     STF_ASSERT_TRUE(number.IsFloat());
     STF_ASSERT_EQ(new_value, number.GetFloat());
 }
+
+} // namespace

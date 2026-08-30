@@ -16,16 +16,20 @@
  */
 
 #include <sstream>
+#include <string>
 #include <terra/json/json.h>
 #include <terra/stf/stf.h>
+
+namespace
+{
 
 using namespace Terra::JSON;
 
 // Test streaming operator
 STF_TEST(JSONLiteral, Output1)
 {
-    JSONLiteral literal = JSONLiteral::True;
-    std::string expected = "true";
+    const JSONLiteral literal = JSONLiteral::True;
+    const std::string expected = "true";
 
     std::ostringstream oss;
 
@@ -37,8 +41,8 @@ STF_TEST(JSONLiteral, Output1)
 // Test streaming operator
 STF_TEST(JSONLiteral, Output2)
 {
-    JSONLiteral literal = JSONLiteral::False;
-    std::string expected = "false";
+    const JSONLiteral literal = JSONLiteral::False;
+    const std::string expected = "false";
 
     std::ostringstream oss;
 
@@ -50,8 +54,8 @@ STF_TEST(JSONLiteral, Output2)
 // Test streaming operator
 STF_TEST(JSONLiteral, Output3)
 {
-    JSONLiteral literal = JSONLiteral::Null;
-    std::string expected = "null";
+    const JSONLiteral literal = JSONLiteral::Null;
+    const std::string expected = "null";
 
     std::ostringstream oss;
 
@@ -63,8 +67,8 @@ STF_TEST(JSONLiteral, Output3)
 // Test for equality
 STF_TEST(JSONLiteral, TestEquality)
 {
-    JSONLiteral literal1 = JSONLiteral::Null;
-    JSONLiteral literal2 = JSONLiteral::Null;
+    const JSONLiteral literal1 = JSONLiteral::Null;
+    const JSONLiteral literal2 = JSONLiteral::Null;
 
     STF_ASSERT_EQ(literal1, literal2);
 }
@@ -72,8 +76,10 @@ STF_TEST(JSONLiteral, TestEquality)
 // Test for inequality
 STF_TEST(JSONLiteral, TestInequality)
 {
-    JSONLiteral literal1 = JSONLiteral::Null;
-    JSONLiteral literal2 = JSONLiteral::True;
+    const JSONLiteral literal1 = JSONLiteral::Null;
+    const JSONLiteral literal2 = JSONLiteral::True;
 
     STF_ASSERT_NE(literal1, literal2);
 }
+
+} // namespace

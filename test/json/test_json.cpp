@@ -15,16 +15,24 @@
  *      None.
  */
 
+#include <cstdint>
+#include <string>
+#include <numbers>
+#include <utility>
+#include <sstream>
 #include <terra/json/json.h>
 #include <terra/json/json_parser.h>
 #include <terra/stf/stf.h>
+
+namespace
+{
 
 using namespace Terra::JSON;
 
 // Test construction / assignment with JSON object
 STF_TEST(JSON, ConstructJSON1)
 {
-    JSON json = JSONParser().Parse(R"(
+    const JSON json = JSONParser().Parse(R"(
         {
             "a": {
                 "a": 1,
@@ -40,7 +48,7 @@ STF_TEST(JSON, ConstructJSON1)
 
     STF_ASSERT_EQ(JSONValueType::Object, json.GetValueType());
 
-    JSONObject &actual = std::get<JSONObject>(*json);
+    const JSONObject &actual = std::get<JSONObject>(*json);
 
     // There should be two tag / value pairs
     STF_ASSERT_EQ(3, actual.Size());
@@ -57,9 +65,9 @@ STF_TEST(JSON, ConstructJSON1)
     STF_ASSERT_EQ(JSONValueType::Literal, actual[u8"c"].GetValueType());
 
     // Get references to the value types for a and b
-    auto &value_a = std::get<JSONObject>(*actual[u8"a"]);
-    auto &value_b = std::get<JSONString>(*actual[u8"b"]);
-    auto value_c = std::get<JSONLiteral>(*actual[u8"c"]);
+    const auto &value_a = std::get<JSONObject>(*actual[u8"a"]);
+    const auto &value_b = std::get<JSONString>(*actual[u8"b"]);
+    const auto value_c = std::get<JSONLiteral>(*actual[u8"c"]);
 
     // Now check the contents of value_a
     STF_ASSERT_EQ(3, value_a.Size());
@@ -91,21 +99,20 @@ STF_TEST(JSON, ConstructJSON1)
 // Test construction / assignment with JSON object
 STF_TEST(JSON, ConstructJSON2)
 {
-    JSON json = JSONParser().Parse("null");
+    const JSON json = JSONParser().Parse("null");
 
     STF_ASSERT_EQ(JSONValueType::Literal, json.GetValueType());
 
-    JSONLiteral actual = std::get<JSONLiteral>(*json);
+    const JSONLiteral actual = std::get<JSONLiteral>(*json);
 
     // There should be two tag / value pairs
     STF_ASSERT_EQ(JSONLiteral::Null, actual);
-
 }
 
 // Test construction
 STF_TEST(JSON, ConstructJSON3)
 {
-    JSON json(u8"Hello, World!");
+    const JSON json(u8"Hello, World!");
     const std::u8string expected = u8"Hello, World!";
 
     STF_ASSERT_EQ(JSONValueType::String, json.GetValueType());
@@ -117,10 +124,9 @@ STF_TEST(JSON, ConstructJSON3)
 // Test construction
 STF_TEST(JSON, ConstructJSON4)
 {
-    JSON json;
     const std::u8string expected = u8"Hello, Again!";
 
-    json = "Hello, Again!";
+    const JSON json = "Hello, Again!";
 
     STF_ASSERT_EQ(JSONValueType::String, json.GetValueType());
 
@@ -131,7 +137,7 @@ STF_TEST(JSON, ConstructJSON4)
 // Test construction
 STF_TEST(JSON, ConstructJSON5)
 {
-    JSON json = u8"Hello, World!";
+    const JSON json = u8"Hello, World!";
     const std::u8string expected = u8"Hello, World!";
 
     STF_ASSERT_EQ(JSONValueType::String, json.GetValueType());
@@ -143,7 +149,7 @@ STF_TEST(JSON, ConstructJSON5)
 // Test construction
 STF_TEST(JSON, ConstructJSON6)
 {
-    JSON json = "Hello, Again!";
+    const JSON json = "Hello, Again!";
     const std::u8string expected = u8"Hello, Again!";
 
     STF_ASSERT_EQ(JSONValueType::String, json.GetValueType());
@@ -155,7 +161,7 @@ STF_TEST(JSON, ConstructJSON6)
 // Test construction
 STF_TEST(JSON, ConstructJSON7)
 {
-    JSON json = 12345;
+    const JSON json = 12345;
     const std::int64_t expected = 12345;
 
     // Verify the JSON type is a number
@@ -171,8 +177,8 @@ STF_TEST(JSON, ConstructJSON7)
 // Test construction
 STF_TEST(JSON, ConstructJSON8)
 {
-    JSON json = 3.14159;
-    const double expected = 3.14159;
+    const JSON json = std::numbers::pi;
+    const double expected = std::numbers::pi;
 
     // Verify the JSON type is a number
     STF_ASSERT_EQ(JSONValueType::Number, json.GetValueType());
@@ -187,7 +193,7 @@ STF_TEST(JSON, ConstructJSON8)
 // Test construction
 STF_TEST(JSON, ConstructJSON9)
 {
-    JSON json(JSONLiteral::True);
+    const JSON json(JSONLiteral::True);
     const JSONLiteral expected = JSONLiteral::True;
 
     // Verify the JSON type is a number
@@ -200,7 +206,7 @@ STF_TEST(JSON, ConstructJSON9)
 // Test construction
 STF_TEST(JSON, ConstructJSON10)
 {
-    JSON json = JSONLiteral::True;
+    const JSON json = JSONLiteral::True;
     const JSONLiteral expected = JSONLiteral::True;
 
     // Verify the JSON type is a number
@@ -213,10 +219,9 @@ STF_TEST(JSON, ConstructJSON10)
 // Test string assignment
 STF_TEST(JSON, StringAssignment1)
 {
-    JSON json;
     const std::u8string expected = u8"Hello, World!";
 
-    json = u8"Hello, World!";
+    JSON json = u8"Hello, World!";
 
     STF_ASSERT_EQ(JSONValueType::String, json.GetValueType());
 
@@ -227,10 +232,9 @@ STF_TEST(JSON, StringAssignment1)
 // Test string assignment
 STF_TEST(JSON, StringAssignment2)
 {
-    JSON json;
     const std::u8string expected = u8"Hello, Again!";
 
-    json = "Hello, Again!";
+    const JSON json = "Hello, Again!";
 
     STF_ASSERT_EQ(JSONValueType::String, json.GetValueType());
 
@@ -241,10 +245,9 @@ STF_TEST(JSON, StringAssignment2)
 // Test number assignment
 STF_TEST(JSON, NumberAssignment1)
 {
-    JSON json;
     const std::int64_t expected = 12345;
 
-    json = expected;
+    const JSON json = expected;
 
     // Verify the JSON type is a number
     STF_ASSERT_EQ(JSONValueType::Number, json.GetValueType());
@@ -259,10 +262,9 @@ STF_TEST(JSON, NumberAssignment1)
 // Test number assignment
 STF_TEST(JSON, NumberAssignment2)
 {
-    JSON json;
-    const double expected = 3.14159;
+    const double expected = std::numbers::pi;
 
-    json = expected;
+    const JSON json = expected;
 
     // Verify the JSON type is a number
     STF_ASSERT_EQ(JSONValueType::Number, json.GetValueType());
@@ -277,10 +279,9 @@ STF_TEST(JSON, NumberAssignment2)
 // Test number assignment
 STF_TEST(JSON, JSONLiteralAssignment)
 {
-    JSON json;
     const JSONLiteral expected = JSONLiteral::True;
 
-    json = expected;
+    const JSON json = expected;
 
     // Verify the JSON type is a number
     STF_ASSERT_EQ(JSONValueType::Literal, json.GetValueType());
@@ -292,10 +293,9 @@ STF_TEST(JSON, JSONLiteralAssignment)
 // Test JSON assignment
 STF_TEST(JSON, JSONAssignment1)
 {
-    JSON json;
     const std::u8string expected = u8"Hello, World!";
 
-    json = u8"Hello, World!";
+    const JSON json = u8"Hello, World!";
 
     // Verify the right type
     STF_ASSERT_EQ(JSONValueType::String, json.GetValueType());
@@ -304,8 +304,7 @@ STF_TEST(JSON, JSONAssignment1)
     STF_ASSERT_EQ(expected, *std::get<JSONString>(*json));
 
     // Create a new object and assign it
-    JSON json2;
-    json2 = json;
+    JSON json2 = json;
 
     // Verify the right type
     STF_ASSERT_EQ(JSONValueType::String, json2.GetValueType());
@@ -317,10 +316,9 @@ STF_TEST(JSON, JSONAssignment1)
 // Test JSON assignment
 STF_TEST(JSON, JSONAssignment2)
 {
-    JSON json;
     const std::u8string expected = u8"Hello, World!";
 
-    json = u8"Hello, World!";
+    const JSON json = u8"Hello, World!";
 
     // Verify the right type
     STF_ASSERT_EQ(JSONValueType::String, json.GetValueType());
@@ -329,7 +327,8 @@ STF_TEST(JSON, JSONAssignment2)
     STF_ASSERT_EQ(expected, *std::get<JSONString>(*json));
 
     // Create a new object and assign it
-    JSON json2(json);
+    // NOLINTNEXTLINE(performance-unnecessary-copy-initialization)
+    const JSON json2(json);
 
     // Verify the right type
     STF_ASSERT_EQ(JSONValueType::String, json2.GetValueType());
@@ -363,10 +362,9 @@ STF_TEST(JSON, JSONAssignment3)
 // Test JSON assignment
 STF_TEST(JSON, JSONMove1)
 {
-    JSON json;
     const std::u8string expected = u8"Hello, World!";
 
-    json = u8"Hello, World!";
+    JSON json = u8"Hello, World!";
 
     // Verify the right type
     STF_ASSERT_EQ(JSONValueType::String, json.GetValueType());
@@ -387,10 +385,9 @@ STF_TEST(JSON, JSONMove1)
 // Test JSON assignment
 STF_TEST(JSON, JSONMove2)
 {
-    JSON json;
     const std::u8string expected = u8"Hello, World!";
 
-    json = u8"Hello, World!";
+    JSON json = u8"Hello, World!";
 
     // Verify the right type
     STF_ASSERT_EQ(JSONValueType::String, json.GetValueType());
@@ -399,7 +396,7 @@ STF_TEST(JSON, JSONMove2)
     STF_ASSERT_EQ(expected, *std::get<JSONString>(*json));
 
     // Create a new object and assign it
-    JSON json2(std::move(json));
+    const JSON json2(std::move(json));
 
     // Verify the right type
     STF_ASSERT_EQ(JSONValueType::String, json2.GetValueType());
@@ -412,7 +409,7 @@ STF_TEST(JSON, JSONMove2)
 STF_TEST(JSON, InitializerList1)
 {
     // This will initialize the array of JSON objects holding JSONNumber types
-    JSON json = JSONArray{JSONNumber(1), JSONNumber(2), JSONNumber(3)};
+    const JSON json = JSONArray{JSONNumber(1), JSONNumber(2), JSONNumber(3)};
 
     // Ensure there is an array
     STF_ASSERT_EQ(JSONValueType::Array, json.GetValueType());
@@ -425,7 +422,7 @@ STF_TEST(JSON, InitializerList1)
 STF_TEST(JSON, InitializerList2)
 {
     // This will initialize the array of JSON objects holding JSONNumber types
-    JSON json({JSONNumber(1), JSONNumber(2), JSONNumber(3)});
+    const JSON json({JSONNumber(1), JSONNumber(2), JSONNumber(3)});
 
     // Ensure there is an array
     STF_ASSERT_EQ(JSONValueType::Array, json.GetValueType());
@@ -437,7 +434,7 @@ STF_TEST(JSON, InitializerList2)
 // Test initialization via assignment
 STF_TEST(JSON, InitializerList3)
 {
-    JSON json = JSONObject{
+    const JSON json = JSONObject{
         {"Key1", JSONString("Value")},
         {"Key2", JSONNumber(25)},
         {"Key3", JSONLiteral::True},
@@ -459,7 +456,7 @@ STF_TEST(JSON, InitializerList3)
 // Test initialization via assignment
 STF_TEST(JSON, InitializerList4)
 {
-    JSON json(
+    const JSON json(
     {
         {"Key1", JSONString("Value")},
         {"Key2", JSONNumber(25)},
@@ -483,7 +480,7 @@ STF_TEST(JSON, InitializerList4)
 // Test initialization via assignment
 STF_TEST(JSON, InitializerList5)
 {
-    JSON json = {
+    const JSON json = {
     {
         {"Key1", "String Value"},
         {"Key2", 25},
@@ -508,7 +505,7 @@ STF_TEST(JSON, InitializerList5)
     STF_ASSERT_EQ(JSONValueType::Object, json.GetValueType());
 
     // Get a reference to the JSONObject type
-    auto &object = std::get<JSONObject>(*json);
+    const auto &object = std::get<JSONObject>(*json);
 
     // Verify the number of elements
     STF_ASSERT_EQ(11, (*object).size());
@@ -533,13 +530,14 @@ STF_TEST(JSON, AccessOperator1)
 {
     // This will initialize the JSON with an array of JSON objects holding
     // JSONNumber types
-    JSON json({JSONNumber(1), JSONNumber(2), JSONNumber(3)});
+    const JSON json({JSONNumber(1), JSONNumber(2), JSONNumber(3)});
 
     // Verify the JSON object holds an array
     STF_ASSERT_EQ(JSONValueType::Array, json.GetValueType());
 
     // This should return a JSON object holding a number
-    JSON item = json[1];
+    // NOLINTNEXTLINE(performance-unnecessary-copy-initialization)
+    const JSON item = json[1];
 
     // Verify that it is a number
     STF_ASSERT_EQ(JSONValueType::Number, item.GetValueType());
@@ -621,7 +619,7 @@ STF_TEST(JSON, JSONArrayAssignment)
     // Ensure the object is a JSONObject type
     STF_ASSERT_EQ(JSONValueType::Object, object.GetValueType());
 
-    JSONArray array({1, 2, 3});
+    const JSONArray array({1, 2, 3});
 
     object = array;
 
@@ -636,8 +634,8 @@ STF_TEST(JSON, JSONArrayAssignment)
 // Test streaming operator
 STF_TEST(JSON, StreamingOperator)
 {
-    JSONString some_string = "Test";
-    JSONString some_string2 = u8"Test";
+    const JSONString some_string = "Test";
+    const JSONString some_string2 = u8"Test";
     JSON json = JSONObject{
     {
         {"Key1", JSONString("Value")},
@@ -692,8 +690,8 @@ STF_TEST(JSON, StreamingOperator)
 // Test the ToString function
 STF_TEST(JSON, ToString)
 {
-    JSONString some_string = "Test";
-    JSONString some_string2 = u8"Test";
+    const JSONString some_string = "Test";
+    const JSONString some_string2 = u8"Test";
     JSON json = JSONObject{
     {
         {"Key1", JSONString("Value")},
@@ -713,10 +711,8 @@ STF_TEST(JSON, ToString)
         {"Key11", JSONArray({JSONNumber(1), JSONNumber(2)})}
     }};
 
-    std::ostringstream oss;
-
     // Produce the output
-    std::string json_string = json.ToString();
+    const std::string json_string = json.ToString();
 
     // Parse the json string produced
     json = JSONParser().Parse(json_string);
@@ -748,9 +744,9 @@ STF_TEST(JSON, ToString)
 // Test for equality
 STF_TEST(JSON, TestEquality)
 {
-    JSONString some_string = "Test";
-    JSONString some_string2 = u8"Test";
-    JSON json1 = JSONObject{
+    const JSONString some_string = "Test";
+    const JSONString some_string2 = u8"Test";
+    const JSON json1 = JSONObject{
     {
         {"Key1", JSONString("Value")},
         {"Key2", JSONNumber(25)},
@@ -770,7 +766,7 @@ STF_TEST(JSON, TestEquality)
     }};
 
     // Same data as above, but just re-ordered
-    JSON json2 = JSONObject{
+    const JSON json2 = JSONObject{
     {
         {"Key2", JSONNumber(25)},
         {"Key1", JSONString("Value")},
@@ -795,9 +791,9 @@ STF_TEST(JSON, TestEquality)
 // Test for inequality
 STF_TEST(JSON, TestInequality)
 {
-    JSONString some_string = "Test";
-    JSONString some_string2 = u8"Test";
-    JSON json1 = JSONObject{
+    const JSONString some_string = "Test";
+    const JSONString some_string2 = u8"Test";
+    const JSON json1 = JSONObject{
     {
         {"Key1", JSONString("Value")},
         {"Key2", JSONNumber(25)},
@@ -817,7 +813,7 @@ STF_TEST(JSON, TestInequality)
     }};
 
     // Same data as above, but changed slightly
-    JSON json2 = JSONObject{
+    const JSON json2 = JSONObject{
     {
         {"Key1", JSONString("Value")},
         {"Key2", JSONNumber(25)},
@@ -838,3 +834,5 @@ STF_TEST(JSON, TestInequality)
 
     STF_ASSERT_NE(json1, json2);
 }
+
+} // namespace

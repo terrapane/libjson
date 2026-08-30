@@ -15,9 +15,17 @@
  *      None.
  */
 
+#include <cstdint>
+#include <string>
+#include <variant>
+#include <utility>
 #include <terra/json/json.h>
 #include <terra/json/json_parser.h>
+#include <terra/json/json_exception.h>
 #include <terra/stf/stf.h>
+
+namespace
+{
 
 using namespace Terra::JSON;
 
@@ -59,7 +67,7 @@ STF_TEST(JSONParser, ParseWhitespaceString)
 STF_TEST(JSONParser, ParseString1)
 {
     JSONParser json_parser;
-    std::string json_text = R"(
+    const std::string json_text = R"(
         "This is a string"
     )";
     const std::u8string expected = u8"This is a string";
@@ -77,7 +85,7 @@ STF_TEST(JSONParser, ParseString1)
 STF_TEST(JSONParser, ParseStringBMPCharacter1)
 {
     JSONParser json_parser;
-    std::string json_text = R"("This string contains \u5C0F character")";
+    const std::string json_text = R"("This string contains \u5C0F character")";
     std::u8string expected = u8"This string contains ";
     expected.push_back(0xe5);
     expected.push_back(0xb0);
@@ -97,7 +105,7 @@ STF_TEST(JSONParser, ParseStringBMPCharacter1)
 STF_TEST(JSONParser, ParseStringBMPCharacter2)
 {
     JSONParser json_parser;
-    std::string json_text = R"("This string contains \u00a9 character")";
+    const std::string json_text = R"("This string contains \u00a9 character")";
     std::u8string expected = u8"This string contains ";
     expected.push_back(0xc2);
     expected.push_back(0xa9);
@@ -116,8 +124,8 @@ STF_TEST(JSONParser, ParseStringBMPCharacter2)
 STF_TEST(JSONParser, ParseStringBMPCharacter3)
 {
     JSONParser json_parser;
-    std::string json_text = R"("This string contains \u0040 character")";
-    std::u8string expected = u8"This string contains @ character";
+    const std::string json_text = R"("This string contains \u0040 character")";
+    const std::u8string expected = u8"This string contains @ character";
 
     JSON result = json_parser.Parse(json_text);
 
@@ -132,7 +140,7 @@ STF_TEST(JSONParser, ParseStringBMPCharacter3)
 STF_TEST(JSONParser, ParseStringUnicodeSurrogates)
 {
     JSONParser json_parser;
-    std::string json_text = R"("This string contains \uD83D\uDE01 character")";
+    const std::string json_text = R"("This string contains \uD83D\uDE01 character")";
     std::u8string expected = u8"This string contains ";
     expected.push_back(0xf0);
     expected.push_back(0x9f);
@@ -153,7 +161,7 @@ STF_TEST(JSONParser, ParseStringUnicodeSurrogates)
 STF_TEST(JSONParser, ParseStringUnicodeSurrogatesLowercase)
 {
     JSONParser json_parser;
-    std::string json_text = R"("This string contains \ud83d\ude01 character")";
+    const std::string json_text = R"("This string contains \ud83d\ude01 character")";
     std::u8string expected = u8"This string contains ";
     expected.push_back(0xf0);
     expected.push_back(0x9f);
@@ -174,7 +182,7 @@ STF_TEST(JSONParser, ParseStringUnicodeSurrogatesLowercase)
 STF_TEST(JSONParser, ParseStringUnicodeSurrogatesStart)
 {
     JSONParser json_parser;
-    std::string json_text = R"("\uD83D\uDE01 character")";
+    const std::string json_text = R"("\uD83D\uDE01 character")";
     std::u8string expected;
     expected.push_back(0xf0);
     expected.push_back(0x9f);
@@ -195,7 +203,7 @@ STF_TEST(JSONParser, ParseStringUnicodeSurrogatesStart)
 STF_TEST(JSONParser, ParseStringUnicodeSurrogatesEnd)
 {
     JSONParser json_parser;
-    std::string json_text = R"("This string contains \uD83D\uDE01")";
+    const std::string json_text = R"("This string contains \uD83D\uDE01")";
     std::u8string expected = u8"This string contains ";
     expected.push_back(0xf0);
     expected.push_back(0x9f);
@@ -215,7 +223,7 @@ STF_TEST(JSONParser, ParseStringUnicodeSurrogatesEnd)
 STF_TEST(JSONParser, ParseNumber1)
 {
     JSONParser json_parser;
-    std::string json_text = R"(
+    const std::string json_text = R"(
         123
     )";
     const std::int64_t expected = 123;
@@ -237,7 +245,7 @@ STF_TEST(JSONParser, ParseNumber1)
 STF_TEST(JSONParser, ParseNumber2)
 {
     JSONParser json_parser;
-    std::string json_text = R"(
+    const std::string json_text = R"(
         -345
     )";
     const std::int64_t expected = -345;
@@ -259,7 +267,7 @@ STF_TEST(JSONParser, ParseNumber2)
 STF_TEST(JSONParser, ParseNumber3)
 {
     JSONParser json_parser;
-    std::string json_text = R"(
+    const std::string json_text = R"(
         2.5
     )";
     const double expected = 2.5;
@@ -281,7 +289,7 @@ STF_TEST(JSONParser, ParseNumber3)
 STF_TEST(JSONParser, ParseNumber4)
 {
     JSONParser json_parser;
-    std::string json_text = R"(
+    const std::string json_text = R"(
         1.7e+09
     )";
     const double expected = 1.7e+09;
@@ -303,7 +311,7 @@ STF_TEST(JSONParser, ParseNumber4)
 STF_TEST(JSONParser, ParseNumber5)
 {
     JSONParser json_parser;
-    std::string json_text = R"(
+    const std::string json_text = R"(
         -31.27e+29
     )";
     const double expected = -31.27e+29;
@@ -325,7 +333,7 @@ STF_TEST(JSONParser, ParseNumber5)
 STF_TEST(JSONParser, ParseNumber6)
 {
     JSONParser json_parser;
-    std::string json_text = R"(
+    const std::string json_text = R"(
         31.27e-29
     )";
     const double expected = 31.27e-29;
@@ -347,13 +355,13 @@ STF_TEST(JSONParser, ParseNumber6)
 STF_TEST(JSONParser, ParseObject1)
 {
     JSONParser json_parser;
-    std::string json_text = "{}";
+    const std::string json_text = "{}";
 
     JSON result = json_parser.Parse(json_text);
 
     STF_ASSERT_EQ(JSONValueType::Object, result.GetValueType());
 
-    JSONObject &actual = std::get<JSONObject>(*result);
+    const JSONObject &actual = std::get<JSONObject>(*result);
 
     // There should be two tag / value pairs
     STF_ASSERT_EQ(0, actual.Size());
@@ -363,7 +371,7 @@ STF_TEST(JSONParser, ParseObject1)
 STF_TEST(JSONParser, ParseObject2)
 {
     JSONParser json_parser;
-    std::string json_text = R"(
+    const std::string json_text = R"(
         {
             "a": 1,
             "b": 2
@@ -405,7 +413,7 @@ STF_TEST(JSONParser, ParseObject2)
 STF_TEST(JSONParser, ParseObject3)
 {
     JSONParser json_parser;
-    std::u8string json_text = u8R"(
+    const std::u8string json_text = u8R"(
         {
             "a": {
                 "a": 1,
@@ -467,13 +475,13 @@ STF_TEST(JSONParser, ParseObject3)
 STF_TEST(JSONParser, ParseArray1)
 {
     JSONParser json_parser;
-    std::u8string json_text = u8"[]";
+    const std::u8string json_text = u8"[]";
 
     JSON result = json_parser.Parse(json_text);
 
     STF_ASSERT_EQ(JSONValueType::Array, result.GetValueType());
 
-    JSONArray &actual = std::get<JSONArray>(*result);
+    const JSONArray &actual = std::get<JSONArray>(*result);
 
     // There should be two tag / value pairs
     STF_ASSERT_EQ(0, actual.Size());
@@ -483,7 +491,7 @@ STF_TEST(JSONParser, ParseArray1)
 STF_TEST(JSONParser, ParseArray2)
 {
     JSONParser json_parser;
-    std::u8string json_text = u8R"(
+    const std::u8string json_text = u8R"(
         [ 1, "This is a string", true, 2, { "": false } ]
     )";
 
@@ -491,7 +499,7 @@ STF_TEST(JSONParser, ParseArray2)
 
     STF_ASSERT_EQ(JSONValueType::Array, result.GetValueType());
 
-    JSONArray &actual = std::get<JSONArray>(*result);
+    const JSONArray &actual = std::get<JSONArray>(*result);
 
     // There should be two tag / value pairs
     STF_ASSERT_EQ(5, actual.Size());
@@ -508,16 +516,16 @@ STF_TEST(JSONParser, ParseArray2)
 STF_TEST(JSONParser, ParseLiteral1)
 {
     JSONParser json_parser;
-    std::string json_text = R"(
+    const std::string json_text = R"(
         true
     )";
     const JSONLiteral expected = JSONLiteral::True;
 
-    JSON result = json_parser.Parse(json_text);
+    const JSON result = json_parser.Parse(json_text);
 
     STF_ASSERT_EQ(JSONValueType::Literal, result.GetValueType());
 
-    JSONLiteral &actual = std::get<JSONLiteral>(*result);
+    const JSONLiteral &actual = std::get<JSONLiteral>(*result);
 
     STF_ASSERT_EQ(expected, actual);
 }
@@ -526,16 +534,16 @@ STF_TEST(JSONParser, ParseLiteral1)
 STF_TEST(JSONParser, ParseLiteral2)
 {
     JSONParser json_parser;
-    std::string json_text = R"(
+    const std::string json_text = R"(
         false
     )";
     const JSONLiteral expected = JSONLiteral::False;
 
-    JSON result = json_parser.Parse(json_text);
+    const JSON result = json_parser.Parse(json_text);
 
     STF_ASSERT_EQ(JSONValueType::Literal, result.GetValueType());
 
-    JSONLiteral &actual = std::get<JSONLiteral>(*result);
+    const JSONLiteral &actual = std::get<JSONLiteral>(*result);
 
     STF_ASSERT_EQ(expected, actual);
 }
@@ -544,16 +552,16 @@ STF_TEST(JSONParser, ParseLiteral2)
 STF_TEST(JSONParser, ParseLiteral3)
 {
     JSONParser json_parser;
-    std::string json_text = R"(
+    const std::string json_text = R"(
         null
     )";
     const JSONLiteral expected = JSONLiteral::Null;
 
-    JSON result = json_parser.Parse(json_text);
+    const JSON result = json_parser.Parse(json_text);
 
     STF_ASSERT_EQ(JSONValueType::Literal, result.GetValueType());
 
-    JSONLiteral &actual = std::get<JSONLiteral>(*result);
+    const JSONLiteral &actual = std::get<JSONLiteral>(*result);
 
     STF_ASSERT_EQ(expected, actual);
 }
@@ -562,7 +570,7 @@ STF_TEST(JSONParser, ParseLiteral3)
 STF_TEST(JSONParser, ParseLiteral4)
 {
     JSONParser json_parser;
-    std::string json_text = R"(
+    const std::string json_text = R"(
         flawed
     )";
 
@@ -575,7 +583,7 @@ STF_TEST(JSONParser, ParseLiteral4)
 STF_TEST(JSONParser, ParseLiteral5)
 {
     JSONParser json_parser;
-    std::string json_text = R"(
+    const std::string json_text = R"(
         unknown
     )";
 
@@ -588,11 +596,11 @@ STF_TEST(JSONParser, ParseLiteral5)
 STF_TEST(JSONParser, JSONCopy)
 {
     JSONParser json_parser;
-    std::u8string json_text = u8R"(
+    const std::u8string json_text = u8R"(
         [ 1, "This is a string", true, 2, { "": false } ]
     )";
 
-    JSON result = json_parser.Parse(json_text);
+    const JSON result = json_parser.Parse(json_text);
 
     STF_ASSERT_EQ(JSONValueType::Array, result.GetValueType());
 
@@ -600,7 +608,8 @@ STF_TEST(JSONParser, JSONCopy)
     STF_ASSERT_EQ(5, std::get<JSONArray>(*result).Size());
 
     // Copy the JSON object
-    JSON result_copy = result;
+    // NOLINTNEXTLINE(performance-unnecessary-copy-initialization)
+    const JSON result_copy = result;
 
     // There should be 5 elements in the original and duplicate
     STF_ASSERT_EQ(5, std::get<JSONArray>(*result).Size());
@@ -611,7 +620,7 @@ STF_TEST(JSONParser, JSONCopy)
 STF_TEST(JSONParser, JSONMove)
 {
     JSONParser json_parser;
-    std::u8string json_text = u8R"(
+    const std::u8string json_text = u8R"(
         [ 1, "This is a string", true, 2, { "": false } ]
     )";
 
@@ -624,7 +633,7 @@ STF_TEST(JSONParser, JSONMove)
     STF_ASSERT_EQ(5, std::get<JSONArray>(*result).Size());
 
     // Move the JSON object
-    JSON result_copy(std::move(result));
+    const JSON result_copy(std::move(result));
 
     // There should be 5 elements in the array
     STF_ASSERT_EQ(5, std::get<JSONArray>(*result_copy).Size());
@@ -683,8 +692,8 @@ STF_TEST(JSONParser, TestEquality)
   }
 })";
 
-    JSON result1 = JSONParser().Parse(json1);
-    JSON result2 = JSONParser().Parse(json2);
+    const JSON result1 = JSONParser().Parse(json1);
+    const JSON result2 = JSONParser().Parse(json2);
 
     STF_ASSERT_EQ(result1, result2);
 }
@@ -743,8 +752,8 @@ STF_TEST(JSONParser, TestInequality)
   }
 })";
 
-    JSON result1 = JSONParser().Parse(json1);
-    JSON result2 = JSONParser().Parse(json2);
+    const JSON result1 = JSONParser().Parse(json1);
+    const JSON result2 = JSONParser().Parse(json2);
 
     STF_ASSERT_NE(result1, result2);
 }
@@ -755,7 +764,7 @@ STF_TEST(JSONParser, ParseSyntaxError1)
     std::string error_string;
     JSONParser json_parser;
 
-    std::u8string json_text = u8R"(
+    const std::u8string json_text = u8R"(
         [ 1, "This is a string", true 2, { "": false } ]
     )";
 
@@ -781,7 +790,7 @@ STF_TEST(JSONParser, ParseSyntaxError2)
     std::string error_string;
 
     JSONParser json_parser;
-    std::u8string json_text = u8R"(
+    const std::u8string json_text = u8R"(
         [ 1, "This is a string", true, { x } ]
     )";
 
@@ -807,7 +816,7 @@ STF_TEST(JSONParser, ParseSyntaxError3)
     std::string error_string;
 
     JSONParser json_parser;
-    std::u8string json_text = u8R"(
+    const std::u8string json_text = u8R"(
         [ 1, "This
         is a string", true, { x } ]
     )";
@@ -827,3 +836,5 @@ STF_TEST(JSONParser, ParseSyntaxError3)
                   std::string("JSON parsing error at line 1, column 18: "
                               "Illegal control character in string"));
 }
+
+} // namespace

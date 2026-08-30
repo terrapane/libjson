@@ -15,17 +15,21 @@
  *      None.
  */
 
+#include <sstream>
 #include <terra/json/json.h>
 #include <terra/json/json_parser.h>
 #include <terra/stf/stf.h>
+
+namespace
+{
 
 using namespace Terra::JSON;
 
 // Test basic construction
 STF_TEST(JSONObject, Construction1)
 {
-    JSONObject object1({{"key", "Value"}});
-    JSONObject object2 = {{"key", "Value"}};
+    const JSONObject object1({{"key", "Value"}});
+    const JSONObject object2 = {{"key", "Value"}};
 
     STF_ASSERT_EQ(1, object1.Size());
     STF_ASSERT_EQ(1, object2.Size());
@@ -34,7 +38,7 @@ STF_TEST(JSONObject, Construction1)
 // Test initializer list
 STF_TEST(JSONObject, InitializerList1)
 {
-    JSONObject object =
+    const JSONObject object =
     {
         {u8"Key1", "Value"},
         {u8"Key2", 25},
@@ -57,9 +61,9 @@ STF_TEST(JSONObject, InitializerList1)
 // Test initializer list
 STF_TEST(JSONObject, InitializerList2)
 {
-    JSONString some_string = "Test";
-    JSONString some_string2 = u8"Test";
-    JSONObject object =
+    const JSONString some_string = "Test";
+    const JSONString some_string2 = u8"Test";
+    const JSONObject object =
     {
         {"Key1", "Value"},
         {"Key2", 25},
@@ -179,7 +183,7 @@ STF_TEST(JSONObject, Output1)
 
     object["Key"] = "Some string";
 
-    std::string expected = R"({"Key": "Some string"})";
+    const std::string expected = R"({"Key": "Some string"})";
 
     std::ostringstream oss;
 
@@ -195,7 +199,7 @@ STF_TEST(JSONObject, Output2)
 
     object["Key"] = {1, 2};
 
-    std::string expected = R"({"Key": [1, 2]})";
+    const std::string expected = R"({"Key": [1, 2]})";
 
     std::ostringstream oss;
 
@@ -207,8 +211,8 @@ STF_TEST(JSONObject, Output2)
 // Test streaming operator
 STF_TEST(JSONObject, Output3)
 {
-    JSONString some_string = "Test";
-    JSONString some_string2 = u8"Test";
+    const JSONString some_string = "Test";
+    const JSONString some_string2 = u8"Test";
     JSONObject object =
     {
         {"Key1", "Value"},
@@ -268,9 +272,9 @@ STF_TEST(JSONObject, ToString)
 
     object["Key"] = {1, 2};
 
-    std::string expected = R"({"Key": [1, 2]})";
+    const std::string expected = R"({"Key": [1, 2]})";
 
-    std::string result = object.ToString();
+    const std::string result = object.ToString();
 
     STF_ASSERT_EQ(expected, result);
 }
@@ -278,9 +282,9 @@ STF_TEST(JSONObject, ToString)
 // Test for equality
 STF_TEST(JSONObject, TestEquality)
 {
-    JSONString some_string = "Test";
-    JSONString some_string2 = u8"Test";
-    JSONObject object1 =
+    const JSONString some_string = "Test";
+    const JSONString some_string2 = u8"Test";
+    const JSONObject object1 =
     {
         {"Key1", "Value"},
         {"Key2", 25},
@@ -302,7 +306,7 @@ STF_TEST(JSONObject, TestEquality)
     };
 
     // Minor changes that should be equal
-    JSONObject object2 =
+    const JSONObject object2 =
     {
         {"Key1", "Value"},
         {"Key3", some_string},
@@ -329,9 +333,9 @@ STF_TEST(JSONObject, TestEquality)
 // Test for inequality
 STF_TEST(JSONObject, TestInequality)
 {
-    JSONString some_string = "Test";
-    JSONString some_string2 = u8"Test";
-    JSONObject object1 =
+    const JSONString some_string = "Test";
+    const JSONString some_string2 = u8"Test";
+    const JSONObject object1 =
     {
         {"Key1", "Value"},
         {"Key2", 25},
@@ -353,7 +357,7 @@ STF_TEST(JSONObject, TestInequality)
     };
 
     // Minor changes that should be equal
-    JSONObject object2 =
+    const JSONObject object2 =
     {
         {"Key1", "Value"},
         {"Key2", 25},
@@ -423,3 +427,5 @@ STF_TEST(JSONObject, NonConstIterator)
 
     STF_ASSERT_EQ(9, sum);
 }
+
+} // namespace

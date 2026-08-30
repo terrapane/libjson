@@ -19,9 +19,15 @@
  */
 
 #include <algorithm>
+#include <string>
+#include <iterator>
+#include <sstream>
 #include <terra/json/json.h>
 #include <terra/json/json_formatter.h>
 #include <terra/stf/stf.h>
+
+namespace
+{
 
 using namespace Terra::JSON;
 
@@ -29,14 +35,13 @@ STF_TEST(JSONFormatter, JSONLiteral)
 {
     std::string expected;
     std::string result;
-    JSON json = JSONLiteral::False;
+    const JSON json = JSONLiteral::False;
     const std::string expected_raw = R"(false)";
 
     // Produce the expected string having no \r characters
-    std::copy_if(expected_raw.begin(),
-                 expected_raw.end(),
-                 std::back_inserter(expected),
-                 [](char c) { return c != '\r'; });
+    std::ranges::copy_if(expected_raw,
+                         std::back_inserter(expected),
+                         [](char c) { return c != '\r'; });
 
     std::ostringstream oss;
 
@@ -47,10 +52,9 @@ STF_TEST(JSONFormatter, JSONLiteral)
     std::string formatted_string = JSONFormatter().Print(oss.str());
 
     // Produce the result string without \r characters
-    std::copy_if(formatted_string.begin(),
-                 formatted_string.end(),
-                 std::back_inserter(result),
-                 [](char c) { return c != '\r'; });
+    std::ranges::copy_if(formatted_string,
+                         std::back_inserter(result),
+                         [](char c) { return c != '\r'; });
 
     STF_ASSERT_EQ(expected, result);
 }
@@ -59,14 +63,13 @@ STF_TEST(JSONFormatter, JSONNumber)
 {
     std::string expected;
     std::string result;
-    JSON json = -2.5;
+    const JSON json = -2.5;
     const std::string expected_raw = R"(-2.5)";
 
     // Produce the expected string having no \r characters
-    std::copy_if(expected_raw.begin(),
-                 expected_raw.end(),
-                 std::back_inserter(expected),
-                 [](char c) { return c != '\r'; });
+    std::ranges::copy_if(expected_raw,
+                         std::back_inserter(expected),
+                         [](char c) { return c != '\r'; });
 
     std::ostringstream oss;
 
@@ -77,10 +80,9 @@ STF_TEST(JSONFormatter, JSONNumber)
     std::string formatted_string = JSONFormatter().Print(oss.str());
 
     // Produce the result string without \r characters
-    std::copy_if(formatted_string.begin(),
-                 formatted_string.end(),
-                 std::back_inserter(result),
-                 [](char c) { return c != '\r'; });
+    std::ranges::copy_if(formatted_string,
+                         std::back_inserter(result),
+                         [](char c) { return c != '\r'; });
 
     STF_ASSERT_EQ(expected, result);
 }
@@ -89,14 +91,13 @@ STF_TEST(JSONFormatter, JSONString)
 {
     std::string expected;
     std::string result;
-    JSON json = "some string";
+    const JSON json = "some string";
     const std::string expected_raw = R"("some string")";
 
     // Produce the expected string having no \r characters
-    std::copy_if(expected_raw.begin(),
-                 expected_raw.end(),
-                 std::back_inserter(expected),
-                 [](char c) { return c != '\r'; });
+    std::ranges::copy_if(expected_raw,
+                         std::back_inserter(expected),
+                         [](char c) { return c != '\r'; });
 
     std::ostringstream oss;
 
@@ -107,10 +108,9 @@ STF_TEST(JSONFormatter, JSONString)
     std::string formatted_string = JSONFormatter().Print(oss.str());
 
     // Produce the result string without \r characters
-    std::copy_if(formatted_string.begin(),
-                 formatted_string.end(),
-                 std::back_inserter(result),
-                 [](char c) { return c != '\r'; });
+    std::ranges::copy_if(formatted_string,
+                         std::back_inserter(result),
+                         [](char c) { return c != '\r'; });
 
     STF_ASSERT_EQ(expected, result);
 }
@@ -120,9 +120,9 @@ STF_TEST(JSONFormatter, JSONObject1)
 {
     std::string expected;
     std::string result;
-    JSONString some_string = "Test";
-    JSONString some_string2 = u8"Test";
-    std::string json = R"({"Key11": [1, 2], "Key10": null, "Key9": 10, "Key6": "Hello", "Key8": 5.3, "Key5": {"Key2": "bar", "Key1": "foo"}, "Key4": "Test", "Key3": "Test", "Key2": 25, "Key7": "Hello", "Key1": "Value"})";
+    const JSONString some_string = "Test";
+    const JSONString some_string2 = u8"Test";
+    const std::string json = R"({"Key11": [1, 2], "Key10": null, "Key9": 10, "Key6": "Hello", "Key8": 5.3, "Key5": {"Key2": "bar", "Key1": "foo"}, "Key4": "Test", "Key3": "Test", "Key2": 25, "Key7": "Hello", "Key1": "Value"})";
     const std::string expected_raw = R"({
     "Key11": [
         1,
@@ -144,19 +144,17 @@ STF_TEST(JSONFormatter, JSONObject1)
 })";
 
     // Produce the expected string having no \r characters
-    std::copy_if(expected_raw.begin(),
-                 expected_raw.end(),
-                 std::back_inserter(expected),
-                 [](char c) { return c != '\r'; });
+    std::ranges::copy_if(expected_raw,
+                         std::back_inserter(expected),
+                         [](char c) { return c != '\r'; });
 
     // Produce a formatted string (NOTE: Uses 4 space indentions)
-    std::string formatted_string = JSONFormatter(4).Print(json);
+    const std::string formatted_string = JSONFormatter(4).Print(json);
 
     // Produce the result string without \r characters
-    std::copy_if(formatted_string.begin(),
-                 formatted_string.end(),
-                 std::back_inserter(result),
-                 [](char c) { return c != '\r'; });
+    std::ranges::copy_if(formatted_string,
+                         std::back_inserter(result),
+                         [](char c) { return c != '\r'; });
 
     STF_ASSERT_EQ(expected, result);
 }
@@ -166,9 +164,9 @@ STF_TEST(JSONFormatter, JSONObject2)
 {
     std::string expected;
     std::string result;
-    JSONString some_string = "Test";
-    JSONString some_string2 = u8"Test";
-    JSON json = JSONObject{
+    const JSONString some_string = "Test";
+    const JSONString some_string2 = u8"Test";
+    const JSON json = JSONObject{
     {
         {"Key2", JSONNumber(25)},
         {"Key7", u8"Hello"},
@@ -207,10 +205,9 @@ STF_TEST(JSONFormatter, JSONObject2)
 })";
 
     // Produce the expected string having no \r characters
-    std::copy_if(expected_raw.begin(),
-                 expected_raw.end(),
-                 std::back_inserter(expected),
-                 [](char c) { return c != '\r'; });
+    std::ranges::copy_if(expected_raw,
+                         std::back_inserter(expected),
+                         [](char c) { return c != '\r'; });
 
     std::ostringstream oss;
 
@@ -221,10 +218,9 @@ STF_TEST(JSONFormatter, JSONObject2)
     std::string formatted_string = JSONFormatter(4).Print(oss.str());
 
     // Produce the result string without \r characters
-    std::copy_if(formatted_string.begin(),
-                 formatted_string.end(),
-                 std::back_inserter(result),
-                 [](char c) { return c != '\r'; });
+    std::ranges::copy_if(formatted_string,
+                         std::back_inserter(result),
+                         [](char c) { return c != '\r'; });
 
     STF_ASSERT_EQ(expected, result);
 }
@@ -233,7 +229,7 @@ STF_TEST(JSONFormatter, JSONArray1)
 {
     std::string expected;
     std::string result;
-    JSONArray json({JSONNumber(1), JSONNumber(2), JSONNumber(3)});
+    const JSONArray json({JSONNumber(1), JSONNumber(2), JSONNumber(3)});
     const std::string expected_raw = R"([
   1,
   2,
@@ -241,10 +237,9 @@ STF_TEST(JSONFormatter, JSONArray1)
 ])";
 
     // Produce the expected string having no \r characters
-    std::copy_if(expected_raw.begin(),
-                 expected_raw.end(),
-                 std::back_inserter(expected),
-                 [](char c) { return c != '\r'; });
+    std::ranges::copy_if(expected_raw,
+                         std::back_inserter(expected),
+                         [](char c) { return c != '\r'; });
 
     std::ostringstream oss;
 
@@ -255,10 +250,9 @@ STF_TEST(JSONFormatter, JSONArray1)
     std::string formatted_string = JSONFormatter().Print(oss.str());
 
     // Produce the result string without \r characters
-    std::copy_if(formatted_string.begin(),
-                 formatted_string.end(),
-                 std::back_inserter(result),
-                 [](char c) { return c != '\r'; });
+    std::ranges::copy_if(formatted_string,
+                         std::back_inserter(result),
+                         [](char c) { return c != '\r'; });
 
     STF_ASSERT_EQ(expected, result);
 }
@@ -267,9 +261,9 @@ STF_TEST(JSONFormatter, JSONArray2)
 {
     std::string expected;
     std::string result;
-    JSONString some_string = "Test";
-    JSONString some_string2 = u8"Test";
-    JSONObject json_object{
+    const JSONString some_string = "Test";
+    const JSONString some_string2 = u8"Test";
+    const JSONObject json_object{
     {
         {"Key2", JSONNumber(25)},
         {"Key7", u8"Hello"},
@@ -287,7 +281,7 @@ STF_TEST(JSONFormatter, JSONArray2)
                             {u8"Key1", JSONString("foo")}
                         })}
     }};
-    JSONArray json({JSONNumber(1), json_object, JSONNumber(3)});
+    const JSONArray json({JSONNumber(1), json_object, JSONNumber(3)});
     const std::string expected_raw = R"([
   1,
   {
@@ -313,10 +307,9 @@ STF_TEST(JSONFormatter, JSONArray2)
 ])";
 
     // Produce the expected string having no \r characters
-    std::copy_if(expected_raw.begin(),
-                 expected_raw.end(),
-                 std::back_inserter(expected),
-                 [](char c) { return c != '\r'; });
+    std::ranges::copy_if(expected_raw,
+                         std::back_inserter(expected),
+                         [](char c) { return c != '\r'; });
 
     std::ostringstream oss;
 
@@ -327,10 +320,9 @@ STF_TEST(JSONFormatter, JSONArray2)
     std::string formatted_string = JSONFormatter().Print(oss.str());
 
     // Produce the result string without \r characters
-    std::copy_if(formatted_string.begin(),
-                 formatted_string.end(),
-                 std::back_inserter(result),
-                 [](char c) { return c != '\r'; });
+    std::ranges::copy_if(formatted_string,
+                         std::back_inserter(result),
+                         [](char c) { return c != '\r'; });
 
     STF_ASSERT_EQ(expected, result);
 }
@@ -340,9 +332,9 @@ STF_TEST(JSONFormatter, JSONArray3)
 {
     std::string expected;
     std::string result;
-    JSONString some_string = "Test";
-    JSONString some_string2 = u8"Test";
-    JSONObject json_object{
+    const JSONString some_string = "Test";
+    const JSONString some_string2 = u8"Test";
+    const JSONObject json_object{
     {
         {"Key2", JSONNumber(25)},
         {"Key7", u8"Hello"},
@@ -360,7 +352,7 @@ STF_TEST(JSONFormatter, JSONArray3)
                             {u8"Key1", JSONString("foo")}
                         })}
     }};
-    JSON json({JSONNumber(1), json_object, JSONNumber(3)});
+    const JSON json({JSONNumber(1), json_object, JSONNumber(3)});
     const std::string expected_raw = R"([
   1,
   {
@@ -386,19 +378,17 @@ STF_TEST(JSONFormatter, JSONArray3)
 ])";
 
     // Produce the expected string having no \r characters
-    std::copy_if(expected_raw.begin(),
-                 expected_raw.end(),
-                 std::back_inserter(expected),
-                 [](char c) { return c != '\r'; });
+    std::ranges::copy_if(expected_raw,
+                         std::back_inserter(expected),
+                         [](char c) { return c != '\r'; });
 
     // Produce a formatted string (passing the JSON object directly)
     std::string formatted_string = JSONFormatter().Print(json);
 
     // Produce the result string without \r characters
-    std::copy_if(formatted_string.begin(),
-                 formatted_string.end(),
-                 std::back_inserter(result),
-                 [](char c) { return c != '\r'; });
+    std::ranges::copy_if(formatted_string,
+                         std::back_inserter(result),
+                         [](char c) { return c != '\r'; });
 
     STF_ASSERT_EQ(expected, result);
 }
@@ -408,9 +398,9 @@ STF_TEST(JSONFormatter, JSONArray4)
 {
     std::string expected;
     std::string result;
-    JSONString some_string = "Test";
-    JSONString some_string2 = u8"Test";
-    JSONObject json_object{
+    const JSONString some_string = "Test";
+    const JSONString some_string2 = u8"Test";
+    const JSONObject json_object{
     {
         {"Key2", JSONNumber(25)},
         {"Key7", u8"Hello"},
@@ -428,7 +418,7 @@ STF_TEST(JSONFormatter, JSONArray4)
                             {u8"Key1", JSONString("foo")}
                         })}
     }};
-    JSON json({JSONNumber(1), json_object, JSONNumber(3)});
+    const JSON json({JSONNumber(1), json_object, JSONNumber(3)});
     const std::string expected_raw = R"([
   1,
   {
@@ -456,19 +446,17 @@ STF_TEST(JSONFormatter, JSONArray4)
 ])";
 
     // Produce the expected string having no \r characters
-    std::copy_if(expected_raw.begin(),
-                 expected_raw.end(),
-                 std::back_inserter(expected),
-                 [](char c) { return c != '\r'; });
+    std::ranges::copy_if(expected_raw,
+                         std::back_inserter(expected),
+                         [](char c) { return c != '\r'; });
 
     // Produce a formatted string (passing the JSON object directly)
-    std::string formatted_string = JSONFormatter(2, true).Print(json);
+    const std::string formatted_string = JSONFormatter(2, true).Print(json);
 
     // Produce the result string without \r characters
-    std::copy_if(formatted_string.begin(),
-                 formatted_string.end(),
-                 std::back_inserter(result),
-                 [](char c) { return c != '\r'; });
+    std::ranges::copy_if(formatted_string,
+                         std::back_inserter(result),
+                         [](char c) { return c != '\r'; });
 
     STF_ASSERT_EQ(expected, result);
 }
@@ -524,7 +512,9 @@ STF_TEST(JSONFormatter, SampleJSON)
   }
 })";
 
-    std::string formatted_string = JSONFormatter().Print(sample_json);
+    const std::string formatted_string = JSONFormatter().Print(sample_json);
 
     STF_ASSERT_EQ(expected, formatted_string);
 }
+
+} // namespace
