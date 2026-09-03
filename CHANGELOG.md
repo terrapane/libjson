@@ -5,6 +5,7 @@ v1.1.2
 - Changed how the check for std::format is performed
 - Updated dependencies
 - Added clang-tidy support for unit tests
+- Added constructors, destructors, and assignment operators to various classes
 
 v1.1.1
 
