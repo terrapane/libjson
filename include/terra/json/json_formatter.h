@@ -52,6 +52,40 @@ class JSONFormatter
             column{}
         {
         }
+        JSONFormatter(const JSONFormatter &other) = default;
+        JSONFormatter(JSONFormatter &&other) noexcept :
+            o{other.o},
+            indention{other.indention},
+            current_indention{other.current_indention},
+            allman_style{other.allman_style},
+            p{other.p},
+            q{other.q},
+            line{other.line},
+            column{other.column},
+            composite_context{std::move(other.composite_context)}
+        {
+            other.o = nullptr;
+        }
+        ~JSONFormatter() = default;
+
+        JSONFormatter &operator=(const JSONFormatter &other) = default;
+        JSONFormatter &operator=(JSONFormatter &&other) noexcept
+        {
+            if (this == &other) return *this;
+
+            o = other.o;
+            other.o = nullptr;
+            indention = other.indention;
+            current_indention = other.current_indention;
+            allman_style = other.allman_style;
+            p = other.p;
+            q = other.q;
+            line = other.line;
+            column = other.column;
+            std::swap(composite_context, other.composite_context);
+
+            return *this;
+        }
 
         std::string Print(const JSON &json);
         std::string Print(std::string_view content);

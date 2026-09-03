@@ -111,6 +111,12 @@ class JSONString
             JSONString(std::string_view(string))
         {
         }
+        JSONString(const JSONString &other) = default;
+        JSONString(JSONString &&other) noexcept = default;
+        ~JSONString() = default;
+
+        JSONString &operator=(const JSONString &other) = default;
+        JSONString &operator=(JSONString &&other) noexcept = default;
 
         JSONString &operator=(std::string_view string);
         JSONString &operator=(std::u8string_view string)
@@ -195,6 +201,14 @@ class JSONNumber
             value = static_cast<JSONFloat>(number);
         }
 
+        JSONNumber(const JSONNumber &other) = default;
+        JSONNumber(JSONNumber &&other) noexcept = default;
+
+        ~JSONNumber() = default;
+
+        JSONNumber &operator=(const JSONNumber &other) = default;
+        JSONNumber &operator=(JSONNumber &&other) noexcept = default;
+
         bool operator==(const JSONNumber &other) const;
         bool operator!=(const JSONNumber &other) const;
 
@@ -231,6 +245,13 @@ class JSONObject
             const std::initializer_list<std::pair<const std::u8string, JSON>> list);
         JSONObject(
             const std::initializer_list<std::pair<const std::string, JSON>> list);
+
+        JSONObject(const JSONObject &other) = default;
+        JSONObject(JSONObject &&other) = default;
+        ~JSONObject() = default;
+
+        JSONObject &operator=(const JSONObject &other) = default;
+        JSONObject &operator=(JSONObject &&other) noexcept = default;
 
         JSON &operator[](const std::u8string &key) { return value[key]; }
         const JSON &operator[](const std::u8string &key) const
@@ -295,6 +316,14 @@ class JSONArray
         JSONArray() = default;
         JSONArray(const std::initializer_list<JSON> list);
 
+        JSONArray(const JSONArray &other) = default;
+        JSONArray(JSONArray &&other) noexcept = default;
+
+        ~JSONArray() = default;
+
+        JSONArray &operator=(const JSONArray &other) = default;
+        JSONArray &operator=(JSONArray &&other) noexcept = default;
+
         JSON &operator[](const std::size_t index);
         const JSON &operator[](const std::size_t index) const;
 
@@ -351,6 +380,9 @@ class JSON
         JSON(T number) : value{JSONNumber(number)}
         {
         }
+        JSON(const JSON &other) = default;
+        JSON(JSON &&other) noexcept = default;
+        ~JSON() = default;
 
         // Return the type of the JSON value held by this object
         JSONValueType GetValueType() const;
@@ -361,6 +393,9 @@ class JSON
 
         // Note that all of the following assignment operators assign values
         // and do not parse JSON text
+
+        JSON &operator=(const JSON &other) = default;
+        JSON &operator=(JSON &&other) noexcept = default;
 
         JSON &operator=(const char8_t *string)
         {

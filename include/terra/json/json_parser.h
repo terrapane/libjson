@@ -40,6 +40,12 @@ class JSONParser
 {
     public:
         JSONParser() : p{}, q{}, line{}, column{} {}
+        JSONParser(const JSONParser &other) = default;
+        JSONParser(JSONParser &&other) noexcept = default;
+        ~JSONParser() = default;
+
+        JSONParser &operator=(const JSONParser &other) = default;
+        JSONParser &operator=(JSONParser &&other) noexcept = default;
 
         JSON Parse(std::string_view content);
         JSON Parse(std::u8string_view content);
